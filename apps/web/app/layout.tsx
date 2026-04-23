@@ -3,8 +3,8 @@ import { Providers } from '@/app/providers';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'DetailFlow',
-  description: 'Premium mobile detailing portfolio and booking experience.',
+  title: 'Cruzn Clean',
+  description: 'Black-and-white mobile detailing site for Yorba Linda bookings, quotes, and Cal.com scheduling.',
 };
 
 interface RootLayoutProps {
@@ -17,7 +17,7 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
   return (
     <html lang="en">
-      <body className="bg-neutralGray text-brandBlack font-body antialiased">
+      <body className="bg-canvas text-ink font-body antialiased">
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>

@@ -72,10 +72,10 @@ export function VehicleDock(): JSX.Element {
 
   return (
     <aside className="dock-shell rounded-2xl border border-black/10 bg-white shadow-xl">
-      <div className="border-b border-black/10 bg-gradient-to-r from-brandBlack to-[#1f1f1f] px-4 py-4 text-white sm:px-5">
+      <div className="border-b border-black/10 bg-gradient-to-r from-ink to-[#1f1f1f] px-4 py-4 text-white sm:px-5">
         <div className="flex items-center justify-between gap-3">
           <h2 className="flex items-center gap-2 font-heading text-lg font-semibold">
-            <Car className="h-5 w-5 text-waterBlue" />
+            <Car className="h-5 w-5 text-fog" />
             Vehicle Dock
           </h2>
           <button
@@ -94,7 +94,7 @@ export function VehicleDock(): JSX.Element {
 
       <div className={`space-y-4 p-4 sm:p-5 ${mobileExpanded ? 'block' : 'hidden lg:block'}`}>
         <section>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brandBlack/55">Select Vehicle</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink/55">Select Vehicle</p>
           <div className="mt-2 space-y-2">
             {vehicles.map((vehicle) => {
               const active = vehicle.id === activeVehicleId;
@@ -104,19 +104,19 @@ export function VehicleDock(): JSX.Element {
                 <article
                   key={vehicle.id}
                   className={`rounded-xl border p-3 transition duration-300 ${
-                    active ? 'border-deepRed bg-deepRed/5 shadow-sm' : 'border-black/10 bg-white hover:border-waterBlue'
+                    active ? 'border-charcoal bg-charcoal/5 shadow-sm' : 'border-black/10 bg-white hover:border-fog'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <button type="button" onClick={() => setActiveVehicleId(vehicle.id)} className="text-left">
-                      <p className="font-heading text-base font-bold text-brandBlack">{getVehicleDisplayName(vehicle)}</p>
-                      <p className="text-xs text-brandBlack/60">{selectedServices.length} items</p>
+                      <p className="font-heading text-base font-bold text-ink">{getVehicleDisplayName(vehicle)}</p>
+                      <p className="text-xs text-ink/60">{selectedServices.length} items</p>
                     </button>
                     {vehicles.length > 1 ? (
                       <button
                         type="button"
                         onClick={() => removeVehicle(vehicle.id)}
-                        className="rounded-md p-1 text-brandBlack/45 transition hover:bg-red-50 hover:text-red-700"
+                        className="rounded-md p-1 text-ink/45 transition hover:bg-canvas hover:text-charcoal"
                         aria-label="Remove vehicle"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -125,8 +125,8 @@ export function VehicleDock(): JSX.Element {
                   </div>
 
                   <div className="mt-2 border-t border-black/10 pt-2 text-right">
-                    <p className="text-xs text-brandBlack/60">Subtotal</p>
-                    <p className="font-heading text-lg font-bold text-deepRed">${getVehicleTotal(vehicle.id)}</p>
+                    <p className="text-xs text-ink/60">Subtotal</p>
+                    <p className="font-heading text-lg font-bold text-charcoal">${getVehicleTotal(vehicle.id)}</p>
                   </div>
                 </article>
               );
@@ -137,18 +137,18 @@ export function VehicleDock(): JSX.Element {
             type="button"
             onClick={addVehicle}
             disabled={!canAddVehicle}
-            className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-waterBlue px-3 py-2 text-sm font-semibold text-waterBlue transition ${
-              canAddVehicle ? 'hover:bg-waterBlue/10' : 'cursor-not-allowed opacity-60'
+            className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-fog px-3 py-2 text-sm font-semibold text-fog transition ${
+              canAddVehicle ? 'hover:bg-fog/10' : 'cursor-not-allowed opacity-60'
             }`}
           >
             <Plus className="h-4 w-4" /> Add Another Car
           </button>
-          <p className="mt-2 text-center text-xs font-medium text-brandBlack/60">{BOOKING_LIMIT_DISCLAIMER}</p>
+          <p className="mt-2 text-center text-xs font-medium text-ink/60">{BOOKING_LIMIT_DISCLAIMER}</p>
         </section>
 
         {activeVehicle ? (
-          <section className="rounded-xl border border-black/10 bg-neutralGray p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brandBlack/55">Active Vehicle Details</p>
+          <section className="rounded-xl border border-black/10 bg-canvas p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink/55">Active Vehicle Details</p>
             <VehicleSizeGuideLookup
               activeVehicle={activeVehicle}
               onApplyLookupMatch={applyLookupMatch}
@@ -156,7 +156,7 @@ export function VehicleDock(): JSX.Element {
               className="mt-3"
             />
             <div className="mt-3 grid grid-cols-2 gap-3">
-              <label className="text-xs font-semibold text-brandBlack/70">
+              <label className="text-xs font-semibold text-ink/70">
                 Make
                 <input
                   value={activeVehicle.make}
@@ -165,7 +165,7 @@ export function VehicleDock(): JSX.Element {
                   placeholder="Toyota"
                 />
               </label>
-              <label className="text-xs font-semibold text-brandBlack/70">
+              <label className="text-xs font-semibold text-ink/70">
                 Model
                 <input
                   value={activeVehicle.model}
@@ -174,7 +174,7 @@ export function VehicleDock(): JSX.Element {
                   placeholder="Camry"
                 />
               </label>
-              <label className="text-xs font-semibold text-brandBlack/70">
+              <label className="text-xs font-semibold text-ink/70">
                 Year
                 <input
                   value={activeVehicle.year}
@@ -183,7 +183,7 @@ export function VehicleDock(): JSX.Element {
                   placeholder="2021"
                 />
               </label>
-              <label className="text-xs font-semibold text-brandBlack/70">
+              <label className="text-xs font-semibold text-ink/70">
                 Color
                 <input
                   value={activeVehicle.color}
@@ -199,12 +199,12 @@ export function VehicleDock(): JSX.Element {
 
       <div className="space-y-3 border-t border-black/10 bg-white px-4 py-4 sm:px-5">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-semibold text-brandBlack">Total</p>
-          <p className="font-heading text-2xl font-extrabold text-deepRed">${getGrandTotal()}</p>
+          <p className="text-sm font-semibold text-ink">Total</p>
+          <p className="font-heading text-2xl font-extrabold text-charcoal">${getGrandTotal()}</p>
         </div>
         <Link
           href="/booking"
-          className="block rounded-full bg-deepRed px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-brandBlack"
+          className="block rounded-full bg-charcoal px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-ink"
         >
           Book All Vehicles
         </Link>

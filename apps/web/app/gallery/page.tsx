@@ -99,7 +99,7 @@ export default function GalleryPage(): JSX.Element {
 
   return (
     <SiteShell>
-      <section className="relative overflow-hidden bg-brandBlack px-4 py-16 text-white sm:px-6">
+      <section className="relative overflow-hidden bg-ink px-4 py-16 text-white sm:px-6">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#a3a3a322,transparent_58%)]" />
         <div className="relative mx-auto max-w-6xl text-center">
           <h1 className="font-heading text-4xl font-semibold sm:text-5xl">Our Work</h1>
@@ -110,7 +110,7 @@ export default function GalleryPage(): JSX.Element {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-        <p className="mb-4 text-xs text-brandBlack/60">
+        <p className="mb-4 text-xs text-ink/60">
           All gallery photos are open-source demo images with source links shown on each card.
         </p>
 
@@ -130,8 +130,8 @@ export default function GalleryPage(): JSX.Element {
                 onClick={() => setFilter(id as 'all' | GalleryItem['category'])}
                 className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
                   selected
-                    ? 'border-deepRed bg-deepRed text-white shadow-md'
-                    : 'border-black/15 bg-white text-brandBlack hover:border-waterBlue hover:bg-waterBlue/10'
+                    ? 'border-charcoal bg-charcoal text-white shadow-md'
+                    : 'border-black/15 bg-white text-ink hover:border-fog hover:bg-fog/10'
                 }`}
               >
                 {label}
@@ -144,19 +144,19 @@ export default function GalleryPage(): JSX.Element {
           {visibleItems.map((item, index) => (
             <article
               key={item.id}
-              className="fade-in-up group relative aspect-[4/5] overflow-hidden rounded-2xl border border-black/10 bg-brandBlack text-white transition duration-300 hover:-translate-y-1 hover:shadow-xl"
+              className="fade-in-up group relative aspect-[4/5] overflow-hidden rounded-2xl border border-black/10 bg-ink text-white transition duration-300 hover:-translate-y-1 hover:shadow-xl"
               style={{ animationDelay: `${index * 90}ms` }}
             >
               <img src={item.src} alt={item.label} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-waterBlue">{item.category}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-fog">{item.category}</p>
                 <p className="mt-1 text-sm font-semibold text-white">{item.label}</p>
                 <a
                   href={item.creditUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-1 inline-block text-xs text-waterBlue underline-offset-2 transition hover:text-white hover:underline"
+                  className="mt-1 inline-block text-xs text-fog underline-offset-2 transition hover:text-white hover:underline"
                 >
                   {item.creditLabel}
                 </a>

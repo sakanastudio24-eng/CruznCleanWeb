@@ -360,7 +360,7 @@ export function CarRunnerMiniGame(): JSX.Element {
           <button
             type="button"
             onClick={handleOpen}
-            className="rounded-full bg-deepRed px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#303030]"
+            className="rounded-full bg-charcoal px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#303030]"
           >
             Play Mini-Game
           </button>
@@ -377,7 +377,7 @@ export function CarRunnerMiniGame(): JSX.Element {
           <p className="mt-1 text-xs text-white/65">Jump over cones while your score climbs. Space/Up/W or tap Jump.</p>
         </div>
         <div className="flex items-center gap-2 text-xs">
-          <span className="rounded-full border border-waterBlue/40 bg-waterBlue/10 px-3 py-1 text-waterBlue">Score {score}</span>
+          <span className="rounded-full border border-fog/40 bg-fog/10 px-3 py-1 text-fog">Score {score}</span>
           <span className="rounded-full border border-white/20 px-3 py-1 text-white/80">Best {highScore}</span>
         </div>
       </div>
@@ -403,14 +403,14 @@ export function CarRunnerMiniGame(): JSX.Element {
         <button
           type="button"
           onClick={startGame}
-          className="rounded-full bg-deepRed px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#303030]"
+          className="rounded-full bg-charcoal px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#303030]"
         >
           {phase === 'running' ? 'Restart' : 'Start'}
         </button>
         <button
           type="button"
           onClick={jump}
-          className="rounded-full border border-waterBlue bg-waterBlue/15 px-4 py-2 text-xs font-semibold text-waterBlue transition hover:bg-waterBlue/25"
+          className="rounded-full border border-fog bg-fog/15 px-4 py-2 text-xs font-semibold text-fog transition hover:bg-fog/25"
         >
           Jump
         </button>

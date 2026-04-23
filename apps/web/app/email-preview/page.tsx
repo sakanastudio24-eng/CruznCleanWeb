@@ -20,7 +20,7 @@ function getPreviewConfigs(): Record<PreviewTab, EmailPreviewConfig> {
   return {
     customer: {
       title: 'Customer Confirmation Preview',
-      subject: 'DetailFlow order confirmation',
+      subject: 'Cruzn Clean order confirmation',
       description: 'Sent when customer email confirmation preference is enabled.',
       htmlPreview:
         "<div style='margin:0;padding:0;background:#f3f4f6;font-family:Arial,sans-serif;color:#111111;'>" +
@@ -28,11 +28,11 @@ function getPreviewConfigs(): Record<PreviewTab, EmailPreviewConfig> {
         "<div style='background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;'>" +
         "<div style='background:#111111;padding:16px 20px;'>" +
         "<table role='presentation' width='100%' cellspacing='0' cellpadding='0' style='border-collapse:collapse;'><tr>" +
-        "<td style='color:#ffffff;font-size:22px;font-weight:700;'>DetailFlow</td>" +
+        "<td style='color:#ffffff;font-size:22px;font-weight:700;'>Cruzn Clean</td>" +
         "<td style='text-align:right;font-size:12px;'>" +
-        "<a href='https://www.detailflow.com' style='color:#e5e7eb;text-decoration:none;margin-left:12px;'>Home</a>" +
-        "<a href='https://www.detailflow.com/services' style='color:#e5e7eb;text-decoration:none;margin-left:12px;'>Services</a>" +
-        "<a href='https://www.detailflow.com/booking' style='color:#e5e7eb;text-decoration:none;margin-left:12px;'>Book</a>" +
+        "<a href='https://www.cruznclean.com' style='color:#e5e7eb;text-decoration:none;margin-left:12px;'>Home</a>" +
+        "<a href='https://www.cruznclean.com/services' style='color:#e5e7eb;text-decoration:none;margin-left:12px;'>Services</a>" +
+        "<a href='https://www.cruznclean.com/booking' style='color:#e5e7eb;text-decoration:none;margin-left:12px;'>Book</a>" +
         '</td></tr></table></div>' +
         "<div style='padding:20px;'>" +
         "<p style='margin:0;font-size:12px;color:#6b7280;'>Order Number</p>" +
@@ -62,9 +62,9 @@ function getPreviewConfigs(): Record<PreviewTab, EmailPreviewConfig> {
         "<p style='margin:6px 0 0 0;font-size:13px;color:#2f2f2f;'>Payment will be concluded by a 50% deposit on-site ($344.5) and 50% deposit on completion ($344.5).</p>" +
         '</div>' +
         "<p style='margin:14px 0 0 0;font-size:13px;'>" +
-        "<a href='https://www.detailflow.com/terms' style='color:#2f2f2f;font-weight:700;text-decoration:none;'>Terms & Conditions</a> | " +
-        "<a href='https://www.detailflow.com/faq#service-readiness' style='color:#2f2f2f;font-weight:700;text-decoration:none;'>Service Readiness</a></p>" +
-        "<p style='margin:10px 0 0 0;font-size:13px;color:#374151;'>For any inquiries call/email: (555) 123-4567 | support@detailflow.com</p>" +
+        "<a href='https://www.cruznclean.com/terms' style='color:#2f2f2f;font-weight:700;text-decoration:none;'>Terms & Conditions</a> | " +
+        "<a href='https://www.cruznclean.com/faq#service-readiness' style='color:#2f2f2f;font-weight:700;text-decoration:none;'>Service Readiness</a></p>" +
+        "<p style='margin:10px 0 0 0;font-size:13px;color:#374151;'>For any inquiries call/email: (555) 123-4567 | hello@cruznclean.com</p>" +
         '</div></div></div></div>',
     },
     owner: {
@@ -77,7 +77,7 @@ function getPreviewConfigs(): Record<PreviewTab, EmailPreviewConfig> {
         "<div style='background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;'>" +
         "<div style='background:#111111;padding:16px 20px;'>" +
         "<table role='presentation' width='100%' cellspacing='0' cellpadding='0' style='border-collapse:collapse;'><tr>" +
-        "<td style='color:#ffffff;font-size:22px;font-weight:700;'>DetailFlow</td>" +
+        "<td style='color:#ffffff;font-size:22px;font-weight:700;'>Cruzn Clean</td>" +
         "<td style='text-align:right;font-size:12px;color:#e5e7eb;'>Owner Alert</td>" +
         '</tr></table></div>' +
         "<div style='padding:20px;'>" +
@@ -99,7 +99,7 @@ function getPreviewConfigs(): Record<PreviewTab, EmailPreviewConfig> {
         "<tr><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;'>Vehicle 1 - 2022 Tesla Model 3 (White) - Premium Detail</td><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;text-align:right;'>$349</td></tr>" +
         "<tr><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;'>Vehicle 1 - 2022 Tesla Model 3 (White) - Ceramic Coating</td><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;text-align:right;'>$500</td></tr>" +
         '</table></div>' +
-        "<p style='margin:12px 0 0 0;font-size:13px;'><a href='https://www.detailflow.com/admin/bookings/bk_ab12cd34ef56' style='color:#2f2f2f;font-weight:700;text-decoration:none;'>Manage Booking</a></p>" +
+        "<p style='margin:12px 0 0 0;font-size:13px;'><a href='https://www.cruznclean.com/admin/bookings/bk_ab12cd34ef56' style='color:#2f2f2f;font-weight:700;text-decoration:none;'>Manage Booking</a></p>" +
         '</div></div></div></div>',
     },
   };
@@ -123,9 +123,9 @@ export default function EmailPreviewPage(): JSX.Element {
 
   return (
     <SiteShell>
-      <section className="bg-brandBlack px-4 py-12 text-white sm:px-6 sm:py-16">
+      <section className="bg-ink px-4 py-12 text-white sm:px-6 sm:py-16">
         <div className="mx-auto max-w-4xl text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-waterBlue">Template Preview</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-fog">Template Preview</p>
           <h1 className="mt-3 font-heading text-3xl font-extrabold sm:text-4xl">Email Preview Center</h1>
           <p className="mt-4 text-sm text-white/80 sm:text-base">
             Public mock previews for template layout reviews. This page does not call private provider APIs.
@@ -140,8 +140,8 @@ export default function EmailPreviewPage(): JSX.Element {
             onClick={() => setActiveTab('customer')}
             className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
               activeTab === 'customer'
-                ? 'bg-deepRed text-white'
-                : 'border border-black/15 bg-white text-brandBlack hover:border-waterBlue hover:text-waterBlue'
+                ? 'bg-charcoal text-white'
+                : 'border border-black/15 bg-white text-ink hover:border-fog hover:text-fog'
             }`}
           >
             Customer Confirmation
@@ -151,8 +151,8 @@ export default function EmailPreviewPage(): JSX.Element {
             onClick={() => setActiveTab('owner')}
             className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
               activeTab === 'owner'
-                ? 'bg-deepRed text-white'
-                : 'border border-black/15 bg-white text-brandBlack hover:border-waterBlue hover:text-waterBlue'
+                ? 'bg-charcoal text-white'
+                : 'border border-black/15 bg-white text-ink hover:border-fog hover:text-fog'
             }`}
           >
             Owner Notification
@@ -161,38 +161,38 @@ export default function EmailPreviewPage(): JSX.Element {
 
         <div className="mt-5 grid items-stretch gap-6 lg:grid-cols-[1.15fr_0.85fr]">
           <article className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
-            <h2 className="font-heading text-2xl font-semibold text-brandBlack">{config.title}</h2>
-            <p className="mt-2 text-sm text-brandBlack/70">{config.description}</p>
-            <div className="mt-4 rounded-xl border border-black/10 bg-neutralGray/60 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brandBlack/55">Subject</p>
-              <p className="mt-1 text-sm font-semibold text-brandBlack">{config.subject}</p>
+            <h2 className="font-heading text-2xl font-semibold text-ink">{config.title}</h2>
+            <p className="mt-2 text-sm text-ink/70">{config.description}</p>
+            <div className="mt-4 rounded-xl border border-black/10 bg-canvas/60 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/55">Subject</p>
+              <p className="mt-1 text-sm font-semibold text-ink">{config.subject}</p>
             </div>
             <div className="mt-4 rounded-xl border border-black/10 bg-white p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brandBlack/55">HTML Preview</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/55">HTML Preview</p>
               <div
-                className="prose prose-sm mt-3 max-w-none text-brandBlack"
+                className="prose prose-sm mt-3 max-w-none text-ink"
                 dangerouslySetInnerHTML={{ __html: config.htmlPreview }}
               />
             </div>
           </article>
 
           <aside className="flex h-full flex-col rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
-            <h3 className="font-heading text-xl font-semibold text-brandBlack">Email Stack</h3>
-            <p className="mt-2 text-sm text-brandBlack/70">
+            <h3 className="font-heading text-xl font-semibold text-ink">Email Stack</h3>
+            <p className="mt-2 text-sm text-ink/70">
               Current implementation stack for booking confirmations and owner notifications.
             </p>
             <ul className="mt-4 grid flex-1 auto-rows-fr gap-2">
               {emailStack.map((item) => (
                 <li key={item.label} className="flex h-full flex-col rounded-xl border border-black/10 p-3">
-                  <p className="text-sm font-semibold text-brandBlack">{item.label}</p>
-                  <p className="mt-1 text-xs text-brandBlack/70">{item.value}</p>
+                  <p className="text-sm font-semibold text-ink">{item.label}</p>
+                  <p className="mt-1 text-xs text-ink/70">{item.value}</p>
                 </li>
               ))}
             </ul>
-            <div className="mt-4 rounded-xl border border-waterBlue/35 bg-waterBlue/10 p-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brandBlack/60">Current Mode</p>
-              <p className="mt-1 text-sm font-semibold text-brandBlack">Inline Styled Fallback Emails</p>
-              <p className="mt-1 text-xs text-brandBlack/70">Provider template IDs are optional and currently not required.</p>
+            <div className="mt-4 rounded-xl border border-fog/35 bg-fog/10 p-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/60">Current Mode</p>
+              <p className="mt-1 text-sm font-semibold text-ink">Inline Styled Fallback Emails</p>
+              <p className="mt-1 text-xs text-ink/70">Provider template IDs are optional and currently not required.</p>
             </div>
           </aside>
         </div>

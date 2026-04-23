@@ -100,7 +100,7 @@ export function QuickHelpModal(): JSX.Element {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="relative rounded-full p-2 text-brandBlack transition duration-300 hover:bg-neutralGray hover:text-deepRed"
+        className="relative rounded-full p-2 text-ink transition duration-300 hover:bg-canvas hover:text-charcoal"
         aria-label="Open quick help"
         aria-haspopup="dialog"
         aria-expanded={open}
@@ -129,14 +129,14 @@ export function QuickHelpModal(): JSX.Element {
               >
                 <div className="flex items-center justify-between border-b border-black/10 px-5 py-4">
                   <div className="flex items-center gap-2">
-                    <div className="rounded-full bg-waterBlue/20 p-2 text-waterBlue">
+                    <div className="rounded-full bg-fog/20 p-2 text-fog">
                       <CircleHelp className="h-5 w-5" />
                     </div>
                     <div>
-                      <h2 id="quick-help-title" className="font-heading text-xl font-semibold text-brandBlack sm:text-2xl">
+                      <h2 id="quick-help-title" className="font-heading text-xl font-semibold text-ink sm:text-2xl">
                         Quick Help
                       </h2>
-                      <p id={descriptionId} className="text-sm text-brandBlack/60">
+                      <p id={descriptionId} className="text-sm text-ink/60">
                         Top questions from customers
                       </p>
                     </div>
@@ -144,7 +144,7 @@ export function QuickHelpModal(): JSX.Element {
                   <button
                     type="button"
                     onClick={() => setOpen(false)}
-                    className="rounded-full p-2 text-brandBlack/55 transition hover:bg-neutralGray hover:text-brandBlack"
+                    className="rounded-full p-2 text-ink/55 transition hover:bg-canvas hover:text-ink"
                     aria-label="Close quick help"
                   >
                     ✕
@@ -163,16 +163,16 @@ export function QuickHelpModal(): JSX.Element {
                           onClick={() => toggleFaq(index)}
                           aria-expanded={expanded}
                           aria-controls={`quick-help-faq-answer-${index}`}
-                          className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-neutralGray/60"
+                          className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-canvas/60"
                         >
-                          <span className="rounded-full bg-waterBlue/20 p-2 text-waterBlue">
+                          <span className="rounded-full bg-fog/20 p-2 text-fog">
                             <Icon className="h-4 w-4" />
                           </span>
-                          <span className="flex-1 text-sm font-semibold text-brandBlack">{faq.question}</span>
-                          {expanded ? <ChevronUp className="h-4 w-4 text-brandBlack/55" /> : <ChevronDown className="h-4 w-4 text-brandBlack/55" />}
+                          <span className="flex-1 text-sm font-semibold text-ink">{faq.question}</span>
+                          {expanded ? <ChevronUp className="h-4 w-4 text-ink/55" /> : <ChevronDown className="h-4 w-4 text-ink/55" />}
                         </button>
                         {expanded ? (
-                          <p id={`quick-help-faq-answer-${index}`} className="px-4 pb-4 text-sm text-brandBlack/75">
+                          <p id={`quick-help-faq-answer-${index}`} className="px-4 pb-4 text-sm text-ink/75">
                             {faq.answer}
                           </p>
                         ) : null}
@@ -180,22 +180,22 @@ export function QuickHelpModal(): JSX.Element {
                     );
                   })}
 
-                  <div className="rounded-xl border border-waterBlue/40 bg-waterBlue/10 p-4">
-                    <p className="text-sm text-brandBlack/75">
+                  <div className="rounded-xl border border-fog/40 bg-fog/10 p-4">
+                    <p className="text-sm text-ink/75">
                       Need more details? View full FAQ or continue directly to booking.
                     </p>
                     <div className="mt-3 grid gap-2 sm:grid-cols-2">
                       <Link
                         href="/faq"
                         onClick={() => setOpen(false)}
-                        className="rounded-full bg-deepRed px-4 py-2 text-center text-sm font-semibold text-white transition hover:bg-brandBlack"
+                        className="rounded-full bg-charcoal px-4 py-2 text-center text-sm font-semibold text-white transition hover:bg-ink"
                       >
                         View Full FAQ
                       </Link>
                       <Link
                         href="/booking"
                         onClick={() => setOpen(false)}
-                        className="rounded-full border border-waterBlue px-4 py-2 text-center text-sm font-semibold text-waterBlue transition hover:bg-waterBlue/10"
+                        className="rounded-full border border-fog px-4 py-2 text-center text-sm font-semibold text-fog transition hover:bg-fog/10"
                       >
                         Book Now
                       </Link>

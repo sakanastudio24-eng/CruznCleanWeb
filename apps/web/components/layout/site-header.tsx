@@ -8,7 +8,6 @@ import {
   FileText,
   Home,
   Image,
-  Mail,
   Phone,
   ShoppingCart,
   Sparkles,
@@ -17,6 +16,7 @@ import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
 
 import { QuickHelpModal } from '@/components/help/quick-help-modal';
 import { useBooking } from '@/components/providers/booking-provider';
+import { SITE_PROFILE } from '@/lib/site-profile';
 import { getVehicleDisplayName } from '@/lib/vehicle-utils';
 
 interface NavLinkItem {
@@ -38,7 +38,6 @@ function getNavLinks(): NavLinkItem[] {
     { href: '/', label: 'Home' },
     { href: '/services', label: 'Services' },
     { href: '/gallery', label: 'Gallery' },
-    { href: '/email-preview', label: 'Email' },
     { href: '/quote', label: 'Quote' },
   ];
 }
@@ -51,7 +50,6 @@ function getMobileNavLinks(): MobileNavItem[] {
     { href: '/', label: 'Home', icon: Home },
     { href: '/services', label: 'Services', icon: Sparkles },
     { href: '/gallery', label: 'Gallery', icon: Image },
-    { href: '/email-preview', label: 'Email', icon: Mail },
     { href: '/quote', label: 'Quote', icon: FileText },
     { href: '/booking', label: 'Book', icon: CalendarDays },
   ];
@@ -133,8 +131,8 @@ export function SiteHeader(): JSX.Element {
     <>
       <header className="sticky top-0 z-40 border-b border-black/10 bg-white/95 backdrop-blur-md">
         <div className="site-frame grid grid-cols-[auto_1fr_auto] items-center gap-4 py-3">
-          <Link href="/" className="brand-mark shrink-0 whitespace-nowrap text-brandBlack">
-            <span>DetailFlow</span>
+          <Link href="/" className="brand-mark shrink-0 whitespace-nowrap text-ink">
+            <span>{SITE_PROFILE.businessName}</span>
           </Link>
 
           <nav className="hidden min-w-0 items-center justify-center gap-8 xl:flex" aria-label="Primary">
@@ -144,7 +142,7 @@ export function SiteHeader(): JSX.Element {
                   <a
                     key={link.href}
                     href={link.href}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-black/20 px-3 py-1.5 text-sm font-semibold text-brandBlack transition hover:border-deepRed hover:text-deepRed"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-black/20 px-3 py-1.5 text-sm font-semibold text-ink transition hover:border-charcoal hover:text-charcoal"
                   >
                     <ArrowLeft className="h-4 w-4" />
                     Back to {link.label}
@@ -158,10 +156,10 @@ export function SiteHeader(): JSX.Element {
                   key={link.href}
                   href={link.href}
                   aria-current={active ? 'page' : undefined}
-                  className={`relative py-1 text-sm font-medium transition duration-300 after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:bg-deepRed after:transition-all after:duration-300 ${
+                  className={`relative py-1 text-sm font-medium transition duration-300 after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:bg-charcoal after:transition-all after:duration-300 ${
                     active
-                      ? 'text-brandBlack after:w-full'
-                      : 'text-brandBlack/75 hover:text-brandBlack after:w-0 hover:after:w-full'
+                      ? 'text-ink after:w-full'
+                      : 'text-ink/75 hover:text-ink after:w-0 hover:after:w-full'
                   }`}
                 >
                   {link.label}
@@ -171,14 +169,14 @@ export function SiteHeader(): JSX.Element {
           </nav>
 
           <div className="hidden shrink-0 items-center justify-end gap-3 xl:flex" ref={cartRef}>
-            <a href="tel:+15551234567" className="inline-flex items-center gap-2 text-sm font-semibold text-brandBlack transition hover:text-deepRed">
+            <a href={SITE_PROFILE.phoneHref} className="inline-flex items-center gap-2 text-sm font-semibold text-ink transition hover:text-charcoal">
               <Phone className="h-4 w-4" />
-              (555) 123-4567
+              {SITE_PROFILE.phoneDisplay}
             </a>
 
             <Link
               href="/booking"
-              className="group relative overflow-hidden rounded-full bg-deepRed px-7 py-2.5 text-sm font-semibold text-white transition duration-300 hover:bg-[#3a3a3a]"
+              className="group relative overflow-hidden rounded-full bg-charcoal px-7 py-2.5 text-sm font-semibold text-white transition duration-300 hover:bg-[#3a3a3a]"
             >
               <span className="relative z-10">Book Now</span>
               <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
@@ -189,7 +187,7 @@ export function SiteHeader(): JSX.Element {
             <button
               type="button"
               onClick={() => setCartOpen((current) => !current)}
-              className="relative rounded-full p-2 text-brandBlack transition duration-300 hover:bg-neutralGray hover:text-deepRed"
+              className="relative rounded-full p-2 text-ink transition duration-300 hover:bg-canvas hover:text-charcoal"
               aria-label="Open cart summary"
               aria-haspopup="dialog"
               aria-expanded={cartOpen}
@@ -197,7 +195,7 @@ export function SiteHeader(): JSX.Element {
             >
               <ShoppingCart className="h-5 w-5" />
               {selectedServiceCount > 0 ? (
-                <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-deepRed px-1 text-[10px] font-bold text-white">
+                <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-charcoal px-1 text-[10px] font-bold text-white">
                   {selectedServiceCount}
                 </span>
               ) : null}
@@ -210,10 +208,10 @@ export function SiteHeader(): JSX.Element {
                 aria-label="Cart summary"
                 className="absolute right-6 top-[74px] z-50 w-[330px] rounded-2xl border border-black/10 bg-white p-4 shadow-2xl"
               >
-                <h3 className="font-heading text-lg font-semibold text-brandBlack">Cart Summary</h3>
+                <h3 className="font-heading text-lg font-semibold text-ink">Cart Summary</h3>
 
                 {vehiclesWithSelections.length === 0 ? (
-                  <p className="mt-2 rounded-xl bg-neutralGray p-3 text-sm text-brandBlack/70">
+                  <p className="mt-2 rounded-xl bg-canvas p-3 text-sm text-ink/70">
                     No services selected yet. Add services from the Services page.
                   </p>
                 ) : (
@@ -222,16 +220,16 @@ export function SiteHeader(): JSX.Element {
                       const items = getVehicleServices(vehicle.id);
                       return (
                         <article key={vehicle.id} className="rounded-xl border border-black/10 p-3">
-                          <p className="font-semibold text-brandBlack">{getVehicleDisplayName(vehicle)}</p>
+                          <p className="font-semibold text-ink">{getVehicleDisplayName(vehicle)}</p>
                           <ul className="mt-2 space-y-1">
                             {items.map((item) => (
                               <li key={item.id} className="flex items-center justify-between text-xs">
-                                <span className="text-brandBlack/70">{item.name}</span>
-                                <span className="font-semibold text-brandBlack">${item.price}</span>
+                                <span className="text-ink/70">{item.name}</span>
+                                <span className="font-semibold text-ink">${item.price}</span>
                               </li>
                             ))}
                           </ul>
-                          <p className="mt-2 text-right text-sm font-semibold text-deepRed">${getVehicleTotal(vehicle.id)}</p>
+                          <p className="mt-2 text-right text-sm font-semibold text-charcoal">${getVehicleTotal(vehicle.id)}</p>
                         </article>
                       );
                     })}
@@ -241,20 +239,20 @@ export function SiteHeader(): JSX.Element {
                 <div className="mt-3 border-t border-black/10 pt-3">
                   <div className="flex items-center justify-between text-sm font-semibold">
                     <span>Total</span>
-                    <span className="text-deepRed">${getGrandTotal()}</span>
+                    <span className="text-charcoal">${getGrandTotal()}</span>
                   </div>
                   <div className="mt-3 grid grid-cols-2 gap-2">
                     <Link
                       href="/services"
                       onClick={() => setCartOpen(false)}
-                      className="rounded-full border border-waterBlue px-3 py-2 text-center text-xs font-semibold text-waterBlue"
+                      className="rounded-full border border-fog px-3 py-2 text-center text-xs font-semibold text-fog"
                     >
                       Edit Services
                     </Link>
                     <Link
                       href="/booking"
                       onClick={() => setCartOpen(false)}
-                      className="rounded-full bg-deepRed px-3 py-2 text-center text-xs font-semibold text-white"
+                      className="rounded-full bg-charcoal px-3 py-2 text-center text-xs font-semibold text-white"
                     >
                       Book Now
                     </Link>
@@ -267,7 +265,7 @@ export function SiteHeader(): JSX.Element {
           <div className="flex items-center justify-end gap-1 xl:hidden" ref={cartRef}>
             <a
               href="tel:+15551234567"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-brandBlack transition duration-300 hover:bg-neutralGray"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-ink transition duration-300 hover:bg-canvas"
               aria-label="Call us"
             >
               <Phone className="h-5 w-5" />
@@ -276,7 +274,7 @@ export function SiteHeader(): JSX.Element {
             <button
               type="button"
               onClick={() => setCartOpen((current) => !current)}
-              className="relative rounded-full p-2 text-brandBlack transition duration-300 hover:bg-neutralGray"
+              className="relative rounded-full p-2 text-ink transition duration-300 hover:bg-canvas"
               aria-label="Open cart summary"
               aria-haspopup="dialog"
               aria-expanded={cartOpen}
@@ -284,7 +282,7 @@ export function SiteHeader(): JSX.Element {
             >
               <ShoppingCart className="h-5 w-5" />
               {selectedServiceCount > 0 ? (
-                <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-deepRed px-1 text-[10px] font-bold text-white">
+                <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-charcoal px-1 text-[10px] font-bold text-white">
                   {selectedServiceCount}
                 </span>
               ) : null}
@@ -297,14 +295,14 @@ export function SiteHeader(): JSX.Element {
                 aria-label="Cart summary"
                 className="fixed inset-x-3 bottom-[calc(5.75rem+env(safe-area-inset-bottom))] z-[95] rounded-2xl border border-black/10 bg-white p-4 shadow-2xl"
               >
-                <h3 className="font-heading text-lg font-semibold text-brandBlack">Cart Summary</h3>
-                <p className="mt-1 text-xs text-brandBlack/60">{vehiclesWithSelections.length} vehicles selected</p>
-                <div className="mt-2 border-t border-black/10 pt-2 text-right text-sm font-semibold text-deepRed">${getGrandTotal()}</div>
+                <h3 className="font-heading text-lg font-semibold text-ink">Cart Summary</h3>
+                <p className="mt-1 text-xs text-ink/60">{vehiclesWithSelections.length} vehicles selected</p>
+                <div className="mt-2 border-t border-black/10 pt-2 text-right text-sm font-semibold text-charcoal">${getGrandTotal()}</div>
                 <div className="mt-2 grid grid-cols-2 gap-2">
-                  <Link href="/services" onClick={() => setCartOpen(false)} className="rounded-full border border-waterBlue px-3 py-2 text-center text-xs font-semibold text-waterBlue">
+                  <Link href="/services" onClick={() => setCartOpen(false)} className="rounded-full border border-fog px-3 py-2 text-center text-xs font-semibold text-fog">
                     View
                   </Link>
-                  <Link href="/booking" onClick={() => setCartOpen(false)} className="rounded-full bg-deepRed px-3 py-2 text-center text-xs font-semibold text-white">
+                  <Link href="/booking" onClick={() => setCartOpen(false)} className="rounded-full bg-charcoal px-3 py-2 text-center text-xs font-semibold text-white">
                     Checkout
                   </Link>
                 </div>
@@ -332,11 +330,11 @@ export function SiteHeader(): JSX.Element {
                 className={`mobile-bottom-nav-item flex flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-[11px] font-semibold transition-all duration-300 ${
                   bookingLink
                     ? active
-                      ? 'bg-deepRed text-white shadow-md'
-                      : 'bg-deepRed/10 text-deepRed hover:bg-deepRed/20'
+                      ? 'bg-charcoal text-white shadow-md'
+                      : 'bg-charcoal/10 text-charcoal hover:bg-charcoal/20'
                     : active
-                      ? 'bg-brandBlack text-white'
-                      : 'text-brandBlack/70 hover:bg-neutralGray hover:text-brandBlack'
+                      ? 'bg-ink text-white'
+                      : 'text-ink/70 hover:bg-canvas hover:text-ink'
                 }`}
               >
                 <Icon className="h-4 w-4" />

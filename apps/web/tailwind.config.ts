@@ -9,10 +9,10 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        deepRed: '#262626',
-        brandBlack: '#111111',
-        waterBlue: '#a3a3a3',
-        neutralGray: '#f8f8f8',
+        charcoal: '#262626',
+        ink: '#111111',
+        fog: '#a3a3a3',
+        canvas: '#f8f8f8',
       },
       fontFamily: {
         heading: ['Manrope', 'system-ui', 'sans-serif'],

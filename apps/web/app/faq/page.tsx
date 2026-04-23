@@ -66,7 +66,7 @@ export default function FaqPage(): JSX.Element {
 
   return (
     <SiteShell>
-      <section className="relative overflow-hidden bg-brandBlack px-4 py-16 text-white sm:px-6">
+      <section className="relative overflow-hidden bg-ink px-4 py-16 text-white sm:px-6">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#a3a3a322,transparent_58%)]" />
         <div className="relative mx-auto max-w-6xl text-center">
           <h1 className="font-heading text-4xl font-semibold sm:text-5xl">Frequently Asked Questions</h1>
@@ -77,35 +77,35 @@ export default function FaqPage(): JSX.Element {
       </section>
 
       <section id="service-readiness" className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <div className="rounded-2xl border border-waterBlue/35 bg-waterBlue/10 p-5 sm:p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brandBlack/60">Service Readiness</p>
-          <h2 className="mt-2 font-heading text-2xl font-semibold text-brandBlack sm:text-3xl">Before We Arrive</h2>
-          <p className="mt-2 text-sm text-brandBlack/75">
+        <div className="rounded-2xl border border-fog/35 bg-fog/10 p-5 sm:p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink/60">Service Readiness</p>
+          <h2 className="mt-2 font-heading text-2xl font-semibold text-ink sm:text-3xl">Before We Arrive</h2>
+          <p className="mt-2 text-sm text-ink/75">
             Use this quick checklist so your appointment starts on time and your intake details match the service scope.
           </p>
 
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             <article className="rounded-xl border border-black/10 bg-white p-4">
-              <p className="text-sm font-semibold text-brandBlack">1. Access + Location</p>
-              <p className="mt-1 text-sm text-brandBlack/75">
+              <p className="text-sm font-semibold text-ink">1. Access + Location</p>
+              <p className="mt-1 text-sm text-ink/75">
                 Keep the vehicle in an accessible area and share gate/parking notes in booking details if needed.
               </p>
             </article>
             <article className="rounded-xl border border-black/10 bg-white p-4">
-              <p className="text-sm font-semibold text-brandBlack">2. Vehicle Prep</p>
-              <p className="mt-1 text-sm text-brandBlack/75">
+              <p className="text-sm font-semibold text-ink">2. Vehicle Prep</p>
+              <p className="mt-1 text-sm text-ink/75">
                 Remove valuables and personal items so interior areas are fully reachable for cleaning.
               </p>
             </article>
             <article className="rounded-xl border border-black/10 bg-white p-4">
-              <p className="text-sm font-semibold text-brandBlack">3. Handoff</p>
-              <p className="mt-1 text-sm text-brandBlack/75">
+              <p className="text-sm font-semibold text-ink">3. Handoff</p>
+              <p className="mt-1 text-sm text-ink/75">
                 Be available for start-time handoff and final walk-through so we can confirm results and payment.
               </p>
             </article>
             <article className="rounded-xl border border-black/10 bg-white p-4">
-              <p className="text-sm font-semibold text-brandBlack">4. Final Scope</p>
-              <p className="mt-1 text-sm text-brandBlack/75">
+              <p className="text-sm font-semibold text-ink">4. Final Scope</p>
+              <p className="mt-1 text-sm text-ink/75">
                 Final pricing is confirmed on-site from actual condition and selected package/add-ons.
               </p>
             </article>
@@ -114,13 +114,13 @@ export default function FaqPage(): JSX.Element {
           <div className="mt-4 flex flex-wrap gap-2">
             <Link
               href="/terms"
-              className="rounded-full border border-black/15 bg-white px-4 py-2 text-sm font-semibold text-brandBlack transition hover:border-waterBlue hover:text-waterBlue"
+              className="rounded-full border border-black/15 bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:border-fog hover:text-fog"
             >
               Terms & Conditions
             </Link>
             <Link
               href="/booking"
-              className="rounded-full bg-deepRed px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#3a3a3a]"
+              className="rounded-full bg-charcoal px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#3a3a3a]"
             >
               Continue to Booking
             </Link>
@@ -141,8 +141,8 @@ export default function FaqPage(): JSX.Element {
                 onClick={() => setCategory(chip.id)}
                 className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
                   selected
-                    ? 'border-deepRed bg-deepRed text-white shadow-md'
-                    : 'border-black/15 bg-white text-brandBlack hover:border-waterBlue hover:bg-waterBlue/10'
+                    ? 'border-charcoal bg-charcoal text-white shadow-md'
+                    : 'border-black/15 bg-white text-ink hover:border-fog hover:bg-fog/10'
                 }`}
               >
                 <ChipIcon className="h-4 w-4" />
@@ -163,10 +163,10 @@ export default function FaqPage(): JSX.Element {
                   onClick={() => setExpanded((current) => (current === record.q ? null : record.q))}
                   className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left"
                 >
-                  <span className="text-sm font-semibold text-brandBlack">{record.q}</span>
-                  <span className="text-brandBlack/55">{isOpen ? '−' : '+'}</span>
+                  <span className="text-sm font-semibold text-ink">{record.q}</span>
+                  <span className="text-ink/55">{isOpen ? '−' : '+'}</span>
                 </button>
-                {isOpen ? <p className="px-4 pb-4 text-sm text-brandBlack/75">{record.a}</p> : null}
+                {isOpen ? <p className="px-4 pb-4 text-sm text-ink/75">{record.a}</p> : null}
               </article>
             );
           })}

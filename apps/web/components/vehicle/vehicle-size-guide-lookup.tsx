@@ -99,10 +99,10 @@ export function VehicleSizeGuideLookup({
   }
 
   return (
-    <div className={`rounded-xl border border-black/10 bg-neutralGray/60 p-3 ${className}`}>
-      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brandBlack/55">Vehicle Size Guide</p>
+    <div className={`rounded-xl border border-black/10 bg-canvas/60 p-3 ${className}`}>
+      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/55">Vehicle Size Guide</p>
 
-      <label className="mt-2 block text-xs font-semibold text-brandBlack/70">
+      <label className="mt-2 block text-xs font-semibold text-ink/70">
         Quick Pick (Dropdown)
         <select
           value={matchedByVehicleFields && !ambiguousVehicleMatch ? getEntryValue(matchedByVehicleFields) : ''}
@@ -134,10 +134,10 @@ export function VehicleSizeGuideLookup({
         </select>
       </label>
 
-      <label className="mt-3 block text-xs font-semibold text-brandBlack/70">
+      <label className="mt-3 block text-xs font-semibold text-ink/70">
         Type Finder
         <div className="relative mt-1">
-          <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-brandBlack/45" />
+          <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-ink/45" />
           <input
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
@@ -156,21 +156,21 @@ export function VehicleSizeGuideLookup({
                   key={getEntryValue(entry)}
                   type="button"
                   onClick={() => applyLookupEntry(entry)}
-                  className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm transition hover:bg-waterBlue/10"
+                  className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm transition hover:bg-fog/10"
                 >
-                  <span className="text-brandBlack">{entry.make} {entry.model}</span>
-                  <span className="text-xs font-semibold text-brandBlack/60">{SIZE_LABELS[entry.size]}</span>
+                  <span className="text-ink">{entry.make} {entry.model}</span>
+                  <span className="text-xs font-semibold text-ink/60">{SIZE_LABELS[entry.size]}</span>
                 </button>
               ))}
             </div>
           ) : (
-            <p className="text-xs text-brandBlack/65">No catalog match yet. Choose a manual size below.</p>
+            <p className="text-xs text-ink/65">No catalog match yet. Choose a manual size below.</p>
           )}
         </div>
       ) : null}
 
       <div className="mt-3">
-        <p className="text-xs font-semibold text-brandBlack/70">Manual Size Override</p>
+        <p className="text-xs font-semibold text-ink/70">Manual Size Override</p>
         <div className="mt-2 grid grid-cols-3 gap-2">
           {(['small', 'medium', 'large'] as VehicleSize[]).map((size) => {
             const selected = activeVehicle.size === size;
@@ -181,8 +181,8 @@ export function VehicleSizeGuideLookup({
                 onClick={() => onManualSizeChange(size)}
                 className={`rounded-md border px-2 py-1.5 text-xs font-semibold transition ${
                   selected
-                    ? 'border-deepRed bg-deepRed/10 text-deepRed'
-                    : 'border-black/15 bg-white text-brandBlack hover:border-waterBlue hover:text-waterBlue'
+                    ? 'border-charcoal bg-charcoal/10 text-charcoal'
+                    : 'border-black/15 bg-white text-ink hover:border-fog hover:text-fog'
                 }`}
               >
                 {SIZE_LABELS[size]}
@@ -199,7 +199,7 @@ export function VehicleSizeGuideLookup({
           ? isManualOverride
             ? 'border-amber-300 bg-amber-50 text-amber-900'
             : 'border-green-300 bg-green-50 text-green-900'
-          : 'border-waterBlue/35 bg-waterBlue/10 text-brandBlack/75'
+          : 'border-fog/35 bg-fog/10 text-ink/75'
       }`}>
         {ambiguousVehicleMatch ? (
           <>
@@ -223,7 +223,7 @@ export function VehicleSizeGuideLookup({
         )}
       </div>
 
-      <p className="mt-2 text-[11px] text-brandBlack/55">
+      <p className="mt-2 text-[11px] text-ink/55">
         Model-level matching only in v1. You can still adjust size manually at any time.
       </p>
     </div>

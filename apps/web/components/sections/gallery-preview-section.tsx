@@ -43,10 +43,10 @@ export function GalleryPreviewSection(): JSX.Element {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="mb-8 flex items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-deepRed">Our Work</p>
-            <h2 className="mt-2 font-heading text-3xl font-semibold text-brandBlack sm:text-4xl">Recent transformations</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-charcoal">Our Work</p>
+            <h2 className="mt-2 font-heading text-3xl font-semibold text-ink sm:text-4xl">Recent transformations</h2>
           </div>
-          <Link href="/gallery" className="text-sm font-semibold text-deepRed transition duration-300 hover:text-brandBlack">
+          <Link href="/gallery" className="text-sm font-semibold text-charcoal transition duration-300 hover:text-ink">
             View full gallery
           </Link>
         </div>
@@ -55,7 +55,7 @@ export function GalleryPreviewSection(): JSX.Element {
           {PREVIEW_ITEMS.map((item, index) => (
             <article
               key={item.title}
-              className="fade-in-up group relative aspect-[4/5] overflow-hidden rounded-2xl border border-black/10 bg-brandBlack text-white transition duration-300 hover:-translate-y-1 hover:shadow-lg"
+              className="fade-in-up group relative aspect-[4/5] overflow-hidden rounded-2xl border border-black/10 bg-ink text-white transition duration-300 hover:-translate-y-1 hover:shadow-lg"
               style={{ animationDelay: `${index * 120}ms` }}
             >
               <img src={item.src} alt={item.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
@@ -66,7 +66,7 @@ export function GalleryPreviewSection(): JSX.Element {
                   href={item.creditUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-1 inline-block text-xs text-waterBlue underline-offset-2 transition hover:text-white hover:underline"
+                  className="mt-1 inline-block text-xs text-fog underline-offset-2 transition hover:text-white hover:underline"
                 >
                   {item.creditLabel}
                 </a>

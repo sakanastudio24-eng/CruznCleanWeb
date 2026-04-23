@@ -380,7 +380,7 @@ export default function BookingPage(): JSX.Element {
 
   return (
     <SiteShell>
-      <section className="relative overflow-hidden bg-brandBlack px-4 py-10 text-white sm:px-6 sm:py-12 md:py-14">
+      <section className="relative overflow-hidden bg-ink px-4 py-10 text-white sm:px-6 sm:py-12 md:py-14">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#a3a3a336,transparent_65%)]" />
         <div className="relative mx-auto max-w-6xl rounded-[28px] border border-white/15 bg-white/10 px-4 py-6 backdrop-blur-md sm:rounded-[30px] sm:px-8 sm:py-8 md:px-10 md:py-9">
           <h1 className="text-center font-heading text-2xl font-semibold sm:text-4xl md:text-5xl">Book Your Appointment</h1>
@@ -389,7 +389,7 @@ export default function BookingPage(): JSX.Element {
           <div className="mx-auto mt-6 max-w-4xl">
             <div className="h-2 rounded-full bg-black/30">
               <div
-                className="h-2 rounded-full bg-deepRed transition-all duration-500"
+                className="h-2 rounded-full bg-charcoal transition-all duration-500"
                 style={{ width: `${(step / steps.length) * 100}%` }}
               />
             </div>
@@ -406,7 +406,7 @@ export default function BookingPage(): JSX.Element {
                         complete
                           ? 'border-green-300 bg-green-500 text-white'
                           : active
-                            ? 'border-waterBlue bg-waterBlue text-brandBlack'
+                            ? 'border-fog bg-fog text-ink'
                             : 'border-white/30 bg-white/5 text-white/70'
                       }`}
                     >
@@ -423,21 +423,21 @@ export default function BookingPage(): JSX.Element {
 
       <section className="mx-auto grid max-w-6xl gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_380px]">
         <div className="space-y-5 rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
-          <div className="rounded-2xl border border-black/10 bg-neutralGray/60 p-4">
+          <div className="rounded-2xl border border-black/10 bg-canvas/60 p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-brandBlack/60">Vehicle Deck</p>
-                <p className="text-sm text-brandBlack/70">Manage multiple cars in one booking.</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/60">Vehicle Deck</p>
+                <p className="text-sm text-ink/70">Manage multiple cars in one booking.</p>
               </div>
               <button
                 type="button"
                 onClick={handleAddVehicle}
-                className="inline-flex items-center gap-2 rounded-full border border-waterBlue bg-white px-3 py-1.5 text-xs font-semibold text-waterBlue transition duration-300 hover:bg-waterBlue/10"
+                className="inline-flex items-center gap-2 rounded-full border border-fog bg-white px-3 py-1.5 text-xs font-semibold text-fog transition duration-300 hover:bg-fog/10"
               >
                 <Plus className="h-4 w-4" /> Add Vehicle
               </button>
             </div>
-            <p className="mt-2 text-xs font-medium text-brandBlack/60">{BOOKING_LIMIT_DISCLAIMER}</p>
+            <p className="mt-2 text-xs font-medium text-ink/60">{BOOKING_LIMIT_DISCLAIMER}</p>
 
             <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
               {vehicles.map((vehicle) => {
@@ -446,7 +446,7 @@ export default function BookingPage(): JSX.Element {
                   <article
                     key={vehicle.id}
                     className={`rounded-xl border bg-white p-3 transition-all duration-300 ${
-                      active ? 'border-deepRed shadow-sm' : 'border-black/10 hover:border-waterBlue'
+                      active ? 'border-charcoal shadow-sm' : 'border-black/10 hover:border-fog'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -455,14 +455,14 @@ export default function BookingPage(): JSX.Element {
                         onClick={() => setActiveVehicleId(vehicle.id)}
                         className="text-left"
                       >
-                        <p className="font-semibold text-brandBlack">{getVehicleDisplayName(vehicle)}</p>
-                        <p className="text-xs text-brandBlack/60">{getVehicleHint(vehicle)}</p>
+                        <p className="font-semibold text-ink">{getVehicleDisplayName(vehicle)}</p>
+                        <p className="text-xs text-ink/60">{getVehicleHint(vehicle)}</p>
                       </button>
                       {vehicles.length > 1 ? (
                         <button
                           type="button"
                           onClick={() => handleRemoveVehicle(vehicle.id)}
-                          className="rounded-full p-1 text-brandBlack/55 transition hover:bg-neutralGray hover:text-deepRed"
+                          className="rounded-full p-1 text-ink/55 transition hover:bg-canvas hover:text-charcoal"
                           aria-label={`Remove ${getVehicleDisplayName(vehicle)}`}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -470,8 +470,8 @@ export default function BookingPage(): JSX.Element {
                       ) : null}
                     </div>
                     <div className="mt-2 flex items-center justify-between border-t border-black/10 pt-2 text-xs">
-                      <span className="text-brandBlack/65">{vehicle.serviceIds.length} selections</span>
-                      <span className="font-semibold text-deepRed">{formatCurrency(getVehicleTotal(vehicle.id))}</span>
+                      <span className="text-ink/65">{vehicle.serviceIds.length} selections</span>
+                      <span className="font-semibold text-charcoal">{formatCurrency(getVehicleTotal(vehicle.id))}</span>
                     </div>
                   </article>
                 );
@@ -482,8 +482,8 @@ export default function BookingPage(): JSX.Element {
           {step === 1 ? (
             <section className="space-y-4 rounded-2xl border border-black/10 p-4 transition-all duration-300">
               <div>
-                <h2 className="font-heading text-2xl font-semibold text-brandBlack">Your Details</h2>
-                <p className="mt-1 text-sm text-brandBlack/65">Pick one package, set vehicle size, and complete contact info.</p>
+                <h2 className="font-heading text-2xl font-semibold text-ink">Your Details</h2>
+                <p className="mt-1 text-sm text-ink/65">Pick one package, set vehicle size, and complete contact info.</p>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -504,55 +504,55 @@ export default function BookingPage(): JSX.Element {
                       }}
                       className={`rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
                         selected
-                          ? 'border-deepRed bg-deepRed/10 shadow-md'
+                          ? 'border-charcoal bg-charcoal/10 shadow-md'
                           : isStandard
-                            ? 'border-deepRed/45 bg-[#f5f5f5] hover:border-deepRed hover:bg-deepRed/10'
-                            : 'border-black/10 bg-white hover:border-waterBlue hover:bg-waterBlue/10'
+                            ? 'border-charcoal/45 bg-[#f5f5f5] hover:border-charcoal hover:bg-charcoal/10'
+                            : 'border-black/10 bg-white hover:border-fog hover:bg-fog/10'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <p className="font-heading text-lg font-semibold text-brandBlack">{service.name}</p>
+                        <p className="font-heading text-lg font-semibold text-ink">{service.name}</p>
                         {isStandard ? (
-                          <span className="rounded-full bg-deepRed px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-white">
+                          <span className="rounded-full bg-charcoal px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-white">
                             Best Value
                           </span>
                         ) : null}
                       </div>
-                      <p className="mt-1 text-xs text-brandBlack/60">{service.description}</p>
+                      <p className="mt-1 text-xs text-ink/60">{service.description}</p>
                       {isStandard ? (
-                        <p className="mt-2 text-xs font-semibold text-deepRed">
+                        <p className="mt-2 text-xs font-semibold text-charcoal">
                           Only +{formatCurrency(standardVsBasic)} vs Basic at this size.
                         </p>
                       ) : null}
                       {service.id === 'pkg-premium' ? (
-                        <p className="mt-2 text-xs text-brandBlack/65">
+                        <p className="mt-2 text-xs text-ink/65">
                           {formatCurrency(premiumVsStandard)} above Standard at this size.
                         </p>
                       ) : null}
                       {service.id === 'pkg-basic' ? (
-                        <p className="mt-2 text-xs text-brandBlack/65">
+                        <p className="mt-2 text-xs text-ink/65">
                           Standard adds deeper coverage for +{formatCurrency(standardAdjusted - basicAdjusted)}.
                         </p>
                       ) : null}
-                      <p className="mt-3 font-heading text-2xl font-extrabold text-deepRed">{formatCurrency(adjustedPrice)}</p>
+                      <p className="mt-3 font-heading text-2xl font-extrabold text-charcoal">{formatCurrency(adjustedPrice)}</p>
                     </button>
                   );
                 })}
               </div>
-              <div className="rounded-xl border border-black/10 bg-neutralGray p-3 text-xs">
-                <p className="font-semibold text-brandBlack/75">
+              <div className="rounded-xl border border-black/10 bg-canvas p-3 text-xs">
+                <p className="font-semibold text-ink/75">
                   Size pricing active: {activeVehicleSize.toUpperCase()} ({formatSizeAdjustmentLabel(activeVehicleSize)})
                 </p>
                 <div className="mt-2 grid gap-1 sm:grid-cols-3">
-                  <p className="text-brandBlack/70">Basic: <span className="font-semibold text-brandBlack">{formatCurrency(basicAdjusted)}</span></p>
-                  <p className="text-brandBlack/70">Standard: <span className="font-semibold text-deepRed">{formatCurrency(standardAdjusted)}</span></p>
-                  <p className="text-brandBlack/70">Premium: <span className="font-semibold text-brandBlack">{formatCurrency(premiumAdjusted)}</span></p>
+                  <p className="text-ink/70">Basic: <span className="font-semibold text-ink">{formatCurrency(basicAdjusted)}</span></p>
+                  <p className="text-ink/70">Standard: <span className="font-semibold text-charcoal">{formatCurrency(standardAdjusted)}</span></p>
+                  <p className="text-ink/70">Premium: <span className="font-semibold text-ink">{formatCurrency(premiumAdjusted)}</span></p>
                 </div>
               </div>
-              {fieldErrors.package ? <p className="text-xs font-medium text-deepRed">{fieldErrors.package}</p> : null}
+              {fieldErrors.package ? <p className="text-xs font-medium text-charcoal">{fieldErrors.package}</p> : null}
 
               <div>
-                <h3 className="text-sm font-semibold text-brandBlack/80">Vehicle Size</h3>
+                <h3 className="text-sm font-semibold text-ink/80">Vehicle Size</h3>
                 {activeVehicle ? (
                   <VehicleSizeGuideLookup
                     activeVehicle={activeVehicle}
@@ -588,12 +588,12 @@ export default function BookingPage(): JSX.Element {
                         }}
                         className={`rounded-xl border px-4 py-3 text-left transition-all duration-300 ${
                           selected
-                            ? 'border-deepRed bg-deepRed/10'
-                            : 'border-black/10 bg-white hover:border-waterBlue hover:bg-waterBlue/10'
+                            ? 'border-charcoal bg-charcoal/10'
+                            : 'border-black/10 bg-white hover:border-fog hover:bg-fog/10'
                         }`}
                       >
-                        <p className="font-heading text-base font-semibold text-brandBlack">{size.label}</p>
-                        <p className="text-xs text-brandBlack/55">{size.hint}</p>
+                        <p className="font-heading text-base font-semibold text-ink">{size.label}</p>
+                        <p className="text-xs text-ink/55">{size.hint}</p>
                       </button>
                     );
                   })}
@@ -601,116 +601,116 @@ export default function BookingPage(): JSX.Element {
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
-                <label className="text-sm font-semibold text-brandBlack/75">
+                <label className="text-sm font-semibold text-ink/75">
                   Full Name *
                   <input
                     value={form.fullName}
                     onChange={(event) => updateCustomerField('fullName', event.target.value)}
                     className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
-                      fieldErrors.fullName ? 'border-deepRed focus:border-deepRed' : 'border-black/15 focus:border-waterBlue'
+                      fieldErrors.fullName ? 'border-charcoal focus:border-charcoal' : 'border-black/15 focus:border-fog'
                     }`}
                     placeholder="John Doe"
                   />
-                  {fieldErrors.fullName ? <span className="mt-1 block text-xs font-medium text-deepRed">{fieldErrors.fullName}</span> : null}
+                  {fieldErrors.fullName ? <span className="mt-1 block text-xs font-medium text-charcoal">{fieldErrors.fullName}</span> : null}
                 </label>
-                <label className="text-sm font-semibold text-brandBlack/75">
+                <label className="text-sm font-semibold text-ink/75">
                   Email *
                   <input
                     type="email"
                     value={form.email}
                     onChange={(event) => updateCustomerField('email', event.target.value)}
                     className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
-                      fieldErrors.email ? 'border-deepRed focus:border-deepRed' : 'border-black/15 focus:border-waterBlue'
+                      fieldErrors.email ? 'border-charcoal focus:border-charcoal' : 'border-black/15 focus:border-fog'
                     }`}
                     placeholder="john@example.com"
                   />
-                  {fieldErrors.email ? <span className="mt-1 block text-xs font-medium text-deepRed">{fieldErrors.email}</span> : null}
+                  {fieldErrors.email ? <span className="mt-1 block text-xs font-medium text-charcoal">{fieldErrors.email}</span> : null}
                 </label>
-                <label className="text-sm font-semibold text-brandBlack/75">
+                <label className="text-sm font-semibold text-ink/75">
                   Phone *
                   <input
                     value={form.phone}
                     onChange={(event) => updateCustomerField('phone', event.target.value)}
                     className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
-                      fieldErrors.phone ? 'border-deepRed focus:border-deepRed' : 'border-black/15 focus:border-waterBlue'
+                      fieldErrors.phone ? 'border-charcoal focus:border-charcoal' : 'border-black/15 focus:border-fog'
                     }`}
                     placeholder="(555) 123-4567"
                   />
-                  {fieldErrors.phone ? <span className="mt-1 block text-xs font-medium text-deepRed">{fieldErrors.phone}</span> : null}
+                  {fieldErrors.phone ? <span className="mt-1 block text-xs font-medium text-charcoal">{fieldErrors.phone}</span> : null}
                 </label>
-                <label className="text-sm font-semibold text-brandBlack/75">
+                <label className="text-sm font-semibold text-ink/75">
                   ZIP Code *
                   <input
                     value={form.zipCode}
                     onChange={(event) => updateCustomerField('zipCode', event.target.value)}
                     className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
-                      fieldErrors.zipCode ? 'border-deepRed focus:border-deepRed' : 'border-black/15 focus:border-waterBlue'
+                      fieldErrors.zipCode ? 'border-charcoal focus:border-charcoal' : 'border-black/15 focus:border-fog'
                     }`}
                     placeholder="90210"
                   />
-                  {fieldErrors.zipCode ? <span className="mt-1 block text-xs font-medium text-deepRed">{fieldErrors.zipCode}</span> : null}
+                  {fieldErrors.zipCode ? <span className="mt-1 block text-xs font-medium text-charcoal">{fieldErrors.zipCode}</span> : null}
                 </label>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <label className="text-sm font-semibold text-brandBlack/75">
+                <label className="text-sm font-semibold text-ink/75">
                   Year
                   <input
                     value={activeVehicle?.year ?? ''}
                     onChange={(event) => updateActiveVehicleField('year', event.target.value)}
                     className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
-                      fieldErrors.year ? 'border-deepRed focus:border-deepRed' : 'border-black/15 focus:border-waterBlue'
+                      fieldErrors.year ? 'border-charcoal focus:border-charcoal' : 'border-black/15 focus:border-fog'
                     }`}
                     placeholder="2020"
                   />
-                  {fieldErrors.year ? <span className="mt-1 block text-xs font-medium text-deepRed">{fieldErrors.year}</span> : null}
+                  {fieldErrors.year ? <span className="mt-1 block text-xs font-medium text-charcoal">{fieldErrors.year}</span> : null}
                 </label>
-                <label className="text-sm font-semibold text-brandBlack/75">
+                <label className="text-sm font-semibold text-ink/75">
                   Make
                   <input
                     value={activeVehicle?.make ?? ''}
                     onChange={(event) => updateActiveVehicleField('make', event.target.value)}
                     className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
-                      fieldErrors.make ? 'border-deepRed focus:border-deepRed' : 'border-black/15 focus:border-waterBlue'
+                      fieldErrors.make ? 'border-charcoal focus:border-charcoal' : 'border-black/15 focus:border-fog'
                     }`}
                     placeholder="Toyota"
                   />
-                  {fieldErrors.make ? <span className="mt-1 block text-xs font-medium text-deepRed">{fieldErrors.make}</span> : null}
+                  {fieldErrors.make ? <span className="mt-1 block text-xs font-medium text-charcoal">{fieldErrors.make}</span> : null}
                 </label>
-                <label className="text-sm font-semibold text-brandBlack/75">
+                <label className="text-sm font-semibold text-ink/75">
                   Model
                   <input
                     value={activeVehicle?.model ?? ''}
                     onChange={(event) => updateActiveVehicleField('model', event.target.value)}
                     className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
-                      fieldErrors.model ? 'border-deepRed focus:border-deepRed' : 'border-black/15 focus:border-waterBlue'
+                      fieldErrors.model ? 'border-charcoal focus:border-charcoal' : 'border-black/15 focus:border-fog'
                     }`}
                     placeholder="Camry"
                   />
-                  {fieldErrors.model ? <span className="mt-1 block text-xs font-medium text-deepRed">{fieldErrors.model}</span> : null}
+                  {fieldErrors.model ? <span className="mt-1 block text-xs font-medium text-charcoal">{fieldErrors.model}</span> : null}
                 </label>
-                <label className="text-sm font-semibold text-brandBlack/75">
+                <label className="text-sm font-semibold text-ink/75">
                   Color
                   <input
                     value={activeVehicle?.color ?? ''}
                     onChange={(event) => updateActiveVehicleField('color', event.target.value)}
                     className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
-                      fieldErrors.color ? 'border-deepRed focus:border-deepRed' : 'border-black/15 focus:border-waterBlue'
+                      fieldErrors.color ? 'border-charcoal focus:border-charcoal' : 'border-black/15 focus:border-fog'
                     }`}
                     placeholder="Silver"
                   />
-                  {fieldErrors.color ? <span className="mt-1 block text-xs font-medium text-deepRed">{fieldErrors.color}</span> : null}
+                  {fieldErrors.color ? <span className="mt-1 block text-xs font-medium text-charcoal">{fieldErrors.color}</span> : null}
                 </label>
               </div>
 
-              <section className="rounded-xl border border-black/10 bg-neutralGray/65 p-3 sm:p-4">
-                <h3 className="text-sm font-semibold text-brandBlack">Confirmation Preferences</h3>
-                <p className="mt-1 text-xs text-brandBlack/70">
+              <section className="rounded-xl border border-black/10 bg-canvas/65 p-3 sm:p-4">
+                <h3 className="text-sm font-semibold text-ink">Confirmation Preferences</h3>
+                <p className="mt-1 text-xs text-ink/70">
                   Choose how you want appointment confirmations and status updates.
                 </p>
 
                 <div className="mt-3 space-y-2">
-                  <label className="flex items-start gap-2 rounded-lg border border-waterBlue/30 bg-white px-3 py-2 text-sm text-brandBlack/80">
+                  <label className="flex items-start gap-2 rounded-lg border border-fog/30 bg-white px-3 py-2 text-sm text-ink/80">
                     <input
                       type="checkbox"
                       checked={form.sendEmailConfirmation}
@@ -720,7 +720,7 @@ export default function BookingPage(): JSX.Element {
                     <span>I agree to receive booking confirmations and service-related emails.</span>
                   </label>
 
-                  <label className="flex items-start gap-2 rounded-lg border border-waterBlue/30 bg-white px-3 py-2 text-sm text-brandBlack/80">
+                  <label className="flex items-start gap-2 rounded-lg border border-fog/30 bg-white px-3 py-2 text-sm text-ink/80">
                     <input
                       type="checkbox"
                       checked={form.sendSmsConfirmation}
@@ -734,14 +734,14 @@ export default function BookingPage(): JSX.Element {
                       className="mt-1"
                     />
                     <span>
-                      SMS confirmations to <span className="font-semibold text-brandBlack">your phone number</span>
+                      SMS confirmations to <span className="font-semibold text-ink">your phone number</span>
                     </span>
                   </label>
                 </div>
 
                 {form.sendSmsConfirmation ? (
-                  <label className={`mt-3 flex items-start gap-2 rounded-lg px-3 py-2 text-xs text-brandBlack/80 ${
-                    fieldErrors.smsConsent ? 'border border-deepRed bg-deepRed/10' : 'border border-deepRed/30 bg-deepRed/5'
+                  <label className={`mt-3 flex items-start gap-2 rounded-lg px-3 py-2 text-xs text-ink/80 ${
+                    fieldErrors.smsConsent ? 'border border-charcoal bg-charcoal/10' : 'border border-charcoal/30 bg-charcoal/5'
                   }`}>
                     <input
                       type="checkbox"
@@ -753,13 +753,13 @@ export default function BookingPage(): JSX.Element {
                   </label>
                 ) : null}
                 {fieldErrors.confirmationChannel ? (
-                  <p className="mt-2 text-xs font-medium text-deepRed">{fieldErrors.confirmationChannel}</p>
+                  <p className="mt-2 text-xs font-medium text-charcoal">{fieldErrors.confirmationChannel}</p>
                 ) : null}
-                {fieldErrors.smsConsent ? <p className="mt-2 text-xs font-medium text-deepRed">{fieldErrors.smsConsent}</p> : null}
+                {fieldErrors.smsConsent ? <p className="mt-2 text-xs font-medium text-charcoal">{fieldErrors.smsConsent}</p> : null}
               </section>
 
-              <label className={`flex items-start gap-2 rounded-xl border px-4 py-3 text-sm text-brandBlack/80 ${
-                fieldErrors.acceptedConsent ? 'border-deepRed bg-deepRed/10' : 'border-waterBlue/35 bg-waterBlue/10'
+              <label className={`flex items-start gap-2 rounded-xl border px-4 py-3 text-sm text-ink/80 ${
+                fieldErrors.acceptedConsent ? 'border-charcoal bg-charcoal/10' : 'border-fog/35 bg-fog/10'
               }`}>
                 <input
                   type="checkbox"
@@ -769,16 +769,16 @@ export default function BookingPage(): JSX.Element {
                 />
                 I agree to booking terms and consent to contact for scheduling updates.
               </label>
-              {fieldErrors.acceptedConsent ? <p className="text-xs font-medium text-deepRed">{fieldErrors.acceptedConsent}</p> : null}
+              {fieldErrors.acceptedConsent ? <p className="text-xs font-medium text-charcoal">{fieldErrors.acceptedConsent}</p> : null}
             </section>
           ) : null}
 
           {step === 2 ? (
             <section className="space-y-4 rounded-2xl border border-black/10 p-4 transition-all duration-300">
               <div>
-                <h2 className="font-heading text-2xl font-semibold text-brandBlack">Enhancements</h2>
-                <p className="mt-1 text-sm text-brandBlack/65">Select optional add-ons for {activeVehicle ? getVehicleDisplayName(activeVehicle) : 'this vehicle'}.</p>
-                <p className="mt-1 text-xs font-semibold text-brandBlack/55">
+                <h2 className="font-heading text-2xl font-semibold text-ink">Enhancements</h2>
+                <p className="mt-1 text-sm text-ink/65">Select optional add-ons for {activeVehicle ? getVehicleDisplayName(activeVehicle) : 'this vehicle'}.</p>
+                <p className="mt-1 text-xs font-semibold text-ink/55">
                   Current size pricing: {activeVehicleSize.toUpperCase()} ({formatSizeAdjustmentLabel(activeVehicleSize)})
                 </p>
               </div>
@@ -798,28 +798,28 @@ export default function BookingPage(): JSX.Element {
                       }}
                       className={`rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
                         selected
-                          ? 'border-deepRed bg-deepRed/10 shadow-md'
-                          : 'border-black/10 bg-white hover:border-waterBlue hover:bg-waterBlue/10'
+                          ? 'border-charcoal bg-charcoal/10 shadow-md'
+                          : 'border-black/10 bg-white hover:border-fog hover:bg-fog/10'
                       }`}
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <p className="font-heading text-lg font-semibold text-brandBlack">{service.name}</p>
-                        {selected ? <CheckCircle2 className="h-5 w-5 text-deepRed" /> : null}
+                        <p className="font-heading text-lg font-semibold text-ink">{service.name}</p>
+                        {selected ? <CheckCircle2 className="h-5 w-5 text-charcoal" /> : null}
                       </div>
-                      <p className="mt-1 text-xs text-brandBlack/60">{service.description}</p>
-                      <p className="mt-3 text-sm text-brandBlack/70">{service.duration}</p>
-                      <p className="mt-1 font-heading text-2xl font-extrabold text-deepRed">{formatCurrency(adjustedPrice)}</p>
+                      <p className="mt-1 text-xs text-ink/60">{service.description}</p>
+                      <p className="mt-3 text-sm text-ink/70">{service.duration}</p>
+                      <p className="mt-1 font-heading text-2xl font-extrabold text-charcoal">{formatCurrency(adjustedPrice)}</p>
                     </button>
                   );
                 })}
               </div>
 
-              <label className="block text-sm font-semibold text-brandBlack/75">
+              <label className="block text-sm font-semibold text-ink/75">
                 Special Notes
                 <textarea
                   value={form.notes}
                   onChange={(event) => updateCustomerField('notes', event.target.value)}
-                  className="mt-1 min-h-24 w-full rounded-lg border border-black/15 px-3 py-2 transition duration-300 focus:border-waterBlue focus:outline-none"
+                  className="mt-1 min-h-24 w-full rounded-lg border border-black/15 px-3 py-2 transition duration-300 focus:border-fog focus:outline-none"
                   placeholder="Gate code, preferred access, or condition notes..."
                 />
               </label>
@@ -829,19 +829,19 @@ export default function BookingPage(): JSX.Element {
           {step === 3 ? (
             <section className="space-y-4 rounded-2xl border border-black/10 p-4 transition-all duration-300">
               <div>
-                <h2 className="font-heading text-2xl font-semibold text-brandBlack">Schedule</h2>
-                <p className="mt-1 text-sm text-brandBlack/65">Submit your details, then choose your appointment on Cal.com.</p>
+                <h2 className="font-heading text-2xl font-semibold text-ink">Schedule</h2>
+                <p className="mt-1 text-sm text-ink/65">Submit your details, then choose your appointment on Cal.com.</p>
               </div>
 
-              <div className="rounded-xl border border-black/10 bg-neutralGray p-4">
-                <p className="text-sm text-brandBlack/75">
+              <div className="rounded-xl border border-black/10 bg-canvas p-4">
+                <p className="text-sm text-ink/75">
                   We pre-save your intake first so your booking request stays attached to your service selections before calendar scheduling.
                 </p>
                 <a
                   href={getCalendarBookingUrl()}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-3 inline-flex items-center gap-2 rounded-full bg-deepRed px-4 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-brandBlack"
+                  className="mt-3 inline-flex items-center gap-2 rounded-full bg-charcoal px-4 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-ink"
                 >
                   Open Cal.com <ArrowRight className="h-4 w-4" />
                 </a>
@@ -853,9 +853,9 @@ export default function BookingPage(): JSX.Element {
                 </div>
               ) : null}
 
-              <ul className="space-y-2 text-sm text-brandBlack/75">
-                <li className="inline-flex items-center gap-2"><Clock3 className="h-4 w-4 text-waterBlue" /> Instant confirmation after slot selection.</li>
-                <li className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-waterBlue" /> Intake details are saved before redirect.</li>
+              <ul className="space-y-2 text-sm text-ink/75">
+                <li className="inline-flex items-center gap-2"><Clock3 className="h-4 w-4 text-fog" /> Instant confirmation after slot selection.</li>
+                <li className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-fog" /> Intake details are saved before redirect.</li>
               </ul>
             </section>
           ) : null}
@@ -865,7 +865,7 @@ export default function BookingPage(): JSX.Element {
               <button
                 type="button"
                 onClick={goBack}
-                className="inline-flex items-center gap-2 rounded-full border border-waterBlue px-4 py-2 text-sm font-semibold text-waterBlue transition duration-300 hover:bg-waterBlue/10"
+                className="inline-flex items-center gap-2 rounded-full border border-fog px-4 py-2 text-sm font-semibold text-fog transition duration-300 hover:bg-fog/10"
               >
                 <ArrowLeft className="h-4 w-4" /> Back
               </button>
@@ -875,7 +875,7 @@ export default function BookingPage(): JSX.Element {
               <button
                 type="button"
                 onClick={goNext}
-                className="inline-flex items-center gap-2 rounded-full bg-deepRed px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-brandBlack"
+                className="inline-flex items-center gap-2 rounded-full bg-charcoal px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-ink"
               >
                 Continue <ArrowRight className="h-4 w-4" />
               </button>
@@ -884,7 +884,7 @@ export default function BookingPage(): JSX.Element {
                 type="button"
                 onClick={() => void handleSubmitBooking()}
                 disabled={submitting || bookingConfirmed}
-                className="inline-flex items-center gap-2 rounded-full bg-deepRed px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-brandBlack disabled:opacity-65"
+                className="inline-flex items-center gap-2 rounded-full bg-charcoal px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-ink disabled:opacity-65"
               >
                 {bookingConfirmed ? 'Booking Confirmed' : submitting ? 'Submitting...' : 'Submit and Confirm'}
               </button>
@@ -905,18 +905,18 @@ export default function BookingPage(): JSX.Element {
             </label>
           </div>
 
-          {fieldErrors.serviceSelection ? <p className="text-xs font-medium text-deepRed">{fieldErrors.serviceSelection}</p> : null}
-          {fieldErrors.selectedVehicleDetails ? <p className="text-xs font-medium text-deepRed">{fieldErrors.selectedVehicleDetails}</p> : null}
-          {fieldErrors.selectedVehicleLimit ? <p className="text-xs font-medium text-deepRed">{fieldErrors.selectedVehicleLimit}</p> : null}
-          <p className="text-xs font-medium text-brandBlack/60">{BOOKING_LIMIT_DISCLAIMER}</p>
+          {fieldErrors.serviceSelection ? <p className="text-xs font-medium text-charcoal">{fieldErrors.serviceSelection}</p> : null}
+          {fieldErrors.selectedVehicleDetails ? <p className="text-xs font-medium text-charcoal">{fieldErrors.selectedVehicleDetails}</p> : null}
+          {fieldErrors.selectedVehicleLimit ? <p className="text-xs font-medium text-charcoal">{fieldErrors.selectedVehicleLimit}</p> : null}
+          <p className="text-xs font-medium text-ink/60">{BOOKING_LIMIT_DISCLAIMER}</p>
 
           {statusMessage ? (
             <p className={`text-sm ${
               statusMessage.toLowerCase().includes('failed')
               || statusMessage.toLowerCase().includes('required')
               || statusMessage.toLowerCase().includes('limit')
-                ? 'text-deepRed'
-                : 'text-brandBlack/70'
+                ? 'text-charcoal'
+                : 'text-ink/70'
             }`}>
               {statusMessage}
             </p>
@@ -924,29 +924,29 @@ export default function BookingPage(): JSX.Element {
         </div>
 
         <aside className="h-fit rounded-2xl border border-black/10 bg-white shadow-sm lg:sticky lg:top-28">
-          <div className="rounded-t-2xl bg-gradient-to-r from-brandBlack to-[#1f1f1f] px-4 py-3 text-white">
+          <div className="rounded-t-2xl bg-gradient-to-r from-ink to-[#1f1f1f] px-4 py-3 text-white">
             <h2 className="inline-flex items-center gap-2 font-heading text-xl font-semibold">
-              <ShieldCheck className="h-5 w-5 text-waterBlue" /> Your Selection
+              <ShieldCheck className="h-5 w-5 text-fog" /> Your Selection
             </h2>
           </div>
           <div className="space-y-3 p-4">
             <article className="rounded-xl border border-black/10 p-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-brandBlack/55">Active Vehicle</p>
-              <p className="mt-1 inline-flex items-center gap-2 font-semibold text-brandBlack">
-                <CarFront className="h-4 w-4 text-waterBlue" />
+              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/55">Active Vehicle</p>
+              <p className="mt-1 inline-flex items-center gap-2 font-semibold text-ink">
+                <CarFront className="h-4 w-4 text-fog" />
                 {activeVehicle ? getVehicleDisplayName(activeVehicle) : 'Vehicle'}
               </p>
-              <p className="mt-1 text-xs text-brandBlack/60">{activeVehicle ? getVehicleHint(activeVehicle) : ''}</p>
+              <p className="mt-1 text-xs text-ink/60">{activeVehicle ? getVehicleHint(activeVehicle) : ''}</p>
             </article>
 
             {selectedVehicles.length > 0 ? (
               <article className="rounded-xl border border-black/10 p-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-brandBlack/55">Booked Vehicles</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/55">Booked Vehicles</p>
                 <ul className="mt-2 space-y-2">
                   {selectedVehicles.map((vehicle) => (
                     <li key={vehicle.id} className="flex items-center justify-between text-xs">
-                      <span className="text-brandBlack/75">{getVehicleDisplayName(vehicle)}</span>
-                      <span className="font-semibold text-brandBlack">{formatCurrency(getVehicleTotal(vehicle.id))}</span>
+                      <span className="text-ink/75">{getVehicleDisplayName(vehicle)}</span>
+                      <span className="font-semibold text-ink">{formatCurrency(getVehicleTotal(vehicle.id))}</span>
                     </li>
                   ))}
                 </ul>
@@ -955,53 +955,53 @@ export default function BookingPage(): JSX.Element {
 
             {selectedPackage ? (
               <article className="rounded-xl border border-black/10 p-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-brandBlack/55">Package</p>
-                <p className="mt-1 font-heading text-lg font-semibold text-brandBlack">{selectedPackage.name}</p>
-                <p className="mt-1 text-sm font-semibold text-deepRed">{formatCurrency(selectedPackage.price)}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/55">Package</p>
+                <p className="mt-1 font-heading text-lg font-semibold text-ink">{selectedPackage.name}</p>
+                <p className="mt-1 text-sm font-semibold text-charcoal">{formatCurrency(selectedPackage.price)}</p>
               </article>
             ) : (
-              <p className="rounded-xl bg-neutralGray p-3 text-sm text-brandBlack/70">Select a package to continue.</p>
+              <p className="rounded-xl bg-canvas p-3 text-sm text-ink/70">Select a package to continue.</p>
             )}
 
             <article className="rounded-xl border border-black/10 p-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-brandBlack/55">Add-Ons</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/55">Add-Ons</p>
               {selectedAddons.length > 0 ? (
                 <ul className="mt-2 space-y-1">
                   {selectedAddons.map((service) => (
                     <li key={service.id} className="flex items-center justify-between text-xs">
-                      <span className="text-brandBlack/75">{service.name}</span>
-                      <span className="font-semibold text-brandBlack">{formatCurrency(service.price)}</span>
+                      <span className="text-ink/75">{service.name}</span>
+                      <span className="font-semibold text-ink">{formatCurrency(service.price)}</span>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="mt-2 text-xs text-brandBlack/60">No add-ons selected.</p>
+                <p className="mt-2 text-xs text-ink/60">No add-ons selected.</p>
               )}
             </article>
 
-            <div className="rounded-xl bg-neutralGray p-3">
+            <div className="rounded-xl bg-canvas p-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-brandBlack">Vehicle Subtotal</span>
-                <span className="font-heading text-2xl font-extrabold text-deepRed">
+                <span className="text-sm font-semibold text-ink">Vehicle Subtotal</span>
+                <span className="font-heading text-2xl font-extrabold text-charcoal">
                   {formatCurrency(activeVehicle ? getVehicleTotal(activeVehicle.id) : 0)}
                 </span>
               </div>
-              <p className="mt-1 text-xs text-brandBlack/60">Final price confirmed on-site</p>
+              <p className="mt-1 text-xs text-ink/60">Final price confirmed on-site</p>
             </div>
 
             <div className="rounded-xl border border-black/10 p-3">
-              <div className="mb-2 flex items-center justify-between text-xs text-brandBlack/60">
+              <div className="mb-2 flex items-center justify-between text-xs text-ink/60">
                 <span>Booking Progress</span>
                 <span>Step {step} of {steps.length}</span>
               </div>
               <div className="h-2 rounded-full bg-black/10">
-                <div className="h-2 rounded-full bg-brandBlack transition-all duration-500" style={{ width: `${(step / steps.length) * 100}%` }} />
+                <div className="h-2 rounded-full bg-ink transition-all duration-500" style={{ width: `${(step / steps.length) * 100}%` }} />
               </div>
             </div>
 
             <div className="border-t border-black/10 pt-3 text-right">
-              <p className="text-xs text-brandBlack/60">All vehicles total</p>
-              <p className="font-heading text-2xl font-extrabold text-deepRed">{formatCurrency(getGrandTotal())}</p>
+              <p className="text-xs text-ink/60">All vehicles total</p>
+              <p className="font-heading text-2xl font-extrabold text-charcoal">{formatCurrency(getGrandTotal())}</p>
             </div>
           </div>
         </aside>

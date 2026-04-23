@@ -242,7 +242,7 @@ def _build_owner_fallback_content(template_variables: dict[str, Any]) -> dict[st
         "<div style='background:#111111;padding:16px 20px;'>"
         "<table role='presentation' width='100%' cellspacing='0' cellpadding='0' style='border-collapse:collapse;'>"
         "<tr>"
-        "<td style='color:#ffffff;font-size:22px;font-weight:700;'>DetailFlow</td>"
+        "<td style='color:#ffffff;font-size:22px;font-weight:700;'>Cruzn Clean</td>"
         "<td style='text-align:right;font-size:12px;'>"
         "<span style='color:#e5e7eb;text-decoration:none;margin-left:12px;'>Owner Alert</span>"
         "</td>"
@@ -300,10 +300,10 @@ def _build_customer_fallback_content(template_variables: dict[str, Any]) -> dict
     customer = template_variables["customer"]
     vehicles = template_variables["vehicles"]
     estimate = template_variables["estimate"]
-    site_url = os.getenv("PUBLIC_SITE_URL", "https://www.detailflow.com").rstrip("/")
+    site_url = os.getenv("PUBLIC_SITE_URL", "https://www.cruznclean.com").rstrip("/")
     terms_link = f"{site_url}/terms"
     readiness_link = f"{site_url}/faq#service-readiness"
-    support_email = os.getenv("EMAIL_REPLY_TO", os.getenv("EMAIL_FROM", "support@detailflow.com")).strip()
+    support_email = os.getenv("EMAIL_REPLY_TO", os.getenv("EMAIL_FROM", "hello@cruznclean.com")).strip()
     support_phone = "(555) 123-4567"
     address_value = customer.get("address") or customer.get("zipCode") or "Address to be confirmed"
     booking_id = str(booking["bookingId"])
@@ -341,7 +341,7 @@ def _build_customer_fallback_content(template_variables: dict[str, Any]) -> dict
     deposit_due = round(total_amount * 0.5, 2)
 
     lines = [
-        "DetailFlow order confirmation",
+        "Cruzn Clean order confirmation",
         "",
         f"Order number: {booking_id}",
         f"Order name: {customer_name}",
@@ -366,7 +366,7 @@ def _build_customer_fallback_content(template_variables: dict[str, Any]) -> dict
         "<div style='background:#111111;padding:16px 20px;'>"
         "<table role='presentation' width='100%' cellspacing='0' cellpadding='0' style='border-collapse:collapse;'>"
         "<tr>"
-        "<td style='color:#ffffff;font-size:22px;font-weight:700;'>DetailFlow</td>"
+        "<td style='color:#ffffff;font-size:22px;font-weight:700;'>Cruzn Clean</td>"
         "<td style='text-align:right;font-size:12px;'>"
         f"<a href='{site_url}' style='color:#e5e7eb;text-decoration:none;margin-left:12px;'>Home</a>"
         f"<a href='{site_url}/services' style='color:#e5e7eb;text-decoration:none;margin-left:12px;'>Services</a>"
@@ -421,7 +421,7 @@ def _build_customer_fallback_content(template_variables: dict[str, Any]) -> dict
     )
 
     return {
-        "subject": "DetailFlow order confirmation",
+        "subject": "Cruzn Clean order confirmation",
         "text": "\n".join(lines),
         "html": html,
     }

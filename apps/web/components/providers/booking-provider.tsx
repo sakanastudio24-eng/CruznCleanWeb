@@ -27,7 +27,7 @@ interface BookingProviderProps {
   children: React.ReactNode;
 }
 
-const STORAGE_KEY = 'detailflow-booking-v1';
+const STORAGE_KEY = 'cruzn-clean-booking-v1';
 
 const BookingContext = createContext<BookingContextValue | undefined>(undefined);
 

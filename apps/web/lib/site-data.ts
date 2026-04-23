@@ -27,9 +27,9 @@ export interface TestimonialItem {
  */
 export function getHomeServices(): ServiceItem[] {
   const descriptionById: Record<string, string> = {
-    'pkg-basic': 'Exterior wash, vacuum, windows, and tire shine for weekly upkeep.',
-    'pkg-standard': 'Inside-out refresh with deep interior clean, clay bar, and wax protection.',
-    'pkg-premium': 'Showroom-level correction and long-lasting surface protection package.',
+    'pkg-basic': 'Exterior wash, vacuum, windows, and tire finish for consistent weekly upkeep.',
+    'pkg-standard': 'Inside-out reset with deeper interior cleaning, clay treatment, and lasting protection.',
+    'pkg-premium': 'Correction-focused detail for gloss recovery, finish refinement, and longer-lasting protection.',
   };
 
   return getPackageServices().map((service) => ({
@@ -46,15 +46,15 @@ export function getHomeResults(): ResultItem[] {
   return [
     {
       title: 'Paint Clarity Restored',
-      detail: 'Swirl-heavy surfaces transformed with deeper gloss and better reflection.',
+      detail: 'Daily-driven paint corrected into a cleaner, sharper finish with stronger gloss and reflection.',
     },
     {
       title: 'Interior Reset',
-      detail: 'Fabric, plastics, and touchpoints cleaned for a fresh and odor-free cabin.',
+      detail: 'Cabins reset for cleaner touchpoints, fresher fabric, and a calmer in-car feel.',
     },
     {
       title: 'Protection Layered',
-      detail: 'Finish sealed to resist weather, road film, and short-term contamination.',
+      detail: 'Protection added to help defend against road film, dust, and Southern California sun exposure.',
     },
   ];
 }
@@ -66,15 +66,15 @@ export function getHomeProcess(): ProcessItem[] {
   return [
     {
       title: 'Choose Service Plan',
-      detail: 'Pick a package and add-ons for each vehicle using the service planner.',
+      detail: 'Review packages and add-ons for each vehicle using the service planner.',
     },
     {
       title: 'Submit Booking Intake',
-      detail: 'Add contact, vehicle details, and service notes in the booking flow.',
+      detail: 'Send vehicle details, contact info, and service notes in one intake flow.',
     },
     {
       title: 'Confirm on Cal.com',
-      detail: 'Select your final appointment slot through Cal.com after intake submission.',
+      detail: 'Choose the final appointment time through Cal.com after the intake is saved.',
     },
   ];
 }
@@ -86,17 +86,17 @@ export function getHomeTestimonials(): TestimonialItem[] {
   return [
     {
       name: 'Jordan R.',
-      quote: 'Paint came back to life and the interior felt factory-new. Booking flow was easy.',
+      quote: 'The sedan looked sharper the same afternoon, and the booking flow stayed simple from phone to calendar.',
       service: 'Standard + Headlight Restoration',
     },
     {
       name: 'Amanda T.',
-      quote: 'Fast response, clear pricing, and the SUV looked better than delivery day.',
+      quote: 'Clear pricing, quick scheduling, and the SUV came back looking noticeably cleaner than expected.',
       service: 'Premium + Ceramic Coating',
     },
     {
       name: 'Chris M.',
-      quote: 'Loved that I could set up two cars in one booking without any confusion.',
+      quote: 'Setting up two vehicles in one booking felt organized instead of messy.',
       service: 'Two-Vehicle Booking',
     },
   ];

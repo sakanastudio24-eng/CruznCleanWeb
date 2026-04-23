@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { SiteShell } from '@/components/layout/site-shell';
 import type { ContactForm } from '@/lib/booking-types';
 import { submitContactMessage } from '@/lib/api-client';
+import { SITE_PROFILE } from '@/lib/site-profile';
 
 const INITIAL_CONTACT: ContactForm = {
   fullName: '',
@@ -49,19 +50,20 @@ export default function ContactPage(): JSX.Element {
 
   return (
     <SiteShell>
-      <section className="bg-brandBlack px-4 py-12 text-white sm:px-6 sm:py-16">
+      <section className="bg-ink px-4 py-12 text-white sm:px-6 sm:py-16">
         <div className="mx-auto max-w-4xl text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-waterBlue">Contact</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-fog">Contact</p>
           <h1 className="mt-3 font-heading text-3xl font-extrabold sm:text-4xl">Questions before booking?</h1>
           <p className="mt-4 text-sm text-white/80 sm:text-base">
-            Use this form for general questions only. For appointments, use Book Now.
+            Use this form for general questions about service areas, timing, or prep. For appointments, use Book Now.
           </p>
+          <p className="mt-2 text-xs uppercase tracking-[0.16em] text-white/50">{SITE_PROFILE.locationLabel}</p>
         </div>
       </section>
 
       <section className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
         <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-black/10 bg-white p-6">
-          <label className="block text-sm font-medium text-brandBlack">
+          <label className="block text-sm font-medium text-ink">
             Full Name
             <input
               value={form.fullName}
@@ -71,7 +73,7 @@ export default function ContactPage(): JSX.Element {
             />
           </label>
 
-          <label className="block text-sm font-medium text-brandBlack">
+          <label className="block text-sm font-medium text-ink">
             Email
             <input
               type="email"
@@ -82,7 +84,7 @@ export default function ContactPage(): JSX.Element {
             />
           </label>
 
-          <label className="block text-sm font-medium text-brandBlack">
+          <label className="block text-sm font-medium text-ink">
             Phone
             <input
               value={form.phone}
@@ -92,7 +94,7 @@ export default function ContactPage(): JSX.Element {
             />
           </label>
 
-          <label className="block text-sm font-medium text-brandBlack">
+          <label className="block text-sm font-medium text-ink">
             Question
             <textarea
               value={form.message}
@@ -105,12 +107,12 @@ export default function ContactPage(): JSX.Element {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-full bg-deepRed px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
+            className="w-full rounded-full bg-charcoal px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
           >
             {submitting ? 'Sending...' : 'Send Question'}
           </button>
 
-          {statusMessage ? <p className="text-sm text-brandBlack/75">{statusMessage}</p> : null}
+          {statusMessage ? <p className="text-sm text-ink/75">{statusMessage}</p> : null}
         </form>
       </section>
     </SiteShell>
