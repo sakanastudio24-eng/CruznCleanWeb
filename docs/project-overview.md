@@ -1,7 +1,7 @@
 # Project Overview
 
 ## Purpose
-DetailFlow is a production-oriented portfolio project for a mobile car-detailing business. It demonstrates a conversion-focused frontend flow and a typed backend intake API with email automation support.
+Cruzn Clean is a production-oriented client blueprint for a Yorba Linda mobile car-detailing business. It pairs a conversion-focused frontend with a typed backend intake API, runtime-injected public config, and a Supabase-ready storage boundary.
 
 ## High-Level Architecture
 - `apps/web`: Next.js 14 App Router site (TypeScript + Tailwind CSS).
@@ -14,7 +14,7 @@ DetailFlow is a production-oriented portfolio project for a mobile car-detailing
 2. Services flow supports multi-vehicle service selection and dynamic totals.
 3. Booking flow submits validated intake payloads to API endpoints.
 4. Contact flow supports non-booking customer messages.
-5. Email preview route demonstrates customer/owner messaging design.
+5. Email preview route remains available for internal QA by direct URL only.
 
 ## Deployment Model
 - Hosting: Vercel (web app on subdomain).

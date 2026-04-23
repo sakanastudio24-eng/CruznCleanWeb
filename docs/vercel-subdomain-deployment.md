@@ -23,7 +23,7 @@ This ensures Vercel builds the Next.js app from `apps/web` instead of assuming a
 
 ## Attach Subdomain
 1. Open `Project Settings > Domains`.
-2. Add the desired subdomain (example: `detailflow.yourdomain.com`).
+2. Add the desired subdomain (example: `cruznclean.yourdomain.com`).
 3. Create DNS record(s) requested by Vercel.
 4. Wait for domain verification and SSL certificate issuance.
 5. Promote successful deployment to production.

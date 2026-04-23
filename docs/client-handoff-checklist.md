@@ -51,7 +51,7 @@
 - [ ] Booking with customer opt-in true attempts owner + customer emails.
 - [ ] Booking with customer opt-in false attempts owner email only.
 - [ ] Provider failure logs rows to `data/email_failures.json`.
-- [ ] Customer/owner emails show DetailFlow branding and grayscale styling.
+- [ ] Customer/owner emails show Cruzn Clean branding and grayscale styling.
 
 ## 6) UX and Demo Script Checks
 - [ ] Home, services, booking, quote, gallery, and email preview routes load.

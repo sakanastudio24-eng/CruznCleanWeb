@@ -1,10 +1,10 @@
 # Design System Direction
 
-## Brand Colors
-- Deep Red: `#56070f`
-- Brand Black: `#10150f`
-- Water Blue: `#8cc0d6`
-- Neutral Gray: `#f8f8f8`
+## Color Tokens
+- `charcoal`: `#262626`
+- `ink`: `#111111`
+- `fog`: `#a3a3a3`
+- `canvas`: `#f8f8f8`
 
 ## Typography
 - Headings: Manrope
@@ -24,3 +24,7 @@
 - `480px-767px`: standard phone layout
 - `768px-1023px`: tablet layout with bottom navigation
 - `>=1024px`: desktop header/nav layout
+
+## Current Client Rule
+- Keep the Cruzn Clean blueprint black, white, and grayscale only.
+- Keep `/email-preview` available by direct URL for QA, but hide it from desktop and mobile navigation.

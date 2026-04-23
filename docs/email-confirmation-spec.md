@@ -1,7 +1,7 @@
 # Email Confirmation Specification (V1)
 
 ## Purpose
-Define transactional booking email behavior for DetailFlow using:
+Define transactional booking email behavior for Cruzn Clean using:
 - FastAPI for validation, trigger order, and failure policy
 - Resend for delivery and template hosting
 

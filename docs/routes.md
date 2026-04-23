@@ -4,13 +4,13 @@
 - `/`
 - `/services`
 - `/booking`
-- `/email-preview`
 - `/gallery`
 - `/quote`
 - `/contact`
 - `/faq`
 - `/privacy`
 - `/terms`
+- `/email-preview` (direct URL only for internal QA)
 
 ## Internal Web Route
 - `/styleguide`
@@ -31,6 +31,7 @@
 ## Booking vs Contact Intent
 - `/booking`: appointment intake + calendar handoff (Cal.com)
 - `/contact`: non-booking questions
+- `/email-preview`: internal preview surface for transactional template review, not primary site navigation
 
 ## Demo Security Posture
 - `GET /health` remains public and returns only `{"status":"ok"}`.
