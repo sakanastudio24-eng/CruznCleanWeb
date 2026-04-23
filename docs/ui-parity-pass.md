@@ -11,7 +11,7 @@
 ## Implemented
 - New nav layout and interactions with Quote link, phone, Book CTA, Help modal, cart badge.
 - Services page left/right layout refined:
-  - left: vehicle size + packages + add-ons
+  - left: vehicle size + packages + coatings/correction
   - right: dock selection + active vehicle form controls + totals
 - Booking page rebuilt with 3-step flow and sticky selection panel.
 - Gallery/Quote/FAQ upgraded to dark-hero + chips/cards style.

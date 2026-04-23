@@ -20,21 +20,21 @@ npm run dev
 ## Solved Edge Cases + Test Implementation
 
 ### Booking Cap and Identity/Day Rules
-1. `EC-01` Add vehicle #4 is blocked in UI.
+1. `EC-01` Add vehicle #5 is blocked in UI.
 - Steps: Click `Add Vehicle` repeatedly on `/booking`.
-- Expected: Third add works (3 total). Fourth add is blocked and helper text appears.
+- Expected: Fourth add works (4 total). Fifth add is blocked and helper text appears.
 
 2. `EC-02` Booking submit blocked when selected-service vehicles exceed cap.
-- Steps: Prepare payload/UI state with more than 3 selected-service vehicles.
-- Expected: Inline validation error shows `Maximum 3 vehicles per customer per day.`
+- Steps: Prepare payload/UI state with more than 4 selected-service vehicles.
+- Expected: Inline validation error shows `Maximum 4 vehicles per customer per day.`
 
 3. `EC-03` Backend rejects over-cap payload even if UI is bypassed.
-- Steps: `POST /cal-bookings` with 4 vehicles each containing `serviceIds`.
+- Steps: `POST /cal-bookings` with 5 vehicles each containing `serviceIds`.
 - Expected: Validation error response, request not accepted.
 
 4. `EC-04` Daily cap enforced across multiple submissions on same day.
-- Steps: Submit booking A for same email+phone with 2 selected vehicles, then booking B with 2 selected vehicles.
-- Expected: Booking B returns `422` with `Daily vehicle limit exceeded. Maximum 3 vehicles per customer per day.`
+- Steps: Submit booking A for same email+phone with 2 selected vehicles, then booking B with 3 selected vehicles.
+- Expected: Booking B returns `422` with `Daily vehicle limit exceeded. Maximum 4 vehicles per customer per day.`
 
 5. `EC-05` Identity normalization handles email case differences.
 - Steps: Submit with `John@Example.com`, then `john@example.com` same phone/day.
@@ -58,7 +58,7 @@ npm run dev
 - Expected: Validation error for unique vehicle ID requirement.
 
 10. `EC-10` Unknown service IDs are rejected.
-- Steps: Send service ID not in supported package/add-on catalog.
+- Steps: Send service ID not in the supported package, coating, or correction catalog.
 - Expected: Validation error for invalid service selection.
 
 11. `EC-11` Empty service list per vehicle is rejected.
@@ -126,7 +126,7 @@ npm run dev
 
 ## API Smoke Payloads
 
-### Valid payload (3 selected-service vehicles max)
+### Valid payload (4 selected-service vehicles max)
 ```json
 {
   "customer": {
@@ -148,8 +148,8 @@ npm run dev
       "model": "Camry",
       "year": "2021",
       "color": "Silver",
-      "size": "small",
-      "serviceIds": ["pkg-standard"]
+      "size": "sedan_coupe",
+      "serviceIds": ["pkg-maintenance"]
     }
   ],
   "honeypot": ""
@@ -157,8 +157,8 @@ npm run dev
 ```
 
 ### Over-cap payload sample
-Use 4 vehicles with non-empty `serviceIds` and same customer identity/day.
+Use 5 vehicles with non-empty `serviceIds` and same customer identity/day.
 
 Expected:
 - `HTTP 422`
-- Message contains `Daily vehicle limit exceeded. Maximum 3 vehicles per customer per day.`
+- Message contains `Daily vehicle limit exceeded. Maximum 4 vehicles per customer per day.`

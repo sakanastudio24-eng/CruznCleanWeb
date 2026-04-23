@@ -40,8 +40,8 @@
       "model": "Camry",
       "year": "2021",
       "color": "Silver",
-      "size": "small",
-      "serviceIds": ["pkg-standard", "addon-engine"]
+      "size": "sedan_coupe",
+      "serviceIds": ["pkg-maintenance", "coat-glass-basic"]
     }
   ],
   "honeypot": ""
@@ -57,11 +57,11 @@
 6. SMS consent is required if SMS confirmation is selected.
 7. At least one vehicle is required.
 8. Each vehicle must include year, make, model, color.
-9. Each vehicle must include `size` in (`small`, `medium`, `large`).
+9. Each vehicle must include `size` in (`sedan_coupe`, `small_suv_truck`, `large_suv_truck`, `oversized`).
 10. Each vehicle must include at least one service ID.
 11. `vehicles[].id` values must be unique within one payload.
-12. `serviceIds` must use supported catalog IDs (`pkg-*`, `addon-*`).
-13. Selected-service vehicles are capped at `3` per request.
+12. `serviceIds` must use supported catalog IDs across packages, coatings, and correction services.
+13. Selected-service vehicles are capped at `4` per request.
 14. Daily cap check applies per normalized customer identity (`email + phone`) and intake day.
 
 ## Processing Side Effects
@@ -70,12 +70,12 @@
 3. Attempt customer confirmation send only when:
 - `customer.sendEmailConfirmation=true`
 - `EMAIL_CUSTOMER_ENABLED=true`
-4. Apply size multipliers (`small=1.00`, `medium=1.15`, `large=1.30`) for email estimate service rows/totals.
+4. Apply size multipliers (`sedan_coupe=1.00`, `small_suv_truck=1.20`, `large_suv_truck=1.40`, `oversized=1.50`) for email estimate service rows/totals.
 5. Persist send failures to `data/email_failures.json`.
 
 ## Failure Contract
 - Honeypot-filled requests return accepted and skip persistence/send.
-- Daily cap overflow returns `422` with `Daily vehicle limit exceeded. Maximum 3 vehicles per customer per day.`
+- Daily cap overflow returns `422` with `Daily vehicle limit exceeded. Maximum 4 vehicles per customer per day.`
 - Email send failures do not fail booking acceptance after persistence.
 - Storage failure still fails the request.
 

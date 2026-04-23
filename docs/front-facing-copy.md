@@ -7,14 +7,14 @@
 - Hero detail: `Select services per vehicle, send your intake once, then lock in scheduling through Cal.com with a clean grayscale client flow.`
 
 ## Services
-- Section purpose: explain package levels, vehicle sizing, and add-on selection.
-- Key promise: `Review packages and add-ons for each vehicle before booking.`
+- Section purpose: explain package levels, vehicle sizing, and standalone coating/correction options.
+- Key promise: `Review packages, coatings, and paint correction options for each vehicle before booking.`
 - Helper tone: direct, operational, and pricing-aware.
 
 ## Booking
 - Section purpose: capture customer details, vehicle details, consent, and scheduling handoff.
 - Key promise: `Send the intake first, then choose the appointment time through Cal.com.`
-- Trust language: emphasize saved details, confirmation options, and on-site pricing confirmation.
+- Trust language: emphasize saved details, confirmation options, Monday-Friday 8am - 6pm availability, weekend-by-approval requests, and on-site pricing confirmation.
 
 ## Gallery
 - Section purpose: show recent transformations and visual proof of work.
@@ -34,7 +34,7 @@
 ## FAQ
 - Section purpose: answer service-readiness, timing, arrival, and scope questions.
 - Tone: operational and preparation-focused.
-- CTA language: direct users toward booking or contact based on intent.
+- CTA language: direct users toward booking or contact based on intent, with clear notes on deposits, vehicle prep, and pricing adjustments.
 
 ## Privacy
 - Section purpose: explain what booking/contact data is collected and which processors are involved.
@@ -42,7 +42,7 @@
 - Providers: Resend, Cal.com, hosting infrastructure, future Supabase storage.
 
 ## Terms
-- Section purpose: explain service boundaries, approval flow, payment expectations, and operational constraints.
+- Section purpose: explain service boundaries, approval flow, deposits, pricing adjustments, payment expectations, and operational constraints.
 - Tone: plain, client-safe, and reviewable.
 
 ## Email Preview
