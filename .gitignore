@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.schema
+!**/.env.schema
 node_modules/
 .next/
 .next*/

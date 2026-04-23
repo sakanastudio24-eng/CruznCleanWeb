@@ -1,11 +1,12 @@
 {
-  "name": "detailflow-deploy",
+  "name": "cruzn-clean-deploy",
   "private": true,
   "scripts": {
     "dev": "npm --prefix apps/web run dev",
     "build": "npm --prefix apps/web run build",
     "start": "npm --prefix apps/web run start",
-    "vercel-build": "npm --prefix apps/web run build"
+    "vercel-build": "npm --prefix apps/web run build",
+    "env:check:web": "npm --prefix apps/web run env:check"
   },
   "devDependencies": {
     "next": "14.2.35"

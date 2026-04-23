@@ -5,21 +5,20 @@ import type {
   CustomerBookingForm,
   VehicleProfile,
 } from '@/lib/booking-types';
-
-const DEFAULT_API_BASE = 'http://127.0.0.1:8000';
+import { getRuntimeConfig } from '@/lib/runtime-config';
 
 /**
- * Returns the configured backend API base URL.
+ * Returns the configured backend API base URL from the runtime config snapshot.
  */
 export function getApiBaseUrl(): string {
-  return process.env.NEXT_PUBLIC_API_BASE_URL ?? DEFAULT_API_BASE;
+  return getRuntimeConfig().apiBaseUrl;
 }
 
 /**
- * Returns preferred calendar URL, prioritizing Cal.com.
+ * Returns the preferred calendar booking URL from request-time config.
  */
 export function getCalendarBookingUrl(): string {
-  return process.env.NEXT_PUBLIC_CAL_COM_URL ?? 'https://cal.com';
+  return getRuntimeConfig().calendarUrl;
 }
 
 /**
