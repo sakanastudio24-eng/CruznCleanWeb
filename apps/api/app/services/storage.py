@@ -10,6 +10,7 @@ from app.services.booking_policy import (
     normalize_phone_for_limit,
     resolve_limit_day_key,
 )
+from app.services.storage_backend import get_storage_backend_name
 
 
 ROOT_DIR = Path(__file__).resolve().parents[4]
@@ -39,6 +40,9 @@ def _save_records(file_path: Path, records: list[dict]) -> None:
 
 def append_booking_record(payload: dict) -> dict:
     """Appends one booking intake record with server timestamp metadata and returns the persisted row."""
+    if get_storage_backend_name() != "local_json":
+        raise NotImplementedError("Supabase persistence is scaffolded but not wired yet.")
+
     records = _load_records(BOOKINGS_FILE)
     persisted_record = {
         "bookingId": f"bk_{uuid4().hex[:12]}",
@@ -57,6 +61,9 @@ def get_bookings_by_identity_and_day(
     tz_name: str,
 ) -> list[dict]:
     """Returns persisted bookings for one normalized identity on one intake day key."""
+    if get_storage_backend_name() != "local_json":
+        return []
+
     if not email_norm or not phone_norm:
         return []
 
@@ -83,6 +90,9 @@ def get_bookings_by_identity_and_day(
 
 def append_contact_record(payload: dict) -> None:
     """Appends one contact message record with server timestamp metadata."""
+    if get_storage_backend_name() != "local_json":
+        raise NotImplementedError("Supabase persistence is scaffolded but not wired yet.")
+
     records = _load_records(CONTACTS_FILE)
     records.append(
         {
@@ -95,6 +105,9 @@ def append_contact_record(payload: dict) -> None:
 
 def append_email_failure_record(payload: dict) -> None:
     """Appends one email-delivery failure record with server timestamp metadata."""
+    if get_storage_backend_name() != "local_json":
+        raise NotImplementedError("Supabase persistence is scaffolded but not wired yet.")
+
     records = _load_records(EMAIL_FAILURES_FILE)
     records.append(
         {
