@@ -68,7 +68,7 @@ class VehicleSelection(BaseModel):
     model: str
     year: str
     color: str
-    size: Literal["small", "medium", "large"]
+    size: Literal["sedan_coupe", "small_suv_truck", "large_suv_truck", "oversized"]
     serviceIds: list[str]
 
     @field_validator("year", "make", "model", "color")
@@ -109,7 +109,7 @@ class BookingIntakeRequest(BaseModel):
 
         selected_vehicle_count = sum(1 for vehicle in self.vehicles if vehicle.serviceIds)
         if selected_vehicle_count > MAX_BOOKED_VEHICLES_PER_DAY:
-            raise ValueError("Daily vehicle limit exceeded. Maximum 3 vehicles per customer per day.")
+            raise ValueError("Daily vehicle limit exceeded. Maximum 4 vehicles per customer per day.")
 
         vehicle_ids = [vehicle.id.strip() for vehicle in self.vehicles]
         if len(vehicle_ids) != len(set(vehicle_ids)):

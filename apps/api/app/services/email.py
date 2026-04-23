@@ -46,8 +46,11 @@ def _build_vehicle_breakdown(vehicles: list[dict[str, Any]]) -> tuple[list[dict[
     grand_total = 0
 
     for vehicle in vehicles:
-        vehicle_size = str(vehicle.get("size", "small")).strip().lower()
-        normalized_size = cast(VehicleSize, vehicle_size if vehicle_size in {"small", "medium", "large"} else "small")
+        vehicle_size = str(vehicle.get("size", "sedan_coupe")).strip().lower()
+        normalized_size = cast(
+            VehicleSize,
+            vehicle_size if vehicle_size in {"sedan_coupe", "small_suv_truck", "large_suv_truck", "oversized"} else "sedan_coupe",
+        )
         service_rows: list[dict[str, Any]] = []
         vehicle_total = 0
 
@@ -338,8 +341,6 @@ def _build_customer_fallback_content(template_variables: dict[str, Any]) -> dict
 
     other_services_text = ", ".join(other_services) if other_services else "None"
     total_amount = int(estimate["grandTotal"])
-    deposit_due = round(total_amount * 0.5, 2)
-
     lines = [
         "Cruzn Clean order confirmation",
         "",
@@ -354,7 +355,7 @@ def _build_customer_fallback_content(template_variables: dict[str, Any]) -> dict
         f"Service charge cost: ${_format_currency(service_charge_total)}",
         f"Other services: {other_services_text} (${_format_currency(other_services_total)})",
         f"Total amount due: ${_format_currency(total_amount)}",
-        f"Payment info: 50% deposit due on site (${_format_currency(deposit_due)}) and 50% due on completion (${_format_currency(deposit_due)})",
+        "Payment info: A non-refundable deposit of $25-$100 may be required to secure your appointment and is applied toward the total service cost.",
         f"Terms and service readiness: {terms_link} | {readiness_link}",
         f"For inquiries call/email: {support_phone} | {support_email}",
     ]
@@ -407,7 +408,7 @@ def _build_customer_fallback_content(template_variables: dict[str, Any]) -> dict
         "</div>"
         "<div style='margin-top:14px;padding:12px;border:1px solid #d1d5db;background:#f9fafb;border-radius:10px;'>"
         "<p style='margin:0;font-size:13px;font-weight:700;color:#2f2f2f;'>Payment info</p>"
-        f"<p style='margin:6px 0 0 0;font-size:13px;color:#2f2f2f;'>Payment will be concluded by a 50% deposit due on site (${_format_currency(deposit_due)}) and 50% deposit due on completion (${_format_currency(deposit_due)}).</p>"
+        "<p style='margin:6px 0 0 0;font-size:13px;color:#2f2f2f;'>A non-refundable deposit of $25-$100 may be required to secure your appointment and is applied toward the total service cost.</p>"
         "</div>"
         "<p style='margin:14px 0 0 0;font-size:13px;'>"
         f"<a href='{terms_link}' style='color:#2f2f2f;font-weight:700;text-decoration:none;'>Terms & Conditions</a> | "

@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
-MAX_BOOKED_VEHICLES_PER_DAY = 3
+MAX_BOOKED_VEHICLES_PER_DAY = 4
 
 
 def normalize_email_for_limit(email: str) -> str:

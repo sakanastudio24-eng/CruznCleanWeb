@@ -2,13 +2,14 @@ from __future__ import annotations
 
 from typing import Literal
 
-VehicleSize = Literal["small", "medium", "large"]
+VehicleSize = Literal["sedan_coupe", "small_suv_truck", "large_suv_truck", "oversized"]
 
 # Keep values mirrored with web pricing constants in apps/web/lib/pricing.ts.
 SIZE_MULTIPLIERS: dict[VehicleSize, float] = {
-    "small": 1.0,
-    "medium": 1.15,
-    "large": 1.30,
+    "sedan_coupe": 1.0,
+    "small_suv_truck": 1.20,
+    "large_suv_truck": 1.40,
+    "oversized": 1.50,
 }
 
 

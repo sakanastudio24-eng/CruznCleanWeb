@@ -62,7 +62,7 @@ def process_booking_intake(payload: BookingIntakeRequest, client_ip: str | None)
     if existing_selected_vehicle_count + incoming_selected_vehicle_count > MAX_BOOKED_VEHICLES_PER_DAY:
         raise HTTPException(
             status_code=422,
-            detail="Daily vehicle limit exceeded. Maximum 3 vehicles per customer per day.",
+            detail="Daily vehicle limit exceeded. Maximum 4 vehicles per customer per day.",
         )
 
     if is_demo_mode():
