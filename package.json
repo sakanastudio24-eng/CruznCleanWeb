@@ -1,0 +1,16 @@
+{
+  "name": "detailflow-deploy",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix apps/web run dev",
+    "build": "npm --prefix apps/web run build",
+    "start": "npm --prefix apps/web run start",
+    "vercel-build": "npm --prefix apps/web run build"
+  },
+  "devDependencies": {
+    "next": "14.2.35"
+  },
+  "engines": {
+    "node": "22.x"
+  }
+}

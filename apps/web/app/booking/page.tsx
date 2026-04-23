@@ -1,0 +1,1011 @@
+'use client';
+
+import {
+  ArrowLeft,
+  ArrowRight,
+  Calendar,
+  CarFront,
+  CheckCircle2,
+  Clock3,
+  Plus,
+  ShieldCheck,
+  Sparkles,
+  Trash2,
+  User,
+} from 'lucide-react';
+import { useMemo, useState, type ComponentType } from 'react';
+
+import { SiteShell } from '@/components/layout/site-shell';
+import { useBooking } from '@/components/providers/booking-provider';
+import { VehicleSizeGuideLookup } from '@/components/vehicle/vehicle-size-guide-lookup';
+import { BOOKING_LIMIT_DISCLAIMER, MAX_BOOKED_VEHICLES_PER_DAY, countSelectedVehicles } from '@/lib/booking-policy';
+import type { CustomerBookingForm, VehicleProfile, VehicleSize } from '@/lib/booking-types';
+import { getCalendarBookingUrl, submitBookingIntake } from '@/lib/api-client';
+import { formatSizeAdjustmentLabel, getAdjustedServicePrice } from '@/lib/pricing';
+import { getAddonServices, getPackageServices } from '@/lib/services-catalog';
+import { getVehicleDisplayName } from '@/lib/vehicle-utils';
+
+interface StepItem {
+  id: number;
+  title: string;
+  icon: ComponentType<{ className?: string }>;
+}
+
+interface VehicleSizeOption {
+  id: VehicleSize;
+  label: string;
+  hint: string;
+}
+
+interface BookingFieldErrors {
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  zipCode?: string;
+  year?: string;
+  make?: string;
+  model?: string;
+  color?: string;
+  package?: string;
+  serviceSelection?: string;
+  selectedVehicleDetails?: string;
+  selectedVehicleLimit?: string;
+  confirmationChannel?: string;
+  smsConsent?: string;
+  acceptedConsent?: string;
+}
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const INITIAL_FORM: CustomerBookingForm = {
+  fullName: '',
+  email: '',
+  phone: '',
+  zipCode: '',
+  sendEmailConfirmation: true,
+  sendSmsConfirmation: false,
+  acceptedSmsConsent: false,
+  notes: '',
+  acceptedConsent: false,
+};
+
+/**
+ * Returns the booking step sequence used by the progress header.
+ */
+function getBookingSteps(): StepItem[] {
+  return [
+    { id: 1, title: 'Your Details', icon: User },
+    { id: 2, title: 'Enhancements', icon: Sparkles },
+    { id: 3, title: 'Schedule', icon: Calendar },
+  ];
+}
+
+/**
+ * Returns available vehicle sizes shown during booking step one.
+ */
+function getVehicleSizes(): VehicleSizeOption[] {
+  return [
+    { id: 'small', label: 'Small', hint: 'Sedan / Coupe' },
+    { id: 'medium', label: 'Medium', hint: 'SUV / Crossover' },
+    { id: 'large', label: 'Large', hint: 'Truck / Van' },
+  ];
+}
+
+/**
+ * Validates confirmation preference inputs for email and SMS updates.
+ */
+function hasValidConfirmationPreference(form: CustomerBookingForm): boolean {
+  const selectedAnyChannel = form.sendEmailConfirmation || form.sendSmsConfirmation;
+  const smsConsentSatisfied = !form.sendSmsConfirmation || form.acceptedSmsConsent;
+  return selectedAnyChannel && smsConsentSatisfied;
+}
+
+/**
+ * Validates required step-one booking fields.
+ */
+function hasFirstAndLastName(fullName: string): boolean {
+  return fullName.trim().split(/\s+/).filter(Boolean).length >= 2;
+}
+
+/**
+ * Appends shared customer/contact validation errors to one error object.
+ */
+function appendCustomerValidationErrors(
+  form: CustomerBookingForm,
+  errors: BookingFieldErrors,
+  consentMessage: string,
+): void {
+  if (!hasFirstAndLastName(form.fullName)) {
+    errors.fullName = 'Enter first and last name.';
+  }
+
+  if (!EMAIL_PATTERN.test(form.email.trim())) {
+    errors.email = 'Enter a valid email like name@provider.com.';
+  }
+
+  const phoneDigits = form.phone.replace(/\D/g, '');
+  if (phoneDigits.length < 10) {
+    errors.phone = 'Enter a valid phone number.';
+  }
+
+  if (form.zipCode.trim().length < 5) {
+    errors.zipCode = 'Enter a valid ZIP code.';
+  }
+
+  if (!hasValidConfirmationPreference(form)) {
+    errors.confirmationChannel = 'Select at least one confirmation channel.';
+  }
+
+  if (form.sendSmsConfirmation && !form.acceptedSmsConsent) {
+    errors.smsConsent = 'SMS confirmation requires consent.';
+  }
+
+  if (!form.acceptedConsent) {
+    errors.acceptedConsent = consentMessage;
+  }
+}
+
+/**
+ * Validates step-one fields and returns per-field helper errors.
+ */
+function validateStepOne(form: CustomerBookingForm, activeVehicle: VehicleProfile | undefined, hasPackage: boolean): BookingFieldErrors {
+  const errors: BookingFieldErrors = {};
+
+  if (!hasPackage) {
+    errors.package = 'Select a package to continue.';
+  }
+
+  appendCustomerValidationErrors(form, errors, 'You must accept booking consent to continue.');
+
+  if (!activeVehicle?.year.trim()) {
+    errors.year = 'Year is required.';
+  }
+
+  if (!activeVehicle?.make.trim()) {
+    errors.make = 'Make is required.';
+  }
+
+  if (!activeVehicle?.model.trim()) {
+    errors.model = 'Model is required.';
+  }
+
+  if (!activeVehicle?.color.trim()) {
+    errors.color = 'Color is required.';
+  }
+
+  return errors;
+}
+
+/**
+ * Validates final booking submission requirements.
+ */
+function validateSubmission(form: CustomerBookingForm, vehicles: VehicleProfile[]): BookingFieldErrors {
+  const errors: BookingFieldErrors = {};
+  const selectedVehicles = vehicles.filter((vehicle) => vehicle.serviceIds.length > 0);
+  const selectedVehicleCount = countSelectedVehicles(vehicles);
+
+  appendCustomerValidationErrors(form, errors, 'You must accept booking consent before submitting.');
+
+  if (selectedVehicles.length === 0) {
+    errors.serviceSelection = 'Select at least one service before submitting.';
+  }
+
+  if (selectedVehicleCount > MAX_BOOKED_VEHICLES_PER_DAY) {
+    errors.selectedVehicleLimit = BOOKING_LIMIT_DISCLAIMER;
+  }
+
+  const missingVehicleDetails = selectedVehicles.find(
+    (vehicle) => !vehicle.year.trim() || !vehicle.make.trim() || !vehicle.model.trim() || !vehicle.color.trim(),
+  );
+
+  if (missingVehicleDetails) {
+    errors.selectedVehicleDetails = `Complete year, make, model, and color for ${getVehicleDisplayName(missingVehicleDetails)}.`;
+  }
+
+  return errors;
+}
+
+/**
+ * Formats numeric totals into display currency strings.
+ */
+function formatCurrency(value: number): string {
+  return `$${value.toFixed(0)}`;
+}
+
+/**
+ * Builds a compact vehicle label for dock cards.
+ */
+function getVehicleHint(vehicle: VehicleProfile): string {
+  const parts = [vehicle.year, vehicle.make, vehicle.model].filter(Boolean);
+  return parts.length > 0 ? parts.join(' ') : 'No vehicle details yet';
+}
+
+/**
+ * Renders the booking workflow with improved visual hierarchy and flow.
+ */
+export default function BookingPage(): JSX.Element {
+  const {
+    vehicles,
+    activeVehicleId,
+    setActiveVehicleId,
+    addVehicle,
+    removeVehicle,
+    updateVehicle,
+    setVehiclePackage,
+    toggleServiceForVehicle,
+    getVehicleServices,
+    getVehicleTotal,
+    getGrandTotal,
+  } = useBooking();
+
+  const [step, setStep] = useState(1);
+  const [form, setForm] = useState<CustomerBookingForm>(INITIAL_FORM);
+  const [honeypot, setHoneypot] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<BookingFieldErrors>({});
+  const [bookingConfirmed, setBookingConfirmed] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
+
+  const steps = getBookingSteps();
+  const sizes = getVehicleSizes();
+  const packageServices = useMemo(() => getPackageServices(), []);
+  const addonServices = useMemo(() => getAddonServices(), []);
+  const activeVehicle = useMemo(
+    () => vehicles.find((vehicle) => vehicle.id === activeVehicleId) ?? vehicles[0],
+    [activeVehicleId, vehicles],
+  );
+
+  const selectedServiceIds = activeVehicle?.serviceIds ?? [];
+  const selectedServiceRecords = getVehicleServices(activeVehicleId);
+  const selectedPackageId = selectedServiceIds.find((serviceId) => serviceId.startsWith('pkg-'));
+  const selectedPackage = selectedServiceRecords.find((service) => service.id.startsWith('pkg-'));
+  const selectedAddons = selectedServiceRecords.filter((service) => service.category === 'addon');
+  const selectedVehicles = useMemo(
+    () => vehicles.filter((vehicle) => getVehicleServices(vehicle.id).length > 0),
+    [getVehicleServices, vehicles],
+  );
+  const stepOneErrors = useMemo(
+    () => validateStepOne(form, activeVehicle, Boolean(selectedPackageId)),
+    [activeVehicle, form, selectedPackageId],
+  );
+  const stepOneValid = Object.keys(stepOneErrors).length === 0;
+  const activeVehicleSize = activeVehicle?.size ?? 'small';
+  const basicPackage = packageServices.find((service) => service.id === 'pkg-basic');
+  const standardPackage = packageServices.find((service) => service.id === 'pkg-standard');
+  const premiumPackage = packageServices.find((service) => service.id === 'pkg-premium');
+  const basicAdjusted = basicPackage ? getAdjustedServicePrice(basicPackage.price, activeVehicleSize) : 0;
+  const standardAdjusted = standardPackage ? getAdjustedServicePrice(standardPackage.price, activeVehicleSize) : 0;
+  const premiumAdjusted = premiumPackage ? getAdjustedServicePrice(premiumPackage.price, activeVehicleSize) : 0;
+
+  /**
+   * Clears field-level errors and optimistic confirmation state before new edits.
+   */
+  function resetInteractionState(): void {
+    setFieldErrors({});
+    setBookingConfirmed(false);
+  }
+
+  /**
+   * Updates one customer form field while preserving other keys.
+   */
+  function updateCustomerField<K extends keyof CustomerBookingForm>(key: K, value: CustomerBookingForm[K]): void {
+    resetInteractionState();
+    setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  /**
+   * Updates one active vehicle field during booking.
+   */
+  function updateActiveVehicleField(field: 'make' | 'model' | 'year' | 'color', value: string): void {
+    if (!activeVehicle) {
+      return;
+    }
+
+    resetInteractionState();
+    updateVehicle(activeVehicle.id, { [field]: value });
+  }
+
+  /**
+   * Adds another vehicle to the booking dock up to configured max.
+   */
+  function handleAddVehicle(): void {
+    if (vehicles.length >= MAX_BOOKED_VEHICLES_PER_DAY) {
+      setStatusMessage(BOOKING_LIMIT_DISCLAIMER);
+      return;
+    }
+
+    resetInteractionState();
+    addVehicle();
+    setStatusMessage('');
+  }
+
+  /**
+   * Removes one vehicle from the booking dock.
+   */
+  function handleRemoveVehicle(vehicleId: string): void {
+    resetInteractionState();
+    removeVehicle(vehicleId);
+    setStatusMessage('');
+  }
+
+  /**
+   * Advances to the next step when current-step validation passes.
+   */
+  function goNext(): void {
+    if (step === 1 && !stepOneValid) {
+      setFieldErrors(stepOneErrors);
+      setStatusMessage('Complete required details, select one package, and confirm email/SMS preferences to continue.');
+      return;
+    }
+
+    setFieldErrors({});
+    setStatusMessage('');
+    setStep((current) => Math.min(current + 1, steps.length));
+  }
+
+  /**
+   * Moves back to the previous booking step.
+   */
+  function goBack(): void {
+    setFieldErrors({});
+    setStatusMessage('');
+    setStep((current) => Math.max(current - 1, 1));
+  }
+
+  /**
+   * Submits booking intake and shows confirmation before calendar scheduling.
+   */
+  async function handleSubmitBooking(): Promise<void> {
+    const submissionErrors = validateSubmission(form, vehicles);
+    if (Object.keys(submissionErrors).length > 0) {
+      setFieldErrors(submissionErrors);
+      setStatusMessage('Please complete required booking details before submitting.');
+      return;
+    }
+
+    resetInteractionState();
+    setSubmitting(true);
+    setStatusMessage('Submitting your booking intake...');
+
+    try {
+      const response = await submitBookingIntake({ customer: form, vehicles, honeypot });
+      setBookingConfirmed(true);
+      setStatusMessage(response.message ?? 'Booking confirmed. Continue to Cal.com to select your appointment time.');
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : 'Submission failed. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <SiteShell>
+      <section className="relative overflow-hidden bg-brandBlack px-4 py-10 text-white sm:px-6 sm:py-12 md:py-14">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#a3a3a336,transparent_65%)]" />
+        <div className="relative mx-auto max-w-6xl rounded-[28px] border border-white/15 bg-white/10 px-4 py-6 backdrop-blur-md sm:rounded-[30px] sm:px-8 sm:py-8 md:px-10 md:py-9">
+          <h1 className="text-center font-heading text-2xl font-semibold sm:text-4xl md:text-5xl">Book Your Appointment</h1>
+          <p className="mt-2 text-center text-sm text-white/75 sm:text-base">Three simple steps to a pristine vehicle.</p>
+
+          <div className="mx-auto mt-6 max-w-4xl">
+            <div className="h-2 rounded-full bg-black/30">
+              <div
+                className="h-2 rounded-full bg-deepRed transition-all duration-500"
+                style={{ width: `${(step / steps.length) * 100}%` }}
+              />
+            </div>
+            <div className="mt-5 grid grid-cols-3 gap-3">
+              {steps.map((item) => {
+                const Icon = item.icon;
+                const active = item.id === step;
+                const complete = item.id < step;
+
+                return (
+                  <div key={item.id} className="flex flex-col items-center gap-2 text-center">
+                    <div
+                      className={`flex h-10 w-10 items-center justify-center rounded-full border transition duration-300 ${
+                        complete
+                          ? 'border-green-300 bg-green-500 text-white'
+                          : active
+                            ? 'border-waterBlue bg-waterBlue text-brandBlack'
+                            : 'border-white/30 bg-white/5 text-white/70'
+                      }`}
+                    >
+                      {complete ? <CheckCircle2 className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
+                    </div>
+                    <p className={`text-xs sm:text-sm ${active ? 'text-white' : 'text-white/70'}`}>{item.title}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto grid max-w-6xl gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_380px]">
+        <div className="space-y-5 rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
+          <div className="rounded-2xl border border-black/10 bg-neutralGray/60 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-brandBlack/60">Vehicle Deck</p>
+                <p className="text-sm text-brandBlack/70">Manage multiple cars in one booking.</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleAddVehicle}
+                className="inline-flex items-center gap-2 rounded-full border border-waterBlue bg-white px-3 py-1.5 text-xs font-semibold text-waterBlue transition duration-300 hover:bg-waterBlue/10"
+              >
+                <Plus className="h-4 w-4" /> Add Vehicle
+              </button>
+            </div>
+            <p className="mt-2 text-xs font-medium text-brandBlack/60">{BOOKING_LIMIT_DISCLAIMER}</p>
+
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+              {vehicles.map((vehicle) => {
+                const active = vehicle.id === activeVehicleId;
+                return (
+                  <article
+                    key={vehicle.id}
+                    className={`rounded-xl border bg-white p-3 transition-all duration-300 ${
+                      active ? 'border-deepRed shadow-sm' : 'border-black/10 hover:border-waterBlue'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setActiveVehicleId(vehicle.id)}
+                        className="text-left"
+                      >
+                        <p className="font-semibold text-brandBlack">{getVehicleDisplayName(vehicle)}</p>
+                        <p className="text-xs text-brandBlack/60">{getVehicleHint(vehicle)}</p>
+                      </button>
+                      {vehicles.length > 1 ? (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveVehicle(vehicle.id)}
+                          className="rounded-full p-1 text-brandBlack/55 transition hover:bg-neutralGray hover:text-deepRed"
+                          aria-label={`Remove ${getVehicleDisplayName(vehicle)}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      ) : null}
+                    </div>
+                    <div className="mt-2 flex items-center justify-between border-t border-black/10 pt-2 text-xs">
+                      <span className="text-brandBlack/65">{vehicle.serviceIds.length} selections</span>
+                      <span className="font-semibold text-deepRed">{formatCurrency(getVehicleTotal(vehicle.id))}</span>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+
+          {step === 1 ? (
+            <section className="space-y-4 rounded-2xl border border-black/10 p-4 transition-all duration-300">
+              <div>
+                <h2 className="font-heading text-2xl font-semibold text-brandBlack">Your Details</h2>
+                <p className="mt-1 text-sm text-brandBlack/65">Pick one package, set vehicle size, and complete contact info.</p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {packageServices.map((service) => {
+                  const selected = selectedPackageId === service.id;
+                  const adjustedPrice = getAdjustedServicePrice(service.price, activeVehicleSize);
+                  const isStandard = service.id === 'pkg-standard';
+                  const standardVsBasic = isStandard ? standardAdjusted - basicAdjusted : 0;
+                  const premiumVsStandard = service.id === 'pkg-premium' ? adjustedPrice - standardAdjusted : 0;
+
+                  return (
+                    <button
+                      key={service.id}
+                      type="button"
+                      onClick={() => {
+                        resetInteractionState();
+                        setVehiclePackage(activeVehicleId, service.id);
+                      }}
+                      className={`rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
+                        selected
+                          ? 'border-deepRed bg-deepRed/10 shadow-md'
+                          : isStandard
+                            ? 'border-deepRed/45 bg-[#f5f5f5] hover:border-deepRed hover:bg-deepRed/10'
+                            : 'border-black/10 bg-white hover:border-waterBlue hover:bg-waterBlue/10'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="font-heading text-lg font-semibold text-brandBlack">{service.name}</p>
+                        {isStandard ? (
+                          <span className="rounded-full bg-deepRed px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-white">
+                            Best Value
+                          </span>
+                        ) : null}
+                      </div>
+                      <p className="mt-1 text-xs text-brandBlack/60">{service.description}</p>
+                      {isStandard ? (
+                        <p className="mt-2 text-xs font-semibold text-deepRed">
+                          Only +{formatCurrency(standardVsBasic)} vs Basic at this size.
+                        </p>
+                      ) : null}
+                      {service.id === 'pkg-premium' ? (
+                        <p className="mt-2 text-xs text-brandBlack/65">
+                          {formatCurrency(premiumVsStandard)} above Standard at this size.
+                        </p>
+                      ) : null}
+                      {service.id === 'pkg-basic' ? (
+                        <p className="mt-2 text-xs text-brandBlack/65">
+                          Standard adds deeper coverage for +{formatCurrency(standardAdjusted - basicAdjusted)}.
+                        </p>
+                      ) : null}
+                      <p className="mt-3 font-heading text-2xl font-extrabold text-deepRed">{formatCurrency(adjustedPrice)}</p>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="rounded-xl border border-black/10 bg-neutralGray p-3 text-xs">
+                <p className="font-semibold text-brandBlack/75">
+                  Size pricing active: {activeVehicleSize.toUpperCase()} ({formatSizeAdjustmentLabel(activeVehicleSize)})
+                </p>
+                <div className="mt-2 grid gap-1 sm:grid-cols-3">
+                  <p className="text-brandBlack/70">Basic: <span className="font-semibold text-brandBlack">{formatCurrency(basicAdjusted)}</span></p>
+                  <p className="text-brandBlack/70">Standard: <span className="font-semibold text-deepRed">{formatCurrency(standardAdjusted)}</span></p>
+                  <p className="text-brandBlack/70">Premium: <span className="font-semibold text-brandBlack">{formatCurrency(premiumAdjusted)}</span></p>
+                </div>
+              </div>
+              {fieldErrors.package ? <p className="text-xs font-medium text-deepRed">{fieldErrors.package}</p> : null}
+
+              <div>
+                <h3 className="text-sm font-semibold text-brandBlack/80">Vehicle Size</h3>
+                {activeVehicle ? (
+                  <VehicleSizeGuideLookup
+                    activeVehicle={activeVehicle}
+                    onApplyLookupMatch={(match) => {
+                      resetInteractionState();
+                      updateVehicle(activeVehicle.id, {
+                        make: match.make,
+                        model: match.model,
+                        size: match.size,
+                      });
+                    }}
+                    onManualSizeChange={(size) => {
+                      resetInteractionState();
+                      updateVehicle(activeVehicle.id, { size });
+                    }}
+                    className="mt-2"
+                  />
+                ) : null}
+                <div className="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {sizes.map((size) => {
+                    const selected = activeVehicle?.size === size.id;
+                    return (
+                      <button
+                        key={size.id}
+                        type="button"
+                        onClick={() => {
+                          if (!activeVehicle) {
+                            return;
+                          }
+
+                          resetInteractionState();
+                          updateVehicle(activeVehicle.id, { size: size.id });
+                        }}
+                        className={`rounded-xl border px-4 py-3 text-left transition-all duration-300 ${
+                          selected
+                            ? 'border-deepRed bg-deepRed/10'
+                            : 'border-black/10 bg-white hover:border-waterBlue hover:bg-waterBlue/10'
+                        }`}
+                      >
+                        <p className="font-heading text-base font-semibold text-brandBlack">{size.label}</p>
+                        <p className="text-xs text-brandBlack/55">{size.hint}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="text-sm font-semibold text-brandBlack/75">
+                  Full Name *
+                  <input
+                    value={form.fullName}
+                    onChange={(event) => updateCustomerField('fullName', event.target.value)}
+                    className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
+                      fieldErrors.fullName ? 'border-deepRed focus:border-deepRed' : 'border-black/15 focus:border-waterBlue'
+                    }`}
+                    placeholder="John Doe"
+                  />
+                  {fieldErrors.fullName ? <span className="mt-1 block text-xs font-medium text-deepRed">{fieldErrors.fullName}</span> : null}
+                </label>
+                <label className="text-sm font-semibold text-brandBlack/75">
+                  Email *
+                  <input
+                    type="email"
+                    value={form.email}
+                    onChange={(event) => updateCustomerField('email', event.target.value)}
+                    className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
+                      fieldErrors.email ? 'border-deepRed focus:border-deepRed' : 'border-black/15 focus:border-waterBlue'
+                    }`}
+                    placeholder="john@example.com"
+                  />
+                  {fieldErrors.email ? <span className="mt-1 block text-xs font-medium text-deepRed">{fieldErrors.email}</span> : null}
+                </label>
+                <label className="text-sm font-semibold text-brandBlack/75">
+                  Phone *
+                  <input
+                    value={form.phone}
+                    onChange={(event) => updateCustomerField('phone', event.target.value)}
+                    className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
+                      fieldErrors.phone ? 'border-deepRed focus:border-deepRed' : 'border-black/15 focus:border-waterBlue'
+                    }`}
+                    placeholder="(555) 123-4567"
+                  />
+                  {fieldErrors.phone ? <span className="mt-1 block text-xs font-medium text-deepRed">{fieldErrors.phone}</span> : null}
+                </label>
+                <label className="text-sm font-semibold text-brandBlack/75">
+                  ZIP Code *
+                  <input
+                    value={form.zipCode}
+                    onChange={(event) => updateCustomerField('zipCode', event.target.value)}
+                    className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
+                      fieldErrors.zipCode ? 'border-deepRed focus:border-deepRed' : 'border-black/15 focus:border-waterBlue'
+                    }`}
+                    placeholder="90210"
+                  />
+                  {fieldErrors.zipCode ? <span className="mt-1 block text-xs font-medium text-deepRed">{fieldErrors.zipCode}</span> : null}
+                </label>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <label className="text-sm font-semibold text-brandBlack/75">
+                  Year
+                  <input
+                    value={activeVehicle?.year ?? ''}
+                    onChange={(event) => updateActiveVehicleField('year', event.target.value)}
+                    className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
+                      fieldErrors.year ? 'border-deepRed focus:border-deepRed' : 'border-black/15 focus:border-waterBlue'
+                    }`}
+                    placeholder="2020"
+                  />
+                  {fieldErrors.year ? <span className="mt-1 block text-xs font-medium text-deepRed">{fieldErrors.year}</span> : null}
+                </label>
+                <label className="text-sm font-semibold text-brandBlack/75">
+                  Make
+                  <input
+                    value={activeVehicle?.make ?? ''}
+                    onChange={(event) => updateActiveVehicleField('make', event.target.value)}
+                    className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
+                      fieldErrors.make ? 'border-deepRed focus:border-deepRed' : 'border-black/15 focus:border-waterBlue'
+                    }`}
+                    placeholder="Toyota"
+                  />
+                  {fieldErrors.make ? <span className="mt-1 block text-xs font-medium text-deepRed">{fieldErrors.make}</span> : null}
+                </label>
+                <label className="text-sm font-semibold text-brandBlack/75">
+                  Model
+                  <input
+                    value={activeVehicle?.model ?? ''}
+                    onChange={(event) => updateActiveVehicleField('model', event.target.value)}
+                    className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
+                      fieldErrors.model ? 'border-deepRed focus:border-deepRed' : 'border-black/15 focus:border-waterBlue'
+                    }`}
+                    placeholder="Camry"
+                  />
+                  {fieldErrors.model ? <span className="mt-1 block text-xs font-medium text-deepRed">{fieldErrors.model}</span> : null}
+                </label>
+                <label className="text-sm font-semibold text-brandBlack/75">
+                  Color
+                  <input
+                    value={activeVehicle?.color ?? ''}
+                    onChange={(event) => updateActiveVehicleField('color', event.target.value)}
+                    className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
+                      fieldErrors.color ? 'border-deepRed focus:border-deepRed' : 'border-black/15 focus:border-waterBlue'
+                    }`}
+                    placeholder="Silver"
+                  />
+                  {fieldErrors.color ? <span className="mt-1 block text-xs font-medium text-deepRed">{fieldErrors.color}</span> : null}
+                </label>
+              </div>
+
+              <section className="rounded-xl border border-black/10 bg-neutralGray/65 p-3 sm:p-4">
+                <h3 className="text-sm font-semibold text-brandBlack">Confirmation Preferences</h3>
+                <p className="mt-1 text-xs text-brandBlack/70">
+                  Choose how you want appointment confirmations and status updates.
+                </p>
+
+                <div className="mt-3 space-y-2">
+                  <label className="flex items-start gap-2 rounded-lg border border-waterBlue/30 bg-white px-3 py-2 text-sm text-brandBlack/80">
+                    <input
+                      type="checkbox"
+                      checked={form.sendEmailConfirmation}
+                      onChange={(event) => updateCustomerField('sendEmailConfirmation', event.target.checked)}
+                      className="mt-1"
+                    />
+                    <span>I agree to receive booking confirmations and service-related emails.</span>
+                  </label>
+
+                  <label className="flex items-start gap-2 rounded-lg border border-waterBlue/30 bg-white px-3 py-2 text-sm text-brandBlack/80">
+                    <input
+                      type="checkbox"
+                      checked={form.sendSmsConfirmation}
+                      onChange={(event) => {
+                        const checked = event.target.checked;
+                        updateCustomerField('sendSmsConfirmation', checked);
+                        if (!checked) {
+                          updateCustomerField('acceptedSmsConsent', false);
+                        }
+                      }}
+                      className="mt-1"
+                    />
+                    <span>
+                      SMS confirmations to <span className="font-semibold text-brandBlack">your phone number</span>
+                    </span>
+                  </label>
+                </div>
+
+                {form.sendSmsConfirmation ? (
+                  <label className={`mt-3 flex items-start gap-2 rounded-lg px-3 py-2 text-xs text-brandBlack/80 ${
+                    fieldErrors.smsConsent ? 'border border-deepRed bg-deepRed/10' : 'border border-deepRed/30 bg-deepRed/5'
+                  }`}>
+                    <input
+                      type="checkbox"
+                      checked={form.acceptedSmsConsent}
+                      onChange={(event) => updateCustomerField('acceptedSmsConsent', event.target.checked)}
+                      className="mt-0.5"
+                    />
+                    I agree to receive booking-related SMS confirmations. Message/data rates may apply.
+                  </label>
+                ) : null}
+                {fieldErrors.confirmationChannel ? (
+                  <p className="mt-2 text-xs font-medium text-deepRed">{fieldErrors.confirmationChannel}</p>
+                ) : null}
+                {fieldErrors.smsConsent ? <p className="mt-2 text-xs font-medium text-deepRed">{fieldErrors.smsConsent}</p> : null}
+              </section>
+
+              <label className={`flex items-start gap-2 rounded-xl border px-4 py-3 text-sm text-brandBlack/80 ${
+                fieldErrors.acceptedConsent ? 'border-deepRed bg-deepRed/10' : 'border-waterBlue/35 bg-waterBlue/10'
+              }`}>
+                <input
+                  type="checkbox"
+                  checked={form.acceptedConsent}
+                  onChange={(event) => updateCustomerField('acceptedConsent', event.target.checked)}
+                  className="mt-1"
+                />
+                I agree to booking terms and consent to contact for scheduling updates.
+              </label>
+              {fieldErrors.acceptedConsent ? <p className="text-xs font-medium text-deepRed">{fieldErrors.acceptedConsent}</p> : null}
+            </section>
+          ) : null}
+
+          {step === 2 ? (
+            <section className="space-y-4 rounded-2xl border border-black/10 p-4 transition-all duration-300">
+              <div>
+                <h2 className="font-heading text-2xl font-semibold text-brandBlack">Enhancements</h2>
+                <p className="mt-1 text-sm text-brandBlack/65">Select optional add-ons for {activeVehicle ? getVehicleDisplayName(activeVehicle) : 'this vehicle'}.</p>
+                <p className="mt-1 text-xs font-semibold text-brandBlack/55">
+                  Current size pricing: {activeVehicleSize.toUpperCase()} ({formatSizeAdjustmentLabel(activeVehicleSize)})
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                {addonServices.map((service) => {
+                  const selected = selectedServiceIds.includes(service.id);
+                  const adjustedPrice = getAdjustedServicePrice(service.price, activeVehicleSize);
+
+                  return (
+                    <button
+                      key={service.id}
+                      type="button"
+                      onClick={() => {
+                        resetInteractionState();
+                        toggleServiceForVehicle(activeVehicleId, service);
+                      }}
+                      className={`rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
+                        selected
+                          ? 'border-deepRed bg-deepRed/10 shadow-md'
+                          : 'border-black/10 bg-white hover:border-waterBlue hover:bg-waterBlue/10'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-heading text-lg font-semibold text-brandBlack">{service.name}</p>
+                        {selected ? <CheckCircle2 className="h-5 w-5 text-deepRed" /> : null}
+                      </div>
+                      <p className="mt-1 text-xs text-brandBlack/60">{service.description}</p>
+                      <p className="mt-3 text-sm text-brandBlack/70">{service.duration}</p>
+                      <p className="mt-1 font-heading text-2xl font-extrabold text-deepRed">{formatCurrency(adjustedPrice)}</p>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <label className="block text-sm font-semibold text-brandBlack/75">
+                Special Notes
+                <textarea
+                  value={form.notes}
+                  onChange={(event) => updateCustomerField('notes', event.target.value)}
+                  className="mt-1 min-h-24 w-full rounded-lg border border-black/15 px-3 py-2 transition duration-300 focus:border-waterBlue focus:outline-none"
+                  placeholder="Gate code, preferred access, or condition notes..."
+                />
+              </label>
+            </section>
+          ) : null}
+
+          {step === 3 ? (
+            <section className="space-y-4 rounded-2xl border border-black/10 p-4 transition-all duration-300">
+              <div>
+                <h2 className="font-heading text-2xl font-semibold text-brandBlack">Schedule</h2>
+                <p className="mt-1 text-sm text-brandBlack/65">Submit your details, then choose your appointment on Cal.com.</p>
+              </div>
+
+              <div className="rounded-xl border border-black/10 bg-neutralGray p-4">
+                <p className="text-sm text-brandBlack/75">
+                  We pre-save your intake first so your booking request stays attached to your service selections before calendar scheduling.
+                </p>
+                <a
+                  href={getCalendarBookingUrl()}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 inline-flex items-center gap-2 rounded-full bg-deepRed px-4 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-brandBlack"
+                >
+                  Open Cal.com <ArrowRight className="h-4 w-4" />
+                </a>
+              </div>
+
+              {bookingConfirmed ? (
+                <div className="inline-flex w-full items-center gap-2 rounded-xl border border-green-300 bg-green-50 px-4 py-3 text-sm font-medium text-green-800">
+                  <CheckCircle2 className="h-5 w-5" /> Booking confirmed. Your intake was saved successfully.
+                </div>
+              ) : null}
+
+              <ul className="space-y-2 text-sm text-brandBlack/75">
+                <li className="inline-flex items-center gap-2"><Clock3 className="h-4 w-4 text-waterBlue" /> Instant confirmation after slot selection.</li>
+                <li className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-waterBlue" /> Intake details are saved before redirect.</li>
+              </ul>
+            </section>
+          ) : null}
+
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-black/10 pt-4">
+            {step > 1 ? (
+              <button
+                type="button"
+                onClick={goBack}
+                className="inline-flex items-center gap-2 rounded-full border border-waterBlue px-4 py-2 text-sm font-semibold text-waterBlue transition duration-300 hover:bg-waterBlue/10"
+              >
+                <ArrowLeft className="h-4 w-4" /> Back
+              </button>
+            ) : <span />}
+
+            {step < 3 ? (
+              <button
+                type="button"
+                onClick={goNext}
+                className="inline-flex items-center gap-2 rounded-full bg-deepRed px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-brandBlack"
+              >
+                Continue <ArrowRight className="h-4 w-4" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => void handleSubmitBooking()}
+                disabled={submitting || bookingConfirmed}
+                className="inline-flex items-center gap-2 rounded-full bg-deepRed px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-brandBlack disabled:opacity-65"
+              >
+                {bookingConfirmed ? 'Booking Confirmed' : submitting ? 'Submitting...' : 'Submit and Confirm'}
+              </button>
+            )}
+          </div>
+
+          <div className="absolute -left-[9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+            <label htmlFor="website">
+              Website
+              <input
+                id="website"
+                name="website"
+                autoComplete="off"
+                tabIndex={-1}
+                value={honeypot}
+                onChange={(event) => setHoneypot(event.target.value)}
+              />
+            </label>
+          </div>
+
+          {fieldErrors.serviceSelection ? <p className="text-xs font-medium text-deepRed">{fieldErrors.serviceSelection}</p> : null}
+          {fieldErrors.selectedVehicleDetails ? <p className="text-xs font-medium text-deepRed">{fieldErrors.selectedVehicleDetails}</p> : null}
+          {fieldErrors.selectedVehicleLimit ? <p className="text-xs font-medium text-deepRed">{fieldErrors.selectedVehicleLimit}</p> : null}
+          <p className="text-xs font-medium text-brandBlack/60">{BOOKING_LIMIT_DISCLAIMER}</p>
+
+          {statusMessage ? (
+            <p className={`text-sm ${
+              statusMessage.toLowerCase().includes('failed')
+              || statusMessage.toLowerCase().includes('required')
+              || statusMessage.toLowerCase().includes('limit')
+                ? 'text-deepRed'
+                : 'text-brandBlack/70'
+            }`}>
+              {statusMessage}
+            </p>
+          ) : null}
+        </div>
+
+        <aside className="h-fit rounded-2xl border border-black/10 bg-white shadow-sm lg:sticky lg:top-28">
+          <div className="rounded-t-2xl bg-gradient-to-r from-brandBlack to-[#1f1f1f] px-4 py-3 text-white">
+            <h2 className="inline-flex items-center gap-2 font-heading text-xl font-semibold">
+              <ShieldCheck className="h-5 w-5 text-waterBlue" /> Your Selection
+            </h2>
+          </div>
+          <div className="space-y-3 p-4">
+            <article className="rounded-xl border border-black/10 p-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-brandBlack/55">Active Vehicle</p>
+              <p className="mt-1 inline-flex items-center gap-2 font-semibold text-brandBlack">
+                <CarFront className="h-4 w-4 text-waterBlue" />
+                {activeVehicle ? getVehicleDisplayName(activeVehicle) : 'Vehicle'}
+              </p>
+              <p className="mt-1 text-xs text-brandBlack/60">{activeVehicle ? getVehicleHint(activeVehicle) : ''}</p>
+            </article>
+
+            {selectedVehicles.length > 0 ? (
+              <article className="rounded-xl border border-black/10 p-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-brandBlack/55">Booked Vehicles</p>
+                <ul className="mt-2 space-y-2">
+                  {selectedVehicles.map((vehicle) => (
+                    <li key={vehicle.id} className="flex items-center justify-between text-xs">
+                      <span className="text-brandBlack/75">{getVehicleDisplayName(vehicle)}</span>
+                      <span className="font-semibold text-brandBlack">{formatCurrency(getVehicleTotal(vehicle.id))}</span>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            ) : null}
+
+            {selectedPackage ? (
+              <article className="rounded-xl border border-black/10 p-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-brandBlack/55">Package</p>
+                <p className="mt-1 font-heading text-lg font-semibold text-brandBlack">{selectedPackage.name}</p>
+                <p className="mt-1 text-sm font-semibold text-deepRed">{formatCurrency(selectedPackage.price)}</p>
+              </article>
+            ) : (
+              <p className="rounded-xl bg-neutralGray p-3 text-sm text-brandBlack/70">Select a package to continue.</p>
+            )}
+
+            <article className="rounded-xl border border-black/10 p-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-brandBlack/55">Add-Ons</p>
+              {selectedAddons.length > 0 ? (
+                <ul className="mt-2 space-y-1">
+                  {selectedAddons.map((service) => (
+                    <li key={service.id} className="flex items-center justify-between text-xs">
+                      <span className="text-brandBlack/75">{service.name}</span>
+                      <span className="font-semibold text-brandBlack">{formatCurrency(service.price)}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-2 text-xs text-brandBlack/60">No add-ons selected.</p>
+              )}
+            </article>
+
+            <div className="rounded-xl bg-neutralGray p-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-brandBlack">Vehicle Subtotal</span>
+                <span className="font-heading text-2xl font-extrabold text-deepRed">
+                  {formatCurrency(activeVehicle ? getVehicleTotal(activeVehicle.id) : 0)}
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-brandBlack/60">Final price confirmed on-site</p>
+            </div>
+
+            <div className="rounded-xl border border-black/10 p-3">
+              <div className="mb-2 flex items-center justify-between text-xs text-brandBlack/60">
+                <span>Booking Progress</span>
+                <span>Step {step} of {steps.length}</span>
+              </div>
+              <div className="h-2 rounded-full bg-black/10">
+                <div className="h-2 rounded-full bg-brandBlack transition-all duration-500" style={{ width: `${(step / steps.length) * 100}%` }} />
+              </div>
+            </div>
+
+            <div className="border-t border-black/10 pt-3 text-right">
+              <p className="text-xs text-brandBlack/60">All vehicles total</p>
+              <p className="font-heading text-2xl font-extrabold text-deepRed">{formatCurrency(getGrandTotal())}</p>
+            </div>
+          </div>
+        </aside>
+      </section>
+    </SiteShell>
+  );
+}

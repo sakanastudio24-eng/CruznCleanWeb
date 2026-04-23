@@ -1,0 +1,19 @@
+.DS_Store
+.env
+.env.*
+!.env.schema
+node_modules/
+.next/
+.next*/
+out/
+dist/
+coverage/
+*.tsbuildinfo
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+data/email_failures.json
+DetailFlow App/
+Car Detailing Homepage Design.zip

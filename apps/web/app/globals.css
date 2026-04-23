@@ -1,0 +1,227 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --site-header-height: 84px;
+  --mobile-nav-height: 86px;
+  --layout-max-width: 1120px;
+  --layout-side-padding: 1rem;
+  --brand-title-size: 1.7rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f8f8f8;
+  color: #111111;
+  scroll-behavior: smooth;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #0875c2;
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 999;
+  border-radius: 9999px;
+  background: #ffffff;
+  color: #111111;
+  font-weight: 700;
+  padding: 0.65rem 1rem;
+  transform: translateY(-150%);
+  transition: transform 0.2s ease;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+.site-frame {
+  width: 100%;
+  max-width: var(--layout-max-width);
+  margin-inline: auto;
+  padding-inline: var(--layout-side-padding);
+}
+
+.brand-mark {
+  font-family: var(--font-heading), ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  font-size: var(--brand-title-size);
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.mobile-bottom-nav-item {
+  min-height: 52px;
+}
+
+.mobile-footer-fullscreen {
+  display: block;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeUp 0.55s ease-out both;
+}
+
+@media (max-width: 1023px) {
+  body {
+    padding-bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom));
+  }
+
+  /* Extend footer background into the reserved bottom-nav safe area to avoid visual gaps. */
+  .mobile-footer-fullscreen {
+    margin-bottom: calc(-1 * (var(--mobile-nav-height) + env(safe-area-inset-bottom)));
+    padding-bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom));
+  }
+
+  .dock-shell {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    border-radius: 1rem 1rem 0 0;
+  }
+
+  .services-bottom-safe {
+    padding-bottom: 16rem;
+  }
+}
+
+@media (max-width: 479px) {
+  :root {
+    --site-header-height: 76px;
+    --mobile-nav-height: 82px;
+    --layout-max-width: 100%;
+    --layout-side-padding: 0.75rem;
+    --brand-title-size: 1.5rem;
+  }
+
+  .dock-shell {
+    max-height: 68vh;
+    overflow-y: auto;
+  }
+
+  .services-bottom-safe {
+    padding-bottom: 13rem;
+  }
+
+  .mobile-bottom-nav-item {
+    min-height: 48px;
+  }
+
+  .mobile-bottom-nav-item svg {
+    height: 0.85rem;
+    width: 0.85rem;
+  }
+
+  .mobile-footer-fullscreen {
+    min-height: calc(100svh - var(--mobile-nav-height));
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+}
+
+@media (min-width: 480px) and (max-width: 767px) {
+  :root {
+    --site-header-height: 80px;
+    --mobile-nav-height: 86px;
+    --layout-max-width: 100%;
+    --layout-side-padding: 1rem;
+    --brand-title-size: 1.6rem;
+  }
+
+  .dock-shell {
+    max-height: 72vh;
+    overflow-y: auto;
+  }
+
+  .services-bottom-safe {
+    padding-bottom: 14rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  :root {
+    --site-header-height: 84px;
+    --mobile-nav-height: 92px;
+    --layout-max-width: 940px;
+    --layout-side-padding: 1.25rem;
+    --brand-title-size: 1.75rem;
+  }
+
+  .services-bottom-safe {
+    padding-bottom: 15rem;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  :root {
+    --site-header-height: 86px;
+    --layout-max-width: 1100px;
+    --layout-side-padding: 1.5rem;
+    --brand-title-size: 1.9rem;
+  }
+
+  .dock-shell {
+    position: sticky;
+    top: 6.5rem;
+  }
+}
+
+@media (min-width: 1280px) and (max-width: 1535px) {
+  :root {
+    --site-header-height: 88px;
+    --layout-max-width: 1240px;
+    --layout-side-padding: 1.5rem;
+    --brand-title-size: 2rem;
+  }
+
+  .dock-shell {
+    position: sticky;
+    top: 6.5rem;
+  }
+}
+
+@media (min-width: 1536px) {
+  :root {
+    --site-header-height: 90px;
+    --layout-max-width: 1360px;
+    --layout-side-padding: 1.75rem;
+    --brand-title-size: 2.05rem;
+  }
+
+  .dock-shell {
+    position: sticky;
+    top: 6.5rem;
+  }
+}
