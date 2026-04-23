@@ -27,9 +27,9 @@ export interface TestimonialItem {
  */
 export function getHomeServices(): ServiceItem[] {
   const descriptionById: Record<string, string> = {
-    'pkg-basic': 'Exterior wash, vacuum, windows, and tire finish for consistent weekly upkeep.',
-    'pkg-standard': 'Inside-out reset with deeper interior cleaning, clay treatment, and lasting protection.',
-    'pkg-premium': 'Correction-focused detail for gloss recovery, finish refinement, and longer-lasting protection.',
+    'pkg-mini': 'Quick exterior wash, vacuum, and light reset for vehicles that just need to look presentable again.',
+    'pkg-maintenance': 'Our most balanced upkeep detail for maintained vehicles that need consistent care.',
+    'pkg-full-reset': 'Full interior and exterior coverage when the vehicle needs the full day reset.',
   };
 
   return getPackageServices().map((service) => ({
@@ -54,7 +54,7 @@ export function getHomeResults(): ResultItem[] {
     },
     {
       title: 'Protection Layered',
-      detail: 'Protection added to help defend against road film, dust, and Southern California sun exposure.',
+      detail: 'Sealants and coatings added to help defend against road film, dust, and Southern California sun exposure.',
     },
   ];
 }
@@ -66,7 +66,7 @@ export function getHomeProcess(): ProcessItem[] {
   return [
     {
       title: 'Choose Service Plan',
-      detail: 'Review packages and add-ons for each vehicle using the service planner.',
+      detail: 'Review packages, correction work, and coatings for each vehicle using the service planner.',
     },
     {
       title: 'Submit Booking Intake',
@@ -87,12 +87,12 @@ export function getHomeTestimonials(): TestimonialItem[] {
     {
       name: 'Jordan R.',
       quote: 'The sedan looked sharper the same afternoon, and the booking flow stayed simple from phone to calendar.',
-      service: 'Standard + Headlight Restoration',
+      service: 'Maintenance Detail',
     },
     {
       name: 'Amanda T.',
       quote: 'Clear pricing, quick scheduling, and the SUV came back looking noticeably cleaner than expected.',
-      service: 'Premium + Ceramic Coating',
+      service: 'Full Exterior + 3 Year Ceramic Coating',
     },
     {
       name: 'Chris M.',

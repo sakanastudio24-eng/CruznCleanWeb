@@ -23,23 +23,25 @@ interface FaqCategoryChip {
  */
 function getFaqRecords(): FaqRecord[] {
   return [
-    { q: 'How long does a detail take?', a: 'Basic takes 2-3 hours, Standard around 4, and Premium around 6+.', category: 'booking' },
-    { q: 'Can I book multiple cars at once?', a: 'Yes. The vehicle dock allows separate selections per car.', category: 'booking' },
-    { q: 'What is included in the Standard package?', a: 'Standard includes deep interior reset, wax, clay bar, and a full exterior clean.', category: 'services' },
-    { q: 'Do you offer ceramic coating?', a: 'Yes, ceramic coating is available as an add-on or premium bundle.', category: 'services' },
-    { q: 'How is final pricing confirmed?', a: 'Final pricing is confirmed on-site based on condition and selected scope.', category: 'pricing' },
-    { q: 'Do you need water or power on-site?', a: 'No, mobile service setup is prepared for on-location operation.', category: 'preparation' },
+    { q: 'How many vehicles can I submit in one day?', a: 'The booking flow supports up to 4 vehicles per customer per day, and actual capacity depends on the length of the selected services.', category: 'booking' },
+    { q: 'What are your booking hours?', a: 'Standard booking hours are Monday through Friday from 8am to 6pm. Weekend requests are reviewed manually and may be reserved for business maintenance or advertising work.', category: 'booking' },
+    { q: 'How long do the main services take?', a: 'Maintenance Detail is roughly 90 minutes. Full Interior or Full Exterior is about 3 hours. A Full Reset usually lands around 6 to 8 hours depending on condition.', category: 'services' },
+    { q: 'Can I book coatings or paint correction without a detail package?', a: 'Yes. Protection and correction services can be booked on their own, though final prep requirements are confirmed after inspection.', category: 'services' },
+    { q: 'How does pricing change by vehicle size?', a: 'Listed pricing starts with sedans and coupes. Small SUVs and trucks add 20%, large SUVs and trucks add 40%, and vans or very lifted vehicles add 50%.', category: 'pricing' },
+    { q: 'How is final pricing confirmed?', a: 'Final pricing is confirmed after inspection and may increase for larger vehicles, excess dirt, pet hair, staining, ride height, or condition-related labor.', category: 'pricing' },
+    { q: 'Do you need water or power on-site?', a: 'Share site access notes during booking. If there are location constraints, gate details, or setup limits, include them in your notes so the appointment can be approved correctly.', category: 'preparation' },
     {
       q: 'How should I prepare my vehicle before appointment time?',
-      a: 'Please remove valuables and personal items, unlock the vehicle, and ensure we can access the parked location.',
+      a: 'Please remove personal belongings before arrival. Full compartments will not be cleaned, and handoff access should be ready when the appointment begins.',
       category: 'preparation',
     },
     {
-      q: 'Do I need to be present for the entire service?',
-      a: 'You only need to be available for handoff and completion unless we request access clarification.',
+      q: 'What should I know about coatings and correction results?',
+      a: 'Paint correction improves defects but may not remove every scratch or imperfection. Ceramic coating longevity depends on aftercare and environmental exposure.',
       category: 'preparation',
     },
-    { q: 'How often should I detail my vehicle?', a: 'Most clients book maintenance every 4-8 weeks depending on use.', category: 'maintenance' },
+    { q: 'How often should I book a maintenance detail?', a: 'Most maintained vehicles benefit from recurring service every 4 to 8 weeks, depending on driving conditions and storage habits.', category: 'maintenance' },
+    { q: 'What payment methods do you accept?', a: 'Cash, Zelle, Venmo, Cash App, and PayPal are accepted. Debit and credit support may be added later through the booking site.', category: 'maintenance' },
   ];
 }
 
@@ -88,25 +90,25 @@ export default function FaqPage(): JSX.Element {
             <article className="rounded-xl border border-black/10 bg-white p-4">
               <p className="text-sm font-semibold text-ink">1. Access + Location</p>
               <p className="mt-1 text-sm text-ink/75">
-                Keep the vehicle in an accessible area and share gate/parking notes in booking details if needed.
+                Keep the vehicle in an accessible area and share gate, parking, or arrival notes in booking details if needed.
               </p>
             </article>
             <article className="rounded-xl border border-black/10 bg-white p-4">
               <p className="text-sm font-semibold text-ink">2. Vehicle Prep</p>
               <p className="mt-1 text-sm text-ink/75">
-                Remove valuables and personal items so interior areas are fully reachable for cleaning.
+                Remove valuables and personal items so interior areas are reachable for cleaning and inspection.
               </p>
             </article>
             <article className="rounded-xl border border-black/10 bg-white p-4">
               <p className="text-sm font-semibold text-ink">3. Handoff</p>
               <p className="mt-1 text-sm text-ink/75">
-                Be available for start-time handoff and final walk-through so we can confirm results and payment.
+                Be available for start-time handoff and final walk-through so results, pricing, and payment can be confirmed.
               </p>
             </article>
             <article className="rounded-xl border border-black/10 bg-white p-4">
               <p className="text-sm font-semibold text-ink">4. Final Scope</p>
               <p className="mt-1 text-sm text-ink/75">
-                Final pricing is confirmed on-site from actual condition and selected package/add-ons.
+                Final pricing is confirmed on-site from actual condition, vehicle size, and selected service scope.
               </p>
             </article>
           </div>

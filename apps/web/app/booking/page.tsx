@@ -22,7 +22,7 @@ import { BOOKING_LIMIT_DISCLAIMER, MAX_BOOKED_VEHICLES_PER_DAY, countSelectedVeh
 import type { CustomerBookingForm, VehicleProfile, VehicleSize } from '@/lib/booking-types';
 import { getCalendarBookingUrl, submitBookingIntake } from '@/lib/api-client';
 import { formatSizeAdjustmentLabel, getAdjustedServicePrice } from '@/lib/pricing';
-import { getAddonServices, getPackageServices } from '@/lib/services-catalog';
+import { getCorrectionServices, getPackageServices, getProtectionServices } from '@/lib/services-catalog';
 import { getVehicleDisplayName } from '@/lib/vehicle-utils';
 
 interface StepItem {
@@ -75,7 +75,7 @@ const INITIAL_FORM: CustomerBookingForm = {
 function getBookingSteps(): StepItem[] {
   return [
     { id: 1, title: 'Your Details', icon: User },
-    { id: 2, title: 'Enhancements', icon: Sparkles },
+    { id: 2, title: 'Services', icon: Sparkles },
     { id: 3, title: 'Schedule', icon: Calendar },
   ];
 }
@@ -85,9 +85,10 @@ function getBookingSteps(): StepItem[] {
  */
 function getVehicleSizes(): VehicleSizeOption[] {
   return [
-    { id: 'small', label: 'Small', hint: 'Sedan / Coupe' },
-    { id: 'medium', label: 'Medium', hint: 'SUV / Crossover' },
-    { id: 'large', label: 'Large', hint: 'Truck / Van' },
+    { id: 'sedan_coupe', label: 'Sedan / Coupe', hint: 'Base listed pricing' },
+    { id: 'small_suv_truck', label: 'Small SUV / Truck', hint: '+20%' },
+    { id: 'large_suv_truck', label: 'Large SUV / Truck', hint: '+40%' },
+    { id: 'oversized', label: 'Oversized', hint: '+50%' },
   ];
 }
 
@@ -148,12 +149,8 @@ function appendCustomerValidationErrors(
 /**
  * Validates step-one fields and returns per-field helper errors.
  */
-function validateStepOne(form: CustomerBookingForm, activeVehicle: VehicleProfile | undefined, hasPackage: boolean): BookingFieldErrors {
+function validateStepOne(form: CustomerBookingForm, activeVehicle: VehicleProfile | undefined): BookingFieldErrors {
   const errors: BookingFieldErrors = {};
-
-  if (!hasPackage) {
-    errors.package = 'Select a package to continue.';
-  }
 
   appendCustomerValidationErrors(form, errors, 'You must accept booking consent to continue.');
 
@@ -249,7 +246,8 @@ export default function BookingPage(): JSX.Element {
   const steps = getBookingSteps();
   const sizes = getVehicleSizes();
   const packageServices = useMemo(() => getPackageServices(), []);
-  const addonServices = useMemo(() => getAddonServices(), []);
+  const protectionServices = useMemo(() => getProtectionServices(), []);
+  const correctionServices = useMemo(() => getCorrectionServices(), []);
   const activeVehicle = useMemo(
     () => vehicles.find((vehicle) => vehicle.id === activeVehicleId) ?? vehicles[0],
     [activeVehicleId, vehicles],
@@ -259,23 +257,17 @@ export default function BookingPage(): JSX.Element {
   const selectedServiceRecords = getVehicleServices(activeVehicleId);
   const selectedPackageId = selectedServiceIds.find((serviceId) => serviceId.startsWith('pkg-'));
   const selectedPackage = selectedServiceRecords.find((service) => service.id.startsWith('pkg-'));
-  const selectedAddons = selectedServiceRecords.filter((service) => service.category === 'addon');
+  const selectedPremiumServices = selectedServiceRecords.filter((service) => service.category !== 'package');
   const selectedVehicles = useMemo(
     () => vehicles.filter((vehicle) => getVehicleServices(vehicle.id).length > 0),
     [getVehicleServices, vehicles],
   );
   const stepOneErrors = useMemo(
-    () => validateStepOne(form, activeVehicle, Boolean(selectedPackageId)),
-    [activeVehicle, form, selectedPackageId],
+    () => validateStepOne(form, activeVehicle),
+    [activeVehicle, form],
   );
   const stepOneValid = Object.keys(stepOneErrors).length === 0;
-  const activeVehicleSize = activeVehicle?.size ?? 'small';
-  const basicPackage = packageServices.find((service) => service.id === 'pkg-basic');
-  const standardPackage = packageServices.find((service) => service.id === 'pkg-standard');
-  const premiumPackage = packageServices.find((service) => service.id === 'pkg-premium');
-  const basicAdjusted = basicPackage ? getAdjustedServicePrice(basicPackage.price, activeVehicleSize) : 0;
-  const standardAdjusted = standardPackage ? getAdjustedServicePrice(standardPackage.price, activeVehicleSize) : 0;
-  const premiumAdjusted = premiumPackage ? getAdjustedServicePrice(premiumPackage.price, activeVehicleSize) : 0;
+  const activeVehicleSize = activeVehicle?.size ?? 'sedan_coupe';
 
   /**
    * Clears field-level errors and optimistic confirmation state before new edits.
@@ -334,7 +326,7 @@ export default function BookingPage(): JSX.Element {
   function goNext(): void {
     if (step === 1 && !stepOneValid) {
       setFieldErrors(stepOneErrors);
-      setStatusMessage('Complete required details, select one package, and confirm email/SMS preferences to continue.');
+      setStatusMessage('Complete required details and confirm email/SMS preferences to continue.');
       return;
     }
 
@@ -359,7 +351,7 @@ export default function BookingPage(): JSX.Element {
     const submissionErrors = validateSubmission(form, vehicles);
     if (Object.keys(submissionErrors).length > 0) {
       setFieldErrors(submissionErrors);
-      setStatusMessage('Please complete required booking details before submitting.');
+      setStatusMessage('Please complete required booking details and select at least one service before submitting.');
       return;
     }
 
@@ -483,16 +475,16 @@ export default function BookingPage(): JSX.Element {
             <section className="space-y-4 rounded-2xl border border-black/10 p-4 transition-all duration-300">
               <div>
                 <h2 className="font-heading text-2xl font-semibold text-ink">Your Details</h2>
-                <p className="mt-1 text-sm text-ink/65">Pick one package, set vehicle size, and complete contact info.</p>
+                <p className="mt-1 text-sm text-ink/65">
+                  Set vehicle size, choose a package if needed, and complete contact details before you move into coatings and correction work.
+                </p>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {packageServices.map((service) => {
                   const selected = selectedPackageId === service.id;
                   const adjustedPrice = getAdjustedServicePrice(service.price, activeVehicleSize);
-                  const isStandard = service.id === 'pkg-standard';
-                  const standardVsBasic = isStandard ? standardAdjusted - basicAdjusted : 0;
-                  const premiumVsStandard = service.id === 'pkg-premium' ? adjustedPrice - standardAdjusted : 0;
+                  const isBestValue = service.id === 'pkg-maintenance';
 
                   return (
                     <button
@@ -505,35 +497,25 @@ export default function BookingPage(): JSX.Element {
                       className={`rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
                         selected
                           ? 'border-charcoal bg-charcoal/10 shadow-md'
-                          : isStandard
+                          : isBestValue
                             ? 'border-charcoal/45 bg-[#f5f5f5] hover:border-charcoal hover:bg-charcoal/10'
                             : 'border-black/10 bg-white hover:border-fog hover:bg-fog/10'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
                         <p className="font-heading text-lg font-semibold text-ink">{service.name}</p>
-                        {isStandard ? (
+                        {isBestValue ? (
                           <span className="rounded-full bg-charcoal px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-white">
                             Best Value
                           </span>
                         ) : null}
                       </div>
                       <p className="mt-1 text-xs text-ink/60">{service.description}</p>
-                      {isStandard ? (
-                        <p className="mt-2 text-xs font-semibold text-charcoal">
-                          Only +{formatCurrency(standardVsBasic)} vs Basic at this size.
-                        </p>
-                      ) : null}
-                      {service.id === 'pkg-premium' ? (
-                        <p className="mt-2 text-xs text-ink/65">
-                          {formatCurrency(premiumVsStandard)} above Standard at this size.
-                        </p>
-                      ) : null}
-                      {service.id === 'pkg-basic' ? (
-                        <p className="mt-2 text-xs text-ink/65">
-                          Standard adds deeper coverage for +{formatCurrency(standardAdjusted - basicAdjusted)}.
-                        </p>
-                      ) : null}
+                      <ul className="mt-3 space-y-1 text-xs text-ink/70">
+                        {service.highlights.map((highlight) => (
+                          <li key={highlight}>• {highlight}</li>
+                        ))}
+                      </ul>
                       <p className="mt-3 font-heading text-2xl font-extrabold text-charcoal">{formatCurrency(adjustedPrice)}</p>
                     </button>
                   );
@@ -541,15 +523,12 @@ export default function BookingPage(): JSX.Element {
               </div>
               <div className="rounded-xl border border-black/10 bg-canvas p-3 text-xs">
                 <p className="font-semibold text-ink/75">
-                  Size pricing active: {activeVehicleSize.toUpperCase()} ({formatSizeAdjustmentLabel(activeVehicleSize)})
+                  Size pricing active: {activeVehicleSize.replaceAll('_', ' ').toUpperCase()} ({formatSizeAdjustmentLabel(activeVehicleSize)})
                 </p>
-                <div className="mt-2 grid gap-1 sm:grid-cols-3">
-                  <p className="text-ink/70">Basic: <span className="font-semibold text-ink">{formatCurrency(basicAdjusted)}</span></p>
-                  <p className="text-ink/70">Standard: <span className="font-semibold text-charcoal">{formatCurrency(standardAdjusted)}</span></p>
-                  <p className="text-ink/70">Premium: <span className="font-semibold text-ink">{formatCurrency(premiumAdjusted)}</span></p>
-                </div>
+                <p className="mt-2 text-ink/70">
+                  Sedan/coupe pricing is the listed base. Small SUVs/trucks add 20%, large SUVs/trucks add 40%, and oversized vehicles add 50%.
+                </p>
               </div>
-              {fieldErrors.package ? <p className="text-xs font-medium text-charcoal">{fieldErrors.package}</p> : null}
 
               <div>
                 <h3 className="text-sm font-semibold text-ink/80">Vehicle Size</h3>
@@ -571,7 +550,7 @@ export default function BookingPage(): JSX.Element {
                     className="mt-2"
                   />
                 ) : null}
-                <div className="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="mt-2 grid gap-3 sm:grid-cols-2">
                   {sizes.map((size) => {
                     const selected = activeVehicle?.size === size.id;
                     return (
@@ -598,6 +577,11 @@ export default function BookingPage(): JSX.Element {
                     );
                   })}
                 </div>
+              </div>
+
+              <div className="rounded-xl border border-black/10 bg-canvas/65 p-3 text-xs text-ink/75">
+                <p>Booking window: Monday-Friday 8am - 6pm.</p>
+                <p className="mt-1">Weekend appointments are reviewed by request and may be reserved for business maintenance or advertising work.</p>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
@@ -776,43 +760,97 @@ export default function BookingPage(): JSX.Element {
           {step === 2 ? (
             <section className="space-y-4 rounded-2xl border border-black/10 p-4 transition-all duration-300">
               <div>
-                <h2 className="font-heading text-2xl font-semibold text-ink">Enhancements</h2>
-                <p className="mt-1 text-sm text-ink/65">Select optional add-ons for {activeVehicle ? getVehicleDisplayName(activeVehicle) : 'this vehicle'}.</p>
+                <h2 className="font-heading text-2xl font-semibold text-ink">Services</h2>
+                <p className="mt-1 text-sm text-ink/65">
+                  Add coatings or correction work for {activeVehicle ? getVehicleDisplayName(activeVehicle) : 'this vehicle'}.
+                  These can be booked with or without a detail package.
+                </p>
                 <p className="mt-1 text-xs font-semibold text-ink/55">
-                  Current size pricing: {activeVehicleSize.toUpperCase()} ({formatSizeAdjustmentLabel(activeVehicleSize)})
+                  Current size pricing: {activeVehicleSize.replaceAll('_', ' ').toUpperCase()} ({formatSizeAdjustmentLabel(activeVehicleSize)})
                 </p>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                {addonServices.map((service) => {
-                  const selected = selectedServiceIds.includes(service.id);
-                  const adjustedPrice = getAdjustedServicePrice(service.price, activeVehicleSize);
+              <section className="space-y-3">
+                <div>
+                  <h3 className="text-sm font-semibold uppercase tracking-[0.15em] text-ink/60">Protection + Coatings</h3>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {protectionServices.map((service) => {
+                    const selected = selectedServiceIds.includes(service.id);
+                    const adjustedPrice = getAdjustedServicePrice(service.price, activeVehicleSize);
 
-                  return (
-                    <button
-                      key={service.id}
-                      type="button"
-                      onClick={() => {
-                        resetInteractionState();
-                        toggleServiceForVehicle(activeVehicleId, service);
-                      }}
-                      className={`rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
-                        selected
-                          ? 'border-charcoal bg-charcoal/10 shadow-md'
-                          : 'border-black/10 bg-white hover:border-fog hover:bg-fog/10'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="font-heading text-lg font-semibold text-ink">{service.name}</p>
-                        {selected ? <CheckCircle2 className="h-5 w-5 text-charcoal" /> : null}
-                      </div>
-                      <p className="mt-1 text-xs text-ink/60">{service.description}</p>
-                      <p className="mt-3 text-sm text-ink/70">{service.duration}</p>
-                      <p className="mt-1 font-heading text-2xl font-extrabold text-charcoal">{formatCurrency(adjustedPrice)}</p>
-                    </button>
-                  );
-                })}
-              </div>
+                    return (
+                      <button
+                        key={service.id}
+                        type="button"
+                        onClick={() => {
+                          resetInteractionState();
+                          toggleServiceForVehicle(activeVehicleId, service);
+                        }}
+                        className={`rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
+                          selected
+                            ? 'border-charcoal bg-charcoal/10 shadow-md'
+                            : 'border-black/10 bg-white hover:border-fog hover:bg-fog/10'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="font-heading text-lg font-semibold text-ink">{service.name}</p>
+                          {selected ? <CheckCircle2 className="h-5 w-5 text-charcoal" /> : null}
+                        </div>
+                        <p className="mt-1 text-xs text-ink/60">{service.description}</p>
+                        <ul className="mt-3 space-y-1 text-xs text-ink/70">
+                          {service.highlights.map((highlight) => (
+                            <li key={highlight}>• {highlight}</li>
+                          ))}
+                        </ul>
+                        <p className="mt-3 text-sm text-ink/70">{service.duration}</p>
+                        <p className="mt-1 font-heading text-2xl font-extrabold text-charcoal">{formatCurrency(adjustedPrice)}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+
+              <section className="space-y-3">
+                <div>
+                  <h3 className="text-sm font-semibold uppercase tracking-[0.15em] text-ink/60">Paint Correction</h3>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  {correctionServices.map((service) => {
+                    const selected = selectedServiceIds.includes(service.id);
+                    const adjustedPrice = getAdjustedServicePrice(service.price, activeVehicleSize);
+
+                    return (
+                      <button
+                        key={service.id}
+                        type="button"
+                        onClick={() => {
+                          resetInteractionState();
+                          toggleServiceForVehicle(activeVehicleId, service);
+                        }}
+                        className={`rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
+                          selected
+                            ? 'border-charcoal bg-charcoal/10 shadow-md'
+                            : 'border-black/10 bg-white hover:border-fog hover:bg-fog/10'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="font-heading text-lg font-semibold text-ink">{service.name}</p>
+                          {selected ? <CheckCircle2 className="h-5 w-5 text-charcoal" /> : null}
+                        </div>
+                        <p className="mt-1 text-xs text-ink/60">{service.description}</p>
+                        <ul className="mt-3 space-y-1 text-xs text-ink/70">
+                          {service.highlights.map((highlight) => (
+                            <li key={highlight}>• {highlight}</li>
+                          ))}
+                        </ul>
+                        <p className="mt-3 text-sm text-ink/70">{service.duration}</p>
+                        <p className="mt-1 font-heading text-2xl font-extrabold text-charcoal">{formatCurrency(adjustedPrice)}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
 
               <label className="block text-sm font-semibold text-ink/75">
                 Special Notes
@@ -820,7 +858,7 @@ export default function BookingPage(): JSX.Element {
                   value={form.notes}
                   onChange={(event) => updateCustomerField('notes', event.target.value)}
                   className="mt-1 min-h-24 w-full rounded-lg border border-black/15 px-3 py-2 transition duration-300 focus:border-fog focus:outline-none"
-                  placeholder="Gate code, preferred access, or condition notes..."
+                  placeholder="Gate code, same-day need, weekend request, pet hair, heavy stains, or condition notes..."
                 />
               </label>
             </section>
@@ -854,7 +892,8 @@ export default function BookingPage(): JSX.Element {
               ) : null}
 
               <ul className="space-y-2 text-sm text-ink/75">
-                <li className="inline-flex items-center gap-2"><Clock3 className="h-4 w-4 text-fog" /> Instant confirmation after slot selection.</li>
+                <li className="inline-flex items-center gap-2"><Clock3 className="h-4 w-4 text-fog" /> Monday-Friday booking window: 8am - 6pm.</li>
+                <li className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-fog" /> Weekend requests are reviewed manually and same-day rush fees may apply.</li>
                 <li className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-fog" /> Intake details are saved before redirect.</li>
               </ul>
             </section>
@@ -960,14 +999,14 @@ export default function BookingPage(): JSX.Element {
                 <p className="mt-1 text-sm font-semibold text-charcoal">{formatCurrency(selectedPackage.price)}</p>
               </article>
             ) : (
-              <p className="rounded-xl bg-canvas p-3 text-sm text-ink/70">Select a package to continue.</p>
+              <p className="rounded-xl bg-canvas p-3 text-sm text-ink/70">Package selection is optional if you only need coating or correction work.</p>
             )}
 
             <article className="rounded-xl border border-black/10 p-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/55">Add-Ons</p>
-              {selectedAddons.length > 0 ? (
+              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/55">Coatings + Correction</p>
+              {selectedPremiumServices.length > 0 ? (
                 <ul className="mt-2 space-y-1">
-                  {selectedAddons.map((service) => (
+                  {selectedPremiumServices.map((service) => (
                     <li key={service.id} className="flex items-center justify-between text-xs">
                       <span className="text-ink/75">{service.name}</span>
                       <span className="font-semibold text-ink">{formatCurrency(service.price)}</span>
@@ -975,7 +1014,7 @@ export default function BookingPage(): JSX.Element {
                   ))}
                 </ul>
               ) : (
-                <p className="mt-2 text-xs text-ink/60">No add-ons selected.</p>
+                <p className="mt-2 text-xs text-ink/60">No coatings or correction services selected.</p>
               )}
             </article>
 

@@ -10,7 +10,7 @@ import { SITE_PROFILE } from '@/lib/site-profile';
  * Renders an interactive split hero with vehicle-first and plan-second selection.
  */
 export function HeroSection(): JSX.Element {
-  const vehicleTypes = ['Sedan / Coupe', 'SUV / Crossover', 'Truck / Van'];
+  const vehicleTypes = ['Sedan / Coupe', 'Small SUV / Truck', 'Large SUV / Truck', 'Oversized'];
   const detailPlans = getPackageServices().map((service) => ({
     name: service.name,
     price: `$${service.price}`,
@@ -40,7 +40,7 @@ export function HeroSection(): JSX.Element {
           </p>
           <h2 className="mt-3 font-heading text-3xl font-bold leading-tight">Find your right detail</h2>
           <p className="mt-2 text-sm text-ink/65">
-            Built for drivers in {SITE_PROFILE.locationLabel}. Pick a package, review the add-ons, and send one clean intake.
+            Built for drivers in {SITE_PROFILE.locationLabel}. Pick a package, review coatings or correction if needed, and send one clean intake.
           </p>
 
           <div className="mt-4">
@@ -154,11 +154,11 @@ export function HeroSection(): JSX.Element {
             <div className="mt-7 grid gap-3 text-sm sm:grid-cols-3">
               <div className="rounded-xl border border-white/20 bg-white/10 px-3 py-3">
                 <p className="text-[11px] uppercase tracking-[0.14em] text-white/70">Packages</p>
-                <p className="mt-1 font-semibold text-white">Basic • Standard • Premium</p>
+                <p className="mt-1 font-semibold text-white">Mini • Maintenance • Full Reset</p>
               </div>
               <div className="rounded-xl border border-white/20 bg-white/10 px-3 py-3">
-                <p className="text-[11px] uppercase tracking-[0.14em] text-white/70">Add-Ons</p>
-                <p className="mt-1 font-semibold text-white">Ceramic, Engine, Headlights</p>
+                <p className="text-[11px] uppercase tracking-[0.14em] text-white/70">Premium Work</p>
+                <p className="mt-1 font-semibold text-white">Coatings + Correction</p>
               </div>
               <div className="rounded-xl border border-white/20 bg-white/10 px-3 py-3">
                 <p className="text-[11px] uppercase tracking-[0.14em] text-white/70">Multi-Car</p>

@@ -27,7 +27,7 @@ interface BookingProviderProps {
   children: React.ReactNode;
 }
 
-const STORAGE_KEY = 'cruzn-clean-booking-v1';
+const STORAGE_KEY = 'cruzn-clean-booking-v2';
 
 const BookingContext = createContext<BookingContextValue | undefined>(undefined);
 
@@ -42,19 +42,43 @@ function createDefaultVehicle(index: number): VehicleProfile {
     model: '',
     year: '',
     color: '',
-    size: 'small',
-    serviceIds: ['pkg-standard'],
+    size: 'sedan_coupe',
+    serviceIds: [],
   };
 }
 
 /**
- * Ensures each vehicle keeps exactly one package selected by default.
+ * Normalizes persisted service IDs to supported catalog entries and one package max.
  */
-function ensureVehicleHasPackage(serviceIds: string[]): string[] {
+function normalizeVehicleServices(serviceIds: string[]): string[] {
   const cleaned = serviceIds.filter(Boolean);
-  const selectedPackage = cleaned.find((serviceId) => serviceId.startsWith('pkg-'));
-  const retainedAddons = cleaned.filter((serviceId) => !serviceId.startsWith('pkg-'));
-  return [selectedPackage ?? 'pkg-standard', ...retainedAddons];
+  const validServiceIds = cleaned.filter((serviceId) => Boolean(findServiceById(serviceId)));
+  const selectedPackage = validServiceIds.find((serviceId) => serviceId.startsWith('pkg-'));
+  const retainedOtherServices = validServiceIds.filter((serviceId) => !serviceId.startsWith('pkg-'));
+  return selectedPackage ? [selectedPackage, ...retainedOtherServices] : retainedOtherServices;
+}
+
+/**
+ * Maps persisted vehicle sizes from older storage versions onto the current 4-tier model.
+ */
+function normalizeVehicleSize(size: unknown): VehicleSize {
+  if (size === 'sedan_coupe' || size === 'small_suv_truck' || size === 'large_suv_truck' || size === 'oversized') {
+    return size;
+  }
+
+  if (size === 'small') {
+    return 'sedan_coupe';
+  }
+
+  if (size === 'medium') {
+    return 'small_suv_truck';
+  }
+
+  if (size === 'large') {
+    return 'large_suv_truck';
+  }
+
+  return 'sedan_coupe';
 }
 
 /**
@@ -78,8 +102,8 @@ export function BookingProvider({ children }: BookingProviderProps): JSX.Element
         const normalizedVehicles = parsed.vehicles.map((vehicle, index) => ({
           ...createDefaultVehicle(index),
           ...vehicle,
-          size: (vehicle.size ?? 'small') as VehicleSize,
-          serviceIds: ensureVehicleHasPackage(Array.isArray(vehicle.serviceIds) ? vehicle.serviceIds : []),
+          size: normalizeVehicleSize(vehicle.size),
+          serviceIds: normalizeVehicleServices(Array.isArray(vehicle.serviceIds) ? vehicle.serviceIds : []),
         })).slice(0, MAX_BOOKED_VEHICLES_PER_DAY);
         const resolvedActiveVehicleId = normalizedVehicles.some((vehicle) => vehicle.id === parsed.activeVehicleId)
           ? parsed.activeVehicleId
@@ -145,7 +169,7 @@ export function BookingProvider({ children }: BookingProviderProps): JSX.Element
   }
 
   /**
-   * Sets exactly one selected package for a vehicle while preserving add-ons.
+   * Sets exactly one selected package for a vehicle while preserving non-package services.
    */
   function setVehiclePackage(vehicleId: string, packageId: string): void {
     setVehicles((current) =>

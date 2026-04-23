@@ -51,15 +51,15 @@ function getPreviewConfigs(): Record<PreviewTab, EmailPreviewConfig> {
         "<div style='margin-top:14px;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;'>" +
         "<table role='presentation' width='100%' cellspacing='0' cellpadding='0' style='border-collapse:collapse;'>" +
         "<tr><td style='padding:10px;background:#111827;color:#ffffff;font-size:12px;font-weight:700;'>Service</td><td style='padding:10px;background:#111827;color:#ffffff;font-size:12px;font-weight:700;text-align:right;'>Cost</td></tr>" +
-        "<tr><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;'>Vehicle 1 - 2022 Tesla Model 3 (White) - Standard Detail</td><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;text-align:right;'>$189</td></tr>" +
-        "<tr><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;'>Vehicle 1 - 2022 Tesla Model 3 (White) - Ceramic Coating</td><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;text-align:right;'>$500</td></tr>" +
-        "<tr><td style='padding:8px;background:#f9fafb;font-size:13px;font-weight:700;'>Service charge cost</td><td style='padding:8px;background:#f9fafb;font-size:13px;text-align:right;'>$189</td></tr>" +
-        "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;font-weight:700;'>Other services</td><td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>$500</td></tr>" +
-        "<tr><td style='padding:10px;background:#2f2f2f;color:#ffffff;font-size:14px;font-weight:800;'>Total amount due</td><td style='padding:10px;background:#2f2f2f;color:#ffffff;font-size:14px;font-weight:800;text-align:right;'>$689</td></tr>" +
+        "<tr><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;'>Vehicle 1 - 2022 Tesla Model 3 (White) - Maintenance Detail</td><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;text-align:right;'>$99</td></tr>" +
+        "<tr><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;'>Vehicle 1 - 2022 Tesla Model 3 (White) - 3 Year Ceramic Coating</td><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;text-align:right;'>$499</td></tr>" +
+        "<tr><td style='padding:8px;background:#f9fafb;font-size:13px;font-weight:700;'>Service charge cost</td><td style='padding:8px;background:#f9fafb;font-size:13px;text-align:right;'>$99</td></tr>" +
+        "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;font-weight:700;'>Other services</td><td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>$499</td></tr>" +
+        "<tr><td style='padding:10px;background:#2f2f2f;color:#ffffff;font-size:14px;font-weight:800;'>Total amount due</td><td style='padding:10px;background:#2f2f2f;color:#ffffff;font-size:14px;font-weight:800;text-align:right;'>$598</td></tr>" +
         '</table></div>' +
         "<div style='margin-top:14px;padding:12px;border:1px solid #d1d5db;background:#f9fafb;border-radius:10px;'>" +
         "<p style='margin:0;font-size:13px;font-weight:700;color:#2f2f2f;'>Payment info</p>" +
-        "<p style='margin:6px 0 0 0;font-size:13px;color:#2f2f2f;'>Payment will be concluded by a 50% deposit on-site ($344.5) and 50% deposit on completion ($344.5).</p>" +
+        "<p style='margin:6px 0 0 0;font-size:13px;color:#2f2f2f;'>A non-refundable deposit of $25-$100 may be required to secure your appointment and is applied toward the total service cost.</p>" +
         '</div>' +
         "<p style='margin:14px 0 0 0;font-size:13px;'>" +
         "<a href='https://www.cruznclean.com/terms' style='color:#2f2f2f;font-weight:700;text-decoration:none;'>Terms & Conditions</a> | " +
@@ -69,7 +69,7 @@ function getPreviewConfigs(): Record<PreviewTab, EmailPreviewConfig> {
     },
     owner: {
       title: 'Owner Notification Preview',
-      subject: 'New Booking Confirmed — Premium Detail — June 14',
+      subject: 'New Booking Confirmed — Maintenance Detail — June 14',
       description: 'Sent to owner after booking confirmation.',
       htmlPreview:
         "<div style='margin:0;padding:0;background:#f3f4f6;font-family:Arial,sans-serif;color:#111111;'>" +
@@ -81,14 +81,14 @@ function getPreviewConfigs(): Record<PreviewTab, EmailPreviewConfig> {
         "<td style='text-align:right;font-size:12px;color:#e5e7eb;'>Owner Alert</td>" +
         '</tr></table></div>' +
         "<div style='padding:20px;'>" +
-        "<p style='margin:0;font-size:23px;font-weight:800;color:#2f2f2f;'>New Booking Confirmed<br/>Premium Detail — June 14</p>" +
+        "<p style='margin:0;font-size:23px;font-weight:800;color:#2f2f2f;'>New Booking Confirmed<br/>Maintenance Detail — June 14</p>" +
         "<p style='margin:8px 0 0 0;font-size:13px;color:#374151;'>This owner notification is sent after booking confirmation.</p>" +
         "<div style='margin-top:16px;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;'>" +
         "<table role='presentation' width='100%' cellspacing='0' cellpadding='0' style='border-collapse:collapse;'>" +
         "<tr><td style='padding:8px;background:#f9fafb;font-weight:700;font-size:13px;'>Customer name</td><td style='padding:8px;background:#f9fafb;font-size:13px;text-align:right;'>Jordan Cruz</td></tr>" +
         "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Phone</td><td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>(555) 123-4567</td></tr>" +
         "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Email</td><td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>jordan@example.com</td></tr>" +
-        "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Service</td><td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>Premium Detail, Ceramic Coating</td></tr>" +
+        "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Service</td><td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>Maintenance Detail, 3 Year Ceramic Coating</td></tr>" +
         "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Date/time (timezone)</td><td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>June 14, 2026 at 04:30 PM (UTC)</td></tr>" +
         "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Notes</td><td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>Please call on arrival.</td></tr>" +
         "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Booking ID</td><td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;color:#2f2f2f;font-weight:700;'>bk_ab12cd34ef56</td></tr>" +
@@ -96,8 +96,8 @@ function getPreviewConfigs(): Record<PreviewTab, EmailPreviewConfig> {
         "<div style='margin-top:14px;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;'>" +
         "<table role='presentation' width='100%' cellspacing='0' cellpadding='0' style='border-collapse:collapse;'>" +
         "<tr><td style='padding:10px;background:#111827;color:#ffffff;font-size:12px;font-weight:700;'>Service Line</td><td style='padding:10px;background:#111827;color:#ffffff;font-size:12px;font-weight:700;text-align:right;'>Cost</td></tr>" +
-        "<tr><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;'>Vehicle 1 - 2022 Tesla Model 3 (White) - Premium Detail</td><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;text-align:right;'>$349</td></tr>" +
-        "<tr><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;'>Vehicle 1 - 2022 Tesla Model 3 (White) - Ceramic Coating</td><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;text-align:right;'>$500</td></tr>" +
+        "<tr><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;'>Vehicle 1 - 2022 Tesla Model 3 (White) - Maintenance Detail</td><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;text-align:right;'>$99</td></tr>" +
+        "<tr><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;'>Vehicle 1 - 2022 Tesla Model 3 (White) - 3 Year Ceramic Coating</td><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;text-align:right;'>$499</td></tr>" +
         '</table></div>' +
         "<p style='margin:12px 0 0 0;font-size:13px;'><a href='https://www.cruznclean.com/admin/bookings/bk_ab12cd34ef56' style='color:#2f2f2f;font-weight:700;text-decoration:none;'>Manage Booking</a></p>" +
         '</div></div></div></div>',

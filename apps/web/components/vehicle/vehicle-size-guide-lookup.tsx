@@ -21,9 +21,10 @@ interface VehicleSizeGuideLookupProps {
 }
 
 const SIZE_LABELS: Record<VehicleSize, string> = {
-  small: 'Small',
-  medium: 'Medium',
-  large: 'Large',
+  sedan_coupe: 'Sedan / Coupe',
+  small_suv_truck: 'Small SUV / Truck',
+  large_suv_truck: 'Large SUV / Truck',
+  oversized: 'Oversized',
 };
 
 /**
@@ -46,9 +47,10 @@ export function VehicleSizeGuideLookup({
 
   const groupedEntries = useMemo(() => {
     return {
-      small: VEHICLE_SIZE_GUIDE.filter((entry) => entry.size === 'small'),
-      medium: VEHICLE_SIZE_GUIDE.filter((entry) => entry.size === 'medium'),
-      large: VEHICLE_SIZE_GUIDE.filter((entry) => entry.size === 'large'),
+      sedan_coupe: VEHICLE_SIZE_GUIDE.filter((entry) => entry.size === 'sedan_coupe'),
+      small_suv_truck: VEHICLE_SIZE_GUIDE.filter((entry) => entry.size === 'small_suv_truck'),
+      large_suv_truck: VEHICLE_SIZE_GUIDE.filter((entry) => entry.size === 'large_suv_truck'),
+      oversized: VEHICLE_SIZE_GUIDE.filter((entry) => entry.size === 'oversized'),
     };
   }, []);
 
@@ -110,22 +112,29 @@ export function VehicleSizeGuideLookup({
           className="mt-1 w-full rounded-lg border border-black/15 bg-white px-3 py-2 text-sm"
         >
           <option value="">Select from top 50 vehicles</option>
-          <optgroup label="Small">
-            {groupedEntries.small.map((entry) => (
+          <optgroup label="Sedan / Coupe">
+            {groupedEntries.sedan_coupe.map((entry) => (
               <option key={getEntryValue(entry)} value={getEntryValue(entry)}>
                 {entry.make} {entry.model}
               </option>
             ))}
           </optgroup>
-          <optgroup label="Medium">
-            {groupedEntries.medium.map((entry) => (
+          <optgroup label="Small SUV / Truck">
+            {groupedEntries.small_suv_truck.map((entry) => (
               <option key={getEntryValue(entry)} value={getEntryValue(entry)}>
                 {entry.make} {entry.model}
               </option>
             ))}
           </optgroup>
-          <optgroup label="Large">
-            {groupedEntries.large.map((entry) => (
+          <optgroup label="Large SUV / Truck">
+            {groupedEntries.large_suv_truck.map((entry) => (
+              <option key={getEntryValue(entry)} value={getEntryValue(entry)}>
+                {entry.make} {entry.model}
+              </option>
+            ))}
+          </optgroup>
+          <optgroup label="Oversized">
+            {groupedEntries.oversized.map((entry) => (
               <option key={getEntryValue(entry)} value={getEntryValue(entry)}>
                 {entry.make} {entry.model}
               </option>
@@ -171,8 +180,8 @@ export function VehicleSizeGuideLookup({
 
       <div className="mt-3">
         <p className="text-xs font-semibold text-ink/70">Manual Size Override</p>
-        <div className="mt-2 grid grid-cols-3 gap-2">
-          {(['small', 'medium', 'large'] as VehicleSize[]).map((size) => {
+        <div className="mt-2 grid gap-2 sm:grid-cols-2">
+          {(['sedan_coupe', 'small_suv_truck', 'large_suv_truck', 'oversized'] as VehicleSize[]).map((size) => {
             const selected = activeVehicle.size === size;
             return (
               <button

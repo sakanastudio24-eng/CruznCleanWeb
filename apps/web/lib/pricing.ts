@@ -1,9 +1,10 @@
 import type { VehicleSize } from '@/lib/booking-types';
 
 export const SIZE_MULTIPLIERS: Record<VehicleSize, number> = {
-  small: 1,
-  medium: 1.15,
-  large: 1.3,
+  sedan_coupe: 1,
+  small_suv_truck: 1.2,
+  large_suv_truck: 1.4,
+  oversized: 1.5,
 };
 
 /**
@@ -24,7 +25,7 @@ export function getAdjustedServicePrice(basePrice: number, size: VehicleSize): n
  * Returns a compact UI label representing size-based price change.
  */
 export function formatSizeAdjustmentLabel(size: VehicleSize): string {
-  if (size === 'small') {
+  if (size === 'sedan_coupe') {
     return 'Base price';
   }
 

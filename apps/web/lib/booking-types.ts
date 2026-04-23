@@ -1,5 +1,5 @@
-export type ServiceCategory = 'package' | 'addon';
-export type VehicleSize = 'small' | 'medium' | 'large';
+export type ServiceCategory = 'package' | 'protection' | 'correction';
+export type VehicleSize = 'sedan_coupe' | 'small_suv_truck' | 'large_suv_truck' | 'oversized';
 
 export interface ServiceOption {
   id: string;
@@ -8,6 +8,7 @@ export interface ServiceOption {
   price: number;
   category: ServiceCategory;
   duration: string;
+  highlights: string[];
 }
 
 export interface VehicleProfile {
