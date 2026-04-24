@@ -122,6 +122,10 @@ textarea:focus-visible {
     border-radius: 1rem;
   }
 
+  .services-sidebar {
+    position: static;
+  }
+
   .services-bottom-safe {
     padding-bottom: 2rem;
   }
@@ -203,7 +207,7 @@ textarea:focus-visible {
     --brand-title-size: 1.9rem;
   }
 
-  .dock-shell {
+  .services-sidebar {
     position: sticky;
     top: 6.5rem;
   }
@@ -217,7 +221,7 @@ textarea:focus-visible {
     --brand-title-size: 2rem;
   }
 
-  .dock-shell {
+  .services-sidebar {
     position: sticky;
     top: 6.5rem;
   }
@@ -231,7 +235,7 @@ textarea:focus-visible {
     --brand-title-size: 2.05rem;
   }
 
-  .dock-shell {
+  .services-sidebar {
     position: sticky;
     top: 6.5rem;
   }

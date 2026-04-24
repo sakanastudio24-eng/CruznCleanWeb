@@ -126,7 +126,7 @@ export function SiteHeader(): JSX.Element {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-black/92 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-white/12 bg-black/98 backdrop-blur-xl">
         <div className="site-frame grid grid-cols-[auto_1fr_auto] items-center gap-4 py-3">
           <Link href="/" className="brand-mark shrink-0 whitespace-nowrap text-white">
             <span>{SITE_PROFILE.businessName}</span>

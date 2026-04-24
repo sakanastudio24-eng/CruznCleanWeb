@@ -260,7 +260,7 @@ export default function ServicesPage(): JSX.Element {
           </section>
         </div>
 
-        <div className="space-y-4">
+        <div className="services-sidebar space-y-4 self-start">
           <VehicleDock />
           <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
             <h2 className="font-heading text-xl font-semibold text-ink">Availability + Limits</h2>
