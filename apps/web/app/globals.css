@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
   --site-header-height: 84px;
   --mobile-nav-height: 86px;
   --layout-max-width: 1120px;
@@ -31,7 +31,7 @@ button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 3px solid #525252;
+  outline: 3px solid #ffffff;
   outline-offset: 2px;
 }
 
@@ -69,7 +69,7 @@ textarea:focus-visible {
 }
 
 .mobile-bottom-nav-item {
-  min-height: 52px;
+  min-height: 54px;
 }
 
 .mobile-footer-fullscreen {
@@ -104,6 +104,10 @@ textarea:focus-visible {
 
 .page-transition-enter {
   animation: pageEnter 0.3s ease-out both;
+}
+
+.a11y-error {
+  color: #ffb4b4;
 }
 
 .gray-card {
@@ -161,32 +165,39 @@ textarea:focus-visible {
 
 .gray-card .text-ink\/75,
 .gray-panel .text-ink\/75 {
-  color: rgb(255 255 255 / 0.75);
+  color: rgb(255 255 255 / 0.78);
 }
 
 .gray-card .text-ink\/70,
 .gray-panel .text-ink\/70 {
-  color: rgb(255 255 255 / 0.7);
+  color: rgb(255 255 255 / 0.76);
 }
 
 .gray-card .text-ink\/65,
 .gray-panel .text-ink\/65 {
-  color: rgb(255 255 255 / 0.65);
+  color: rgb(255 255 255 / 0.74);
 }
 
 .gray-card .text-ink\/60,
 .gray-panel .text-ink\/60 {
-  color: rgb(255 255 255 / 0.6);
+  color: rgb(255 255 255 / 0.72);
 }
 
 .gray-card .text-ink\/55,
 .gray-panel .text-ink\/55 {
-  color: rgb(255 255 255 / 0.55);
+  color: rgb(255 255 255 / 0.72);
 }
 
 .gray-card .text-ink\/45,
 .gray-panel .text-ink\/45 {
-  color: rgb(255 255 255 / 0.45);
+  color: rgb(255 255 255 / 0.72);
+}
+
+.gray-card .text-charcoal.a11y-error,
+.gray-panel .text-charcoal.a11y-error,
+.gray-card .a11y-error,
+.gray-panel .a11y-error {
+  color: #ffb4b4;
 }
 
 .gray-card .border-black\/10,
@@ -232,7 +243,18 @@ textarea:focus-visible {
 .gray-card textarea::placeholder,
 .gray-panel input::placeholder,
 .gray-panel textarea::placeholder {
-  color: rgb(255 255 255 / 0.38);
+  color: rgb(255 255 255 / 0.58);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }
 
 @media (max-width: 1023px) {
@@ -279,7 +301,7 @@ textarea:focus-visible {
   }
 
   .mobile-bottom-nav-item {
-    min-height: 48px;
+    min-height: 52px;
   }
 
   .mobile-bottom-nav-item svg {

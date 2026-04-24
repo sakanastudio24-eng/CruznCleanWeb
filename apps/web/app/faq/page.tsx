@@ -141,6 +141,7 @@ export default function FaqPage(): JSX.Element {
                 key={chip.id}
                 type="button"
                 onClick={() => setCategory(chip.id)}
+                aria-pressed={selected}
                 className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
                   selected
                     ? 'border-white bg-white text-black shadow-md'

@@ -462,6 +462,7 @@ export default function BookingPage(): JSX.Element {
                         type="button"
                         onClick={() => setActiveVehicleId(vehicle.id)}
                         className="text-left"
+                        aria-pressed={active}
                       >
                         <p className="font-semibold text-ink">{getVehicleDisplayName(vehicle)}</p>
                         <p className="text-xs text-ink/60">{getVehicleHint(vehicle)}</p>
@@ -470,7 +471,7 @@ export default function BookingPage(): JSX.Element {
                         <button
                           type="button"
                           onClick={() => handleRemoveVehicle(vehicle.id)}
-                          className="rounded-full p-1 text-white/55 transition hover:bg-white/10 hover:text-white"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white"
                           aria-label={`Remove ${getVehicleDisplayName(vehicle)}`}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -510,6 +511,7 @@ export default function BookingPage(): JSX.Element {
                         resetInteractionState();
                         setVehiclePackage(activeVehicleId, service.id);
                       }}
+                      aria-pressed={selected}
                       className={`rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
                         selected
                           ? 'border-charcoal bg-charcoal/10 shadow-md'
@@ -577,6 +579,7 @@ export default function BookingPage(): JSX.Element {
                           resetInteractionState();
                           updateVehicle(activeVehicle.id, { size: size.id });
                         }}
+                        aria-pressed={selected}
                         className={`rounded-xl border px-4 py-3 text-left transition-all duration-300 ${
                           selected
                             ? 'border-charcoal bg-charcoal/10'
@@ -602,12 +605,15 @@ export default function BookingPage(): JSX.Element {
                   <input
                     value={form.fullName}
                     onChange={(event) => updateCustomerField('fullName', event.target.value)}
+                    autoComplete="name"
+                    aria-invalid={Boolean(fieldErrors.fullName)}
+                    aria-describedby={fieldErrors.fullName ? 'booking-full-name-error' : undefined}
                     className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
                       fieldErrors.fullName ? 'border-charcoal focus:border-charcoal' : 'border-black/15 focus:border-fog'
                     }`}
                     placeholder="John Doe"
                   />
-                  {fieldErrors.fullName ? <span className="mt-1 block text-xs font-medium text-charcoal">{fieldErrors.fullName}</span> : null}
+                  {fieldErrors.fullName ? <span id="booking-full-name-error" className="a11y-error mt-1 block text-xs font-medium">{fieldErrors.fullName}</span> : null}
                 </label>
                 <label className="text-sm font-semibold text-ink/75">
                   Email *
@@ -615,36 +621,47 @@ export default function BookingPage(): JSX.Element {
                     type="email"
                     value={form.email}
                     onChange={(event) => updateCustomerField('email', event.target.value)}
+                    autoComplete="email"
+                    aria-invalid={Boolean(fieldErrors.email)}
+                    aria-describedby={fieldErrors.email ? 'booking-email-error' : undefined}
                     className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
                       fieldErrors.email ? 'border-charcoal focus:border-charcoal' : 'border-black/15 focus:border-fog'
                     }`}
                     placeholder="john@example.com"
                   />
-                  {fieldErrors.email ? <span className="mt-1 block text-xs font-medium text-charcoal">{fieldErrors.email}</span> : null}
+                  {fieldErrors.email ? <span id="booking-email-error" className="a11y-error mt-1 block text-xs font-medium">{fieldErrors.email}</span> : null}
                 </label>
                 <label className="text-sm font-semibold text-ink/75">
                   Phone *
                   <input
                     value={form.phone}
                     onChange={(event) => updateCustomerField('phone', event.target.value)}
+                    autoComplete="tel"
+                    inputMode="tel"
+                    aria-invalid={Boolean(fieldErrors.phone)}
+                    aria-describedby={fieldErrors.phone ? 'booking-phone-error' : undefined}
                     className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
                       fieldErrors.phone ? 'border-charcoal focus:border-charcoal' : 'border-black/15 focus:border-fog'
                     }`}
                     placeholder="(555) 123-4567"
                   />
-                  {fieldErrors.phone ? <span className="mt-1 block text-xs font-medium text-charcoal">{fieldErrors.phone}</span> : null}
+                  {fieldErrors.phone ? <span id="booking-phone-error" className="a11y-error mt-1 block text-xs font-medium">{fieldErrors.phone}</span> : null}
                 </label>
                 <label className="text-sm font-semibold text-ink/75">
                   ZIP Code *
                   <input
                     value={form.zipCode}
                     onChange={(event) => updateCustomerField('zipCode', event.target.value)}
+                    autoComplete="postal-code"
+                    inputMode="numeric"
+                    aria-invalid={Boolean(fieldErrors.zipCode)}
+                    aria-describedby={fieldErrors.zipCode ? 'booking-zip-code-error' : undefined}
                     className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
                       fieldErrors.zipCode ? 'border-charcoal focus:border-charcoal' : 'border-black/15 focus:border-fog'
                     }`}
                     placeholder="90210"
                   />
-                  {fieldErrors.zipCode ? <span className="mt-1 block text-xs font-medium text-charcoal">{fieldErrors.zipCode}</span> : null}
+                  {fieldErrors.zipCode ? <span id="booking-zip-code-error" className="a11y-error mt-1 block text-xs font-medium">{fieldErrors.zipCode}</span> : null}
                 </label>
               </div>
 
@@ -654,48 +671,60 @@ export default function BookingPage(): JSX.Element {
                   <input
                     value={activeVehicle?.year ?? ''}
                     onChange={(event) => updateActiveVehicleField('year', event.target.value)}
+                    inputMode="numeric"
+                    aria-invalid={Boolean(fieldErrors.year)}
+                    aria-describedby={fieldErrors.year ? 'booking-vehicle-year-error' : undefined}
                     className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
                       fieldErrors.year ? 'border-charcoal focus:border-charcoal' : 'border-black/15 focus:border-fog'
                     }`}
                     placeholder="2020"
                   />
-                  {fieldErrors.year ? <span className="mt-1 block text-xs font-medium text-charcoal">{fieldErrors.year}</span> : null}
+                  {fieldErrors.year ? <span id="booking-vehicle-year-error" className="a11y-error mt-1 block text-xs font-medium">{fieldErrors.year}</span> : null}
                 </label>
                 <label className="text-sm font-semibold text-ink/75">
                   Make
                   <input
                     value={activeVehicle?.make ?? ''}
                     onChange={(event) => updateActiveVehicleField('make', event.target.value)}
+                    autoComplete="off"
+                    aria-invalid={Boolean(fieldErrors.make)}
+                    aria-describedby={fieldErrors.make ? 'booking-vehicle-make-error' : undefined}
                     className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
                       fieldErrors.make ? 'border-charcoal focus:border-charcoal' : 'border-black/15 focus:border-fog'
                     }`}
                     placeholder="Toyota"
                   />
-                  {fieldErrors.make ? <span className="mt-1 block text-xs font-medium text-charcoal">{fieldErrors.make}</span> : null}
+                  {fieldErrors.make ? <span id="booking-vehicle-make-error" className="a11y-error mt-1 block text-xs font-medium">{fieldErrors.make}</span> : null}
                 </label>
                 <label className="text-sm font-semibold text-ink/75">
                   Model
                   <input
                     value={activeVehicle?.model ?? ''}
                     onChange={(event) => updateActiveVehicleField('model', event.target.value)}
+                    autoComplete="off"
+                    aria-invalid={Boolean(fieldErrors.model)}
+                    aria-describedby={fieldErrors.model ? 'booking-vehicle-model-error' : undefined}
                     className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
                       fieldErrors.model ? 'border-charcoal focus:border-charcoal' : 'border-black/15 focus:border-fog'
                     }`}
                     placeholder="Camry"
                   />
-                  {fieldErrors.model ? <span className="mt-1 block text-xs font-medium text-charcoal">{fieldErrors.model}</span> : null}
+                  {fieldErrors.model ? <span id="booking-vehicle-model-error" className="a11y-error mt-1 block text-xs font-medium">{fieldErrors.model}</span> : null}
                 </label>
                 <label className="text-sm font-semibold text-ink/75">
                   Color
                   <input
                     value={activeVehicle?.color ?? ''}
                     onChange={(event) => updateActiveVehicleField('color', event.target.value)}
+                    autoComplete="off"
+                    aria-invalid={Boolean(fieldErrors.color)}
+                    aria-describedby={fieldErrors.color ? 'booking-vehicle-color-error' : undefined}
                     className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
                       fieldErrors.color ? 'border-charcoal focus:border-charcoal' : 'border-black/15 focus:border-fog'
                     }`}
                     placeholder="Silver"
                   />
-                  {fieldErrors.color ? <span className="mt-1 block text-xs font-medium text-charcoal">{fieldErrors.color}</span> : null}
+                  {fieldErrors.color ? <span id="booking-vehicle-color-error" className="a11y-error mt-1 block text-xs font-medium">{fieldErrors.color}</span> : null}
                 </label>
               </div>
 
@@ -717,7 +746,7 @@ export default function BookingPage(): JSX.Element {
                     />
                     <span>I reviewed the booking terms and policies and agree to be contacted for scheduling updates.</span>
                   </label>
-                  {fieldErrors.acceptedConsent ? <p className="text-xs font-medium text-charcoal">{fieldErrors.acceptedConsent}</p> : null}
+                  {fieldErrors.acceptedConsent ? <p className="a11y-error text-xs font-medium">{fieldErrors.acceptedConsent}</p> : null}
 
                   <label className="flex items-start gap-2 rounded-lg border border-white/15 bg-[#111111] px-3 py-2 text-sm text-ink/80">
                     <input
@@ -762,9 +791,9 @@ export default function BookingPage(): JSX.Element {
                   </label>
                 ) : null}
                 {fieldErrors.confirmationChannel ? (
-                  <p className="mt-2 text-xs font-medium text-charcoal">{fieldErrors.confirmationChannel}</p>
+                  <p className="a11y-error mt-2 text-xs font-medium">{fieldErrors.confirmationChannel}</p>
                 ) : null}
-                {fieldErrors.smsConsent ? <p className="mt-2 text-xs font-medium text-charcoal">{fieldErrors.smsConsent}</p> : null}
+                {fieldErrors.smsConsent ? <p className="a11y-error mt-2 text-xs font-medium">{fieldErrors.smsConsent}</p> : null}
               </section>
 
             </section>
@@ -807,6 +836,7 @@ export default function BookingPage(): JSX.Element {
                             resetInteractionState();
                             toggleServiceForVehicle(activeVehicleId, service);
                           }}
+                          aria-pressed={selected}
                           className={`rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
                             selected
                               ? 'border-charcoal bg-charcoal/10 shadow-md'
@@ -848,6 +878,7 @@ export default function BookingPage(): JSX.Element {
                             resetInteractionState();
                             toggleServiceForVehicle(activeVehicleId, service);
                           }}
+                          aria-pressed={selected}
                           className={`rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
                             selected
                               ? 'border-charcoal bg-charcoal/10 shadow-md'
@@ -878,6 +909,7 @@ export default function BookingPage(): JSX.Element {
                 <textarea
                   value={form.notes}
                   onChange={(event) => updateCustomerField('notes', event.target.value)}
+                  autoComplete="off"
                   className="mt-1 min-h-24 w-full rounded-lg border border-black/15 px-3 py-2 transition duration-300 focus:border-fog focus:outline-none"
                   placeholder="Gate code, same-day need, weekend request, pet hair, heavy stains, or condition notes..."
                 />
@@ -1003,9 +1035,9 @@ export default function BookingPage(): JSX.Element {
             </label>
           </div>
 
-          {fieldErrors.serviceSelection ? <p className="text-xs font-medium text-charcoal">{fieldErrors.serviceSelection}</p> : null}
-          {fieldErrors.selectedVehicleDetails ? <p className="text-xs font-medium text-charcoal">{fieldErrors.selectedVehicleDetails}</p> : null}
-          {fieldErrors.selectedVehicleLimit ? <p className="text-xs font-medium text-charcoal">{fieldErrors.selectedVehicleLimit}</p> : null}
+          {fieldErrors.serviceSelection ? <p className="a11y-error text-xs font-medium">{fieldErrors.serviceSelection}</p> : null}
+          {fieldErrors.selectedVehicleDetails ? <p className="a11y-error text-xs font-medium">{fieldErrors.selectedVehicleDetails}</p> : null}
+          {fieldErrors.selectedVehicleLimit ? <p className="a11y-error text-xs font-medium">{fieldErrors.selectedVehicleLimit}</p> : null}
           <p className="text-xs font-medium text-ink/60">{BOOKING_LIMIT_DISCLAIMER}</p>
 
           {statusMessage ? (
@@ -1013,7 +1045,7 @@ export default function BookingPage(): JSX.Element {
               statusMessage.toLowerCase().includes('failed')
               || statusMessage.toLowerCase().includes('required')
               || statusMessage.toLowerCase().includes('limit')
-                ? 'text-charcoal'
+                ? 'a11y-error'
                 : 'text-ink/70'
             }`}>
               {statusMessage}

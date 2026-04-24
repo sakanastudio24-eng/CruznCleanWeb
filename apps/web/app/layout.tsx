@@ -1,10 +1,46 @@
 import type { Metadata } from 'next';
 import { Providers } from '@/app/providers';
+import { SITE_PROFILE } from '@/lib/site-profile';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Cruzn Clean',
-  description: 'Black-and-white mobile detailing site for Yorba Linda bookings, quotes, and Cal.com scheduling.',
+  metadataBase: new URL(SITE_PROFILE.siteUrl),
+  title: {
+    default: 'Cruzn Clean | Yorba Linda Mobile Auto Detailing',
+    template: '%s | Cruzn Clean',
+  },
+  description: 'Mobile auto detailing in Yorba Linda with service packages, add-ons, quote requests, and Cal.com booking.',
+  applicationName: SITE_PROFILE.businessName,
+  authors: [{ name: 'Zward Studio', url: 'https://zward.com' }],
+  creator: 'Zward Studio',
+  publisher: 'Zward Studio',
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: '/',
+    siteName: SITE_PROFILE.businessName,
+    title: 'Cruzn Clean | Yorba Linda Mobile Auto Detailing',
+    description: 'Book mobile detailing, request custom quotes, and review service packages for Yorba Linda-area vehicles.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Cruzn Clean | Yorba Linda Mobile Auto Detailing',
+    description: 'Mobile auto detailing in Yorba Linda with clear booking, packages, add-ons, and quote requests.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+  },
 };
 
 interface RootLayoutProps {

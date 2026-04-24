@@ -171,7 +171,7 @@ export function SiteHeader(): JSX.Element {
             <button
               type="button"
               onClick={() => setCartOpen((current) => !current)}
-              className="relative rounded-full p-2 text-white transition duration-300 hover:bg-white/10 hover:text-fog"
+              className="relative inline-flex h-11 w-11 items-center justify-center rounded-full text-white transition duration-300 hover:bg-white/10 hover:text-fog"
               aria-label="Open cart summary"
               aria-haspopup="dialog"
               aria-expanded={cartOpen}
@@ -249,7 +249,7 @@ export function SiteHeader(): JSX.Element {
           <div className="flex items-center justify-end gap-1 lg:hidden" ref={cartRef}>
             <a
               href={SITE_PROFILE.phoneHref}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-white transition duration-300 hover:bg-white/10"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-white transition duration-300 hover:bg-white/10"
               aria-label="Call us"
             >
               <Phone className="h-5 w-5" />
@@ -258,7 +258,7 @@ export function SiteHeader(): JSX.Element {
             <button
               type="button"
               onClick={() => setCartOpen((current) => !current)}
-              className="relative rounded-full p-2 text-white transition duration-300 hover:bg-white/10"
+              className="relative inline-flex h-11 w-11 items-center justify-center rounded-full text-white transition duration-300 hover:bg-white/10"
               aria-label="Open cart summary"
               aria-haspopup="dialog"
               aria-expanded={cartOpen}
@@ -300,7 +300,7 @@ export function SiteHeader(): JSX.Element {
         className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-black/95 pb-[calc(env(safe-area-inset-bottom)+0.35rem)] pt-2 backdrop-blur-md lg:hidden"
         aria-label="Mobile navigation"
       >
-        <div className="mx-auto grid w-full max-w-[760px] grid-cols-6 gap-1 px-2 sm:px-4">
+        <div className="mx-auto grid w-full max-w-[760px] grid-cols-5 gap-1 px-2 sm:px-4">
           {mobileLinks.map((link) => {
             const active = isActivePath(pathname, link.href);
             const Icon = link.icon;

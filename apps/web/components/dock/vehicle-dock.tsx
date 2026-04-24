@@ -72,7 +72,7 @@ export function VehicleDock(): JSX.Element {
                       <button
                         type="button"
                         onClick={() => removeVehicle(vehicle.id)}
-                        className="rounded-md p-1 text-white/45 transition hover:bg-white/10 hover:text-white"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-white/70 transition hover:bg-white/10 hover:text-white"
                         aria-label="Remove vehicle"
                       >
                         <Trash2 className="h-4 w-4" />

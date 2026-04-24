@@ -45,6 +45,7 @@ export default function GalleryPage(): JSX.Element {
                 key={id}
                 type="button"
                 onClick={() => setFilter(id as 'all' | GalleryCategory)}
+                aria-pressed={selected}
                 className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
                   selected
                     ? 'border-white bg-white text-black shadow-md'

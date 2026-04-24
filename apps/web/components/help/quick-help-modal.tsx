@@ -100,7 +100,7 @@ export function QuickHelpModal(): JSX.Element {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="relative rounded-full p-2 text-white transition duration-300 hover:bg-white/10 hover:text-fog"
+        className="relative inline-flex h-11 w-11 items-center justify-center rounded-full text-white transition duration-300 hover:bg-white/10 hover:text-fog"
         aria-label="Open quick help"
         aria-haspopup="dialog"
         aria-expanded={open}
@@ -144,7 +144,7 @@ export function QuickHelpModal(): JSX.Element {
                   <button
                     type="button"
                     onClick={() => setOpen(false)}
-                    className="rounded-full p-2 text-white/55 transition hover:bg-white/10 hover:text-white"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white"
                     aria-label="Close quick help"
                   >
                     ✕

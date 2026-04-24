@@ -121,6 +121,7 @@ function ServiceGrid({
               key={service.id}
               type="button"
               onClick={() => handleSelect(service)}
+              aria-pressed={selected}
               className={`rounded-xl border p-4 text-left transition duration-300 ${
                 selected
                   ? 'border-charcoal bg-charcoal/10 shadow-md'
@@ -191,6 +192,7 @@ function VehicleSizeSection(): JSX.Element {
               key={option.id}
               type="button"
               onClick={() => updateVehicle(activeVehicle.id, { size: option.id })}
+              aria-pressed={selected}
               className={`rounded-2xl border px-4 py-5 text-left transition duration-300 ${
                 selected
                   ? 'border-charcoal bg-charcoal/5 shadow-md'

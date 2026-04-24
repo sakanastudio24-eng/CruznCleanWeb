@@ -78,6 +78,7 @@ export default function QuotePage(): JSX.Element {
               <input
                 value={form.fullName}
                 onChange={(event) => setForm((current) => ({ ...current, fullName: event.target.value }))}
+                autoComplete="name"
                 className="gray-field mt-1 w-full rounded-lg px-3 py-2"
                 placeholder="John Doe"
                 required
@@ -89,6 +90,7 @@ export default function QuotePage(): JSX.Element {
                 type="email"
                 value={form.email}
                 onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
+                autoComplete="email"
                 className="gray-field mt-1 w-full rounded-lg px-3 py-2"
                 placeholder="john@example.com"
                 required
@@ -99,6 +101,8 @@ export default function QuotePage(): JSX.Element {
               <input
                 value={form.phone}
                 onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
+                autoComplete="tel"
+                inputMode="tel"
                 className="gray-field mt-1 w-full rounded-lg px-3 py-2"
                 placeholder="(555) 123-4567"
                 required
@@ -109,6 +113,7 @@ export default function QuotePage(): JSX.Element {
               <input
                 value={form.address}
                 onChange={(event) => setForm((current) => ({ ...current, address: event.target.value }))}
+                autoComplete="street-address"
                 className="gray-field mt-1 w-full rounded-lg px-3 py-2"
                 placeholder="123 Main St, City, ST"
                 required
@@ -120,6 +125,7 @@ export default function QuotePage(): JSX.Element {
           <textarea
             value={form.message}
             onChange={(event) => setForm((current) => ({ ...current, message: event.target.value }))}
+            autoComplete="off"
             className="gray-field mt-2 min-h-40 w-full rounded-lg px-3 py-2"
             placeholder="Vehicle year, make, model, color, service goals, and any condition notes"
             required

@@ -69,6 +69,7 @@ export default function ContactPage(): JSX.Element {
             <input
               value={form.fullName}
               onChange={(event) => updateField('fullName', event.target.value)}
+              autoComplete="name"
               className="gray-field mt-1 w-full rounded-lg px-3 py-2"
               required
             />
@@ -80,6 +81,7 @@ export default function ContactPage(): JSX.Element {
               type="email"
               value={form.email}
               onChange={(event) => updateField('email', event.target.value)}
+              autoComplete="email"
               className="gray-field mt-1 w-full rounded-lg px-3 py-2"
               required
             />
@@ -90,6 +92,8 @@ export default function ContactPage(): JSX.Element {
             <input
               value={form.phone}
               onChange={(event) => updateField('phone', event.target.value)}
+              autoComplete="tel"
+              inputMode="tel"
               className="gray-field mt-1 w-full rounded-lg px-3 py-2"
               placeholder="Optional"
             />
@@ -100,6 +104,7 @@ export default function ContactPage(): JSX.Element {
             <textarea
               value={form.message}
               onChange={(event) => updateField('message', event.target.value)}
+              autoComplete="off"
               className="gray-field mt-1 min-h-32 w-full rounded-lg px-3 py-2"
               required
             />
