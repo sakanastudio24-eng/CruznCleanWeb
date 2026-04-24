@@ -7,9 +7,7 @@ import { ArrowRight, CalendarClock, ShieldCheck, Sparkles } from 'lucide-react';
 export function CtaSection(): JSX.Element {
   return (
     <section className="relative overflow-hidden py-20 text-white">
-      <div className="absolute inset-0 bg-[linear-gradient(120deg,#2c2c2c_0%,#1f1f1f_55%,#0a0a0a_100%)]" />
-      <div className="absolute -left-24 top-10 h-72 w-72 rounded-full bg-fog/20 blur-3xl" />
-      <div className="absolute -right-20 bottom-6 h-64 w-64 rounded-full bg-charcoal/30 blur-3xl" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,#0c0c0c_0%,#050505_100%)]" />
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="relative grid gap-8 rounded-[30px] border border-white/20 bg-white/10 p-6 shadow-[0_22px_70px_rgba(0,0,0,0.35)] backdrop-blur-md sm:p-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div>

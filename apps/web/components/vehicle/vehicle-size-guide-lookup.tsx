@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
@@ -8,7 +9,6 @@ import {
   VEHICLE_SIZE_GUIDE,
   findVehicleGuideMatches,
   isVehicleGuideAmbiguous,
-  normalizeVehicleQuery,
   searchVehicleGuide,
   type VehicleGuideEntry,
 } from '@/lib/vehicle-size-guide';
@@ -16,7 +16,6 @@ import {
 interface VehicleSizeGuideLookupProps {
   activeVehicle: VehicleProfile;
   onApplyLookupMatch: (match: { make: string; model: string; size: VehicleSize }) => void;
-  onManualSizeChange: (size: VehicleSize) => void;
   className?: string;
 }
 
@@ -35,12 +34,11 @@ function getEntryValue(entry: VehicleGuideEntry): string {
 }
 
 /**
- * Renders dual-format vehicle lookup with match status and manual size override chips.
+ * Renders dual-format vehicle lookup with match status and mismatch support links.
  */
 export function VehicleSizeGuideLookup({
   activeVehicle,
   onApplyLookupMatch,
-  onManualSizeChange,
   className = '',
 }: VehicleSizeGuideLookupProps): JSX.Element {
   const [searchQuery, setSearchQuery] = useState('');
@@ -72,9 +70,7 @@ export function VehicleSizeGuideLookup({
     return searchVehicleGuide(searchQuery).slice(0, 8);
   }, [searchQuery]);
 
-  const isManualOverride = Boolean(
-    matchedByVehicleFields && activeVehicle.size !== matchedByVehicleFields.size,
-  );
+  const needsSupportRouting = ambiguousVehicleMatch || !matchedByVehicleFields || activeVehicle.size === 'oversized';
 
   /**
    * Applies one lookup result to active vehicle make/model/size.
@@ -173,67 +169,52 @@ export function VehicleSizeGuideLookup({
               ))}
             </div>
           ) : (
-            <p className="text-xs text-ink/65">No catalog match yet. Choose a manual size below.</p>
+            <p className="text-xs text-ink/65">No catalog match yet. Use the size cards on this page or request a custom quote for specialty vehicles.</p>
           )}
         </div>
       ) : null}
-
-      <div className="mt-3">
-        <p className="text-xs font-semibold text-ink/70">Manual Size Override</p>
-        <div className="mt-2 grid gap-2 sm:grid-cols-2">
-          {(['sedan_coupe', 'small_suv_truck', 'large_suv_truck', 'oversized'] as VehicleSize[]).map((size) => {
-            const selected = activeVehicle.size === size;
-            return (
-              <button
-                key={size}
-                type="button"
-                onClick={() => onManualSizeChange(size)}
-                className={`rounded-md border px-2 py-1.5 text-xs font-semibold transition ${
-                  selected
-                    ? 'border-charcoal bg-charcoal/10 text-charcoal'
-                    : 'border-black/15 bg-white text-ink hover:border-fog hover:text-fog'
-                }`}
-              >
-                {SIZE_LABELS[size]}
-              </button>
-            );
-          })}
-        </div>
-      </div>
 
       <div className={`mt-3 rounded-lg border px-3 py-2 text-xs ${
         ambiguousVehicleMatch
           ? 'border-amber-300 bg-amber-50 text-amber-900'
           : matchedByVehicleFields
-          ? isManualOverride
-            ? 'border-amber-300 bg-amber-50 text-amber-900'
-            : 'border-green-300 bg-green-50 text-green-900'
+          ? 'border-green-300 bg-green-50 text-green-900'
           : 'border-fog/35 bg-fog/10 text-ink/75'
       }`}>
         {ambiguousVehicleMatch ? (
           <>
-            Multiple catalog matches found for the current make/model fields.
-            Select an exact vehicle from the dropdown or finder to apply size.
+            Multiple guide matches were found for this make/model.
+            Select the closest exact match from the dropdown or type finder before you continue.
           </>
         ) : matchedByVehicleFields ? (
-          isManualOverride ? (
-            <>
-              Match found for <span className="font-semibold">{matchedByVehicleFields.make} {matchedByVehicleFields.model}</span> ({SIZE_LABELS[matchedByVehicleFields.size]}),
-              but manual size override is active.
-            </>
-          ) : (
-            <>
-              Matched <span className="font-semibold">{matchedByVehicleFields.make} {matchedByVehicleFields.model}</span> and applied
-              <span className="font-semibold"> {SIZE_LABELS[matchedByVehicleFields.size]}</span> size.
-            </>
-          )
+          <>
+            Matched <span className="font-semibold">{matchedByVehicleFields.make} {matchedByVehicleFields.model}</span> and applied
+            <span className="font-semibold"> {SIZE_LABELS[matchedByVehicleFields.size]}</span> sizing guidance.
+          </>
         ) : (
-          'No catalog match yet. Size remains customizable until a match is found.'
+          'This vehicle is not in our standard sizing guide yet. Use the size cards on this page, or request a custom quote if the vehicle is modified, lifted, or specialty fitment.'
         )}
       </div>
 
+      {needsSupportRouting ? (
+        <div className="mt-3 rounded-lg border border-black/10 bg-white px-3 py-3 text-xs text-ink/75">
+          <p className="font-semibold text-ink">Mismatch check</p>
+          <p className="mt-1">
+            If this vehicle has modifications, lift kits, oversized wheels, accessories, or anything else that changes service time, request a custom quote before booking.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Link href="/quote" className="rounded-full bg-charcoal px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-ink">
+              Request a Quote
+            </Link>
+            <Link href="/faq" className="rounded-full border border-black/15 px-3 py-1.5 text-[11px] font-semibold text-ink transition hover:border-fog hover:text-fog">
+              Review Help + FAQ
+            </Link>
+          </div>
+        </div>
+      ) : null}
+
       <p className="mt-2 text-[11px] text-ink/55">
-        Model-level matching only in v1. You can still adjust size manually at any time.
+        Model-level matching only in v1. When your exact vehicle is not listed, confirm fitment through Quote or FAQ before submitting.
       </p>
     </div>
   );

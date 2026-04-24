@@ -18,7 +18,7 @@ function getQuickFaqs(): FaqItem[] {
   return [
     {
       question: 'How long does a detail take?',
-      answer: 'Basic takes about 2-3 hours, Standard around 4 hours, and Premium around 6+ hours.',
+      answer: 'Maintenance details usually take about 90 minutes. Full interior or exterior services run about 3 hours each, and a full reset can take 6 to 8 hours.',
       icon: Clock3,
     },
     {
@@ -28,7 +28,7 @@ function getQuickFaqs(): FaqItem[] {
     },
     {
       question: 'What forms of payment do you accept?',
-      answer: 'Card, cash, and approved digital payments are accepted after service completion.',
+      answer: 'Cash, Zelle, Venmo, Cash App, and PayPal are accepted after service completion. Debit and credit card support is planned next.',
       icon: CreditCard,
     },
     {
@@ -100,7 +100,7 @@ export function QuickHelpModal(): JSX.Element {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="relative rounded-full p-2 text-ink transition duration-300 hover:bg-canvas hover:text-charcoal"
+        className="relative rounded-full p-2 text-white transition duration-300 hover:bg-white/10 hover:text-fog"
         aria-label="Open quick help"
         aria-haspopup="dialog"
         aria-expanded={open}

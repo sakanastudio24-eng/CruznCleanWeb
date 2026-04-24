@@ -6,6 +6,7 @@ import { SiteShell } from '@/components/layout/site-shell';
 import type { ContactForm } from '@/lib/booking-types';
 import { submitContactMessage } from '@/lib/api-client';
 import { SITE_PROFILE } from '@/lib/site-profile';
+import { usePersistentState } from '@/lib/use-persistent-state';
 
 const INITIAL_CONTACT: ContactForm = {
   fullName: '',
@@ -18,7 +19,7 @@ const INITIAL_CONTACT: ContactForm = {
  * Renders question-only contact form separate from booking flow.
  */
 export default function ContactPage(): JSX.Element {
-  const [form, setForm] = useState<ContactForm>(INITIAL_CONTACT);
+  const [form, setForm, clearForm] = usePersistentState<ContactForm>('cruzn-clean-contact-form-v1', INITIAL_CONTACT);
   const [statusMessage, setStatusMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -39,7 +40,7 @@ export default function ContactPage(): JSX.Element {
 
     try {
       await submitContactMessage(form);
-      setForm(INITIAL_CONTACT);
+      clearForm();
       setStatusMessage('Message sent. We will respond as soon as possible.');
     } catch {
       setStatusMessage('Message failed to send. Please try again shortly.');

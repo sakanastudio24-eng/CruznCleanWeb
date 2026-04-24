@@ -1,13 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Car, ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react';
 
 import { useBooking } from '@/components/providers/booking-provider';
 import { BOOKING_LIMIT_DISCLAIMER, MAX_BOOKED_VEHICLES_PER_DAY } from '@/lib/booking-policy';
-import { VehicleSizeGuideLookup } from '@/components/vehicle/vehicle-size-guide-lookup';
-import type { VehicleSize } from '@/lib/booking-types';
 import { getVehicleDisplayName } from '@/lib/vehicle-utils';
 
 /**
@@ -20,55 +18,13 @@ export function VehicleDock(): JSX.Element {
     setActiveVehicleId,
     addVehicle,
     removeVehicle,
-    updateVehicle,
     getGrandTotal,
     getVehicleTotal,
     getVehicleServices,
   } = useBooking();
   const [mobileExpanded, setMobileExpanded] = useState(false);
 
-  const activeVehicle = useMemo(
-    () => vehicles.find((vehicle) => vehicle.id === activeVehicleId) ?? vehicles[0],
-    [activeVehicleId, vehicles],
-  );
   const canAddVehicle = vehicles.length < MAX_BOOKED_VEHICLES_PER_DAY;
-
-  /**
-   * Updates one active vehicle field in dock controls.
-   */
-  function updateActiveVehicleField(field: 'make' | 'model' | 'year' | 'color', value: string): void {
-    if (!activeVehicle) {
-      return;
-    }
-
-    updateVehicle(activeVehicle.id, { [field]: value });
-  }
-
-  /**
-   * Applies one lookup result to the active vehicle record.
-   */
-  function applyLookupMatch(match: { make: string; model: string; size: VehicleSize }): void {
-    if (!activeVehicle) {
-      return;
-    }
-
-    updateVehicle(activeVehicle.id, {
-      make: match.make,
-      model: match.model,
-      size: match.size,
-    });
-  }
-
-  /**
-   * Applies manual size overrides for active vehicle pricing.
-   */
-  function applyManualSize(size: VehicleSize): void {
-    if (!activeVehicle) {
-      return;
-    }
-
-    updateVehicle(activeVehicle.id, { size });
-  }
 
   return (
     <aside className="dock-shell rounded-2xl border border-black/10 bg-white shadow-xl">
@@ -146,55 +102,12 @@ export function VehicleDock(): JSX.Element {
           <p className="mt-2 text-center text-xs font-medium text-ink/60">{BOOKING_LIMIT_DISCLAIMER}</p>
         </section>
 
-        {activeVehicle ? (
-          <section className="rounded-xl border border-black/10 bg-canvas p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink/55">Active Vehicle Details</p>
-            <VehicleSizeGuideLookup
-              activeVehicle={activeVehicle}
-              onApplyLookupMatch={applyLookupMatch}
-              onManualSizeChange={applyManualSize}
-              className="mt-3"
-            />
-            <div className="mt-3 grid grid-cols-2 gap-3">
-              <label className="text-xs font-semibold text-ink/70">
-                Make
-                <input
-                  value={activeVehicle.make}
-                  onChange={(event) => updateActiveVehicleField('make', event.target.value)}
-                  className="mt-1 w-full rounded-lg border border-black/15 bg-white px-2.5 py-2 text-sm"
-                  placeholder="Toyota"
-                />
-              </label>
-              <label className="text-xs font-semibold text-ink/70">
-                Model
-                <input
-                  value={activeVehicle.model}
-                  onChange={(event) => updateActiveVehicleField('model', event.target.value)}
-                  className="mt-1 w-full rounded-lg border border-black/15 bg-white px-2.5 py-2 text-sm"
-                  placeholder="Camry"
-                />
-              </label>
-              <label className="text-xs font-semibold text-ink/70">
-                Year
-                <input
-                  value={activeVehicle.year}
-                  onChange={(event) => updateActiveVehicleField('year', event.target.value)}
-                  className="mt-1 w-full rounded-lg border border-black/15 bg-white px-2.5 py-2 text-sm"
-                  placeholder="2021"
-                />
-              </label>
-              <label className="text-xs font-semibold text-ink/70">
-                Color
-                <input
-                  value={activeVehicle.color}
-                  onChange={(event) => updateActiveVehicleField('color', event.target.value)}
-                  className="mt-1 w-full rounded-lg border border-black/15 bg-white px-2.5 py-2 text-sm"
-                  placeholder="Black"
-                />
-              </label>
-            </div>
-          </section>
-        ) : null}
+        <section className="rounded-xl border border-black/10 bg-canvas p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink/55">Pricing Reliability</p>
+          <p className="mt-2 text-sm text-ink/70">
+            Switch cars here, then manage sizing and service selections in the main planner so pricing always updates from one active source of truth.
+          </p>
+        </section>
       </div>
 
       <div className="space-y-3 border-t border-black/10 bg-white px-4 py-4 sm:px-5">

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useMemo } from 'react';
 
 import { VehicleDock } from '@/components/dock/vehicle-dock';
@@ -68,7 +69,17 @@ function getServicesForCategory(category: ServiceCategory): ServiceOption[] {
 /**
  * Renders one service category grid with active-vehicle size-adjusted pricing.
  */
-function ServiceGrid({ category }: { category: ServiceCategory }): JSX.Element {
+function ServiceGrid({
+  category,
+  title,
+  gridClassName = 'grid gap-4 sm:grid-cols-2',
+  framed = true,
+}: {
+  category: ServiceCategory;
+  title?: string;
+  gridClassName?: string;
+  framed?: boolean;
+}): JSX.Element {
   const { vehicles, activeVehicleId, setVehiclePackage, toggleServiceForVehicle, getVehicleServices } = useBooking();
   const activeVehicle = vehicles.find((vehicle) => vehicle.id === activeVehicleId);
   const services = useMemo(() => getServicesForCategory(category), [category]);
@@ -86,11 +97,11 @@ function ServiceGrid({ category }: { category: ServiceCategory }): JSX.Element {
     toggleServiceForVehicle(activeVehicleId, service);
   }
 
-  return (
-    <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm transition duration-300 hover:shadow-md">
+  const content = (
+    <>
       <div className="mb-4 flex items-end justify-between gap-3">
         <div>
-          <h2 className="font-heading text-2xl font-semibold text-ink">{getSectionTitle(category)}</h2>
+          <h2 className="font-heading text-2xl font-semibold text-ink">{title ?? getSectionTitle(category)}</h2>
           {activeVehicle ? (
             <p className="mt-1 text-xs font-semibold text-ink/60">
               Active size: {activeVehicle.size.replaceAll('_', ' ').toUpperCase()} • {formatSizeAdjustmentLabel(activeVehicle.size)}
@@ -99,7 +110,7 @@ function ServiceGrid({ category }: { category: ServiceCategory }): JSX.Element {
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className={gridClassName}>
         {services.map((service) => {
           const selected = selectedIds.includes(service.id);
           const adjustedPrice = activeVehicle ? getAdjustedServicePrice(service.price, activeVehicle.size) : service.price;
@@ -143,8 +154,14 @@ function ServiceGrid({ category }: { category: ServiceCategory }): JSX.Element {
           );
         })}
       </div>
-    </section>
+    </>
   );
+
+  if (!framed) {
+    return <section>{content}</section>;
+  }
+
+  return <section className="rounded-2xl border border-white/10 bg-white p-5 shadow-sm transition duration-300 hover:shadow-md">{content}</section>;
 }
 
 /**
@@ -160,7 +177,7 @@ function VehicleSizeSection(): JSX.Element {
   }
 
   return (
-    <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm transition duration-300 hover:shadow-md">
+    <section className="rounded-2xl border border-white/10 bg-white p-5 shadow-sm transition duration-300 hover:shadow-md">
       <h2 className="font-heading text-2xl font-semibold text-ink">Select Your Vehicle Size</h2>
       <p className="mt-2 text-sm text-ink/60">
         Sedan and coupe pricing uses the listed starting rate. SUVs, trucks, vans, and lifted vehicles reprice instantly.
@@ -196,7 +213,6 @@ function VehicleSizeSection(): JSX.Element {
             size: match.size,
           });
         }}
-        onManualSizeChange={(size) => updateVehicle(activeVehicle.id, { size })}
         className="mt-4"
       />
     </section>
@@ -214,7 +230,7 @@ export default function ServicesPage(): JSX.Element {
         <div className="relative mx-auto max-w-6xl text-center">
           <h1 className="font-heading text-4xl font-semibold sm:text-5xl">Cruzn Clean Services</h1>
           <p className="mx-auto mt-4 max-w-3xl text-base text-white/75 sm:text-xl">
-            Review package, coating, and correction options for Yorba Linda mobile detailing without changing the layout you already know.
+            Review package and add-on options for Yorba Linda mobile detailing with live size-based pricing and clearer routing for specialty vehicles.
           </p>
           <p className="mt-3 text-sm font-semibold text-fog">Maintenance Detail is the most balanced option for regularly cared-for vehicles.</p>
         </div>
@@ -224,8 +240,24 @@ export default function ServicesPage(): JSX.Element {
         <div className="space-y-6">
           <VehicleSizeSection />
           <ServiceGrid category="package" />
-          <ServiceGrid category="protection" />
-          <ServiceGrid category="correction" />
+          <section className="rounded-2xl border border-white/10 bg-white p-5 shadow-sm transition duration-300 hover:shadow-md">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 className="font-heading text-2xl font-semibold text-ink">Add-Ons</h2>
+                <p className="mt-2 max-w-2xl text-sm text-ink/65">
+                  Standalone premium work for vehicles that need coating, correction, or more specialized protection without forcing a package.
+                </p>
+              </div>
+              <Link href="/quote" className="text-sm font-semibold text-charcoal transition hover:text-ink">
+                Need a custom setup?
+              </Link>
+            </div>
+
+            <div className="mt-5 space-y-5">
+              <ServiceGrid category="protection" title="Protection + Coatings" framed={false} />
+              <ServiceGrid category="correction" title="Paint Correction" gridClassName="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" framed={false} />
+            </div>
+          </section>
         </div>
 
         <div className="space-y-4">

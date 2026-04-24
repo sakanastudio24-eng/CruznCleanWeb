@@ -13,9 +13,9 @@ export function ServicesSection(): JSX.Element {
       <div className="fade-in-up mb-8 flex items-end justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-fog">Detail Packages</p>
-          <h2 className="mt-2 font-heading text-3xl font-semibold text-ink sm:text-4xl">Choose your service level</h2>
+          <h2 className="mt-2 font-heading text-3xl font-semibold text-white sm:text-4xl">Choose your service level</h2>
         </div>
-        <Link href="/services" className="text-sm font-semibold text-fog transition duration-300 hover:text-ink">
+        <Link href="/services" className="text-sm font-semibold text-fog transition duration-300 hover:text-white">
           Full service menu
         </Link>
       </div>
@@ -23,12 +23,12 @@ export function ServicesSection(): JSX.Element {
         {services.map((service, index) => (
           <article
             key={service.title}
-            className="fade-in-up rounded-2xl border border-black/10 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
+            className="fade-in-up rounded-2xl border border-white/10 bg-[#111111] p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-lg"
             style={{ animationDelay: `${index * 120}ms` }}
           >
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-fog">from {service.priceFrom}</p>
-            <h3 className="mt-2 font-heading text-2xl font-semibold text-ink">{service.title}</h3>
-            <p className="mt-2 text-sm text-ink/75">{service.description}</p>
+            <h3 className="mt-2 font-heading text-2xl font-semibold text-white">{service.title}</h3>
+            <p className="mt-2 text-sm text-white/72">{service.description}</p>
           </article>
         ))}
       </div>

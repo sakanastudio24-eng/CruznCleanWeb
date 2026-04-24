@@ -57,11 +57,11 @@ export default function GalleryPage(): JSX.Element {
           })}
         </div>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 flex flex-wrap justify-center gap-4">
           {visibleItems.map((item, index) => (
             <article
               key={item.id}
-              className="fade-in-up group relative aspect-[4/5] overflow-hidden rounded-2xl border border-black/10 bg-ink text-white transition duration-300 hover:-translate-y-1 hover:shadow-xl"
+              className="fade-in-up group relative aspect-[4/5] w-full max-w-sm overflow-hidden rounded-2xl border border-black/10 bg-ink text-white transition duration-300 hover:-translate-y-1 hover:shadow-xl sm:basis-[calc(50%-0.5rem)] lg:basis-[calc(25%-0.75rem)]"
               style={{ animationDelay: `${index * 90}ms` }}
             >
               <Image

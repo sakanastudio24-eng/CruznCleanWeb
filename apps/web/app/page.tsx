@@ -14,23 +14,20 @@ export default function HomePage(): JSX.Element {
   return (
     <SiteShell>
       <HeroSection />
-      <div className="relative overflow-hidden bg-[linear-gradient(180deg,#f2f2f2_0%,#f8f8f8_45%,#ffffff_100%)]">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_20%,#a3a3a322,transparent_38%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_70%,#26262616,transparent_35%)]" />
+      <div className="relative overflow-hidden bg-[linear-gradient(180deg,#070707_0%,#0b0b0b_100%)]">
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,transparent_28%,transparent_100%)]" />
         <div className="relative">
           <ServicesSection />
           <ProcessSection />
         </div>
       </div>
-      <div className="relative overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#f6f6f6_100%)]">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_12%,#a3a3a31f,transparent_40%)]" />
+      <div className="relative overflow-hidden bg-[linear-gradient(180deg,#050505_0%,#080808_100%)]">
         <div className="relative">
           <GalleryPreviewSection />
           <ResultsSection />
         </div>
       </div>
-      <div className="relative overflow-hidden bg-[linear-gradient(180deg,#f7f7f7_0%,#f1f1f1_100%)]">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,#26262614,transparent_35%)]" />
+      <div className="relative overflow-hidden bg-[linear-gradient(180deg,#070707_0%,#050505_100%)]">
         <div className="relative">
           <TestimonialsSection />
         </div>

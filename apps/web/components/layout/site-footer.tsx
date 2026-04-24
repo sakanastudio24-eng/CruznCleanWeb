@@ -1,6 +1,5 @@
 import Link from 'next/link';
 
-import { CarRunnerMiniGame } from '@/components/layout/car-runner-mini-game';
 import { SITE_PROFILE } from '@/lib/site-profile';
 
 /**
@@ -8,14 +7,14 @@ import { SITE_PROFILE } from '@/lib/site-profile';
  */
 export function SiteFooter(): JSX.Element {
   return (
-    <footer className="mobile-footer-fullscreen border-t border-white/10 bg-gradient-to-br from-ink via-[#1b1b1b] to-[#121212] text-white">
+    <footer className="mobile-footer-fullscreen border-t border-white/10 bg-black text-white">
       <div className="site-frame grid gap-8 py-12 md:grid-cols-[1.2fr_1fr_1fr]">
         <div>
           <h2 className="brand-mark text-white">
             <span>{SITE_PROFILE.businessName}</span>
           </h2>
           <p className="mt-3 max-w-sm text-sm text-white/70">
-            Mobile detailing for Yorba Linda drivers who want clean scheduling, clear service menus, and polished results.
+            Mobile detailing for Yorba Linda drivers who want clearer booking, cleaner service menus, and polished results.
           </p>
           <p className="mt-3 text-xs uppercase tracking-[0.14em] text-white/45">{SITE_PROFILE.locationLabel}</p>
           <a href={SITE_PROFILE.phoneHref} className="mt-4 inline-block text-sm font-semibold text-fog transition hover:text-white">
@@ -50,16 +49,11 @@ export function SiteFooter(): JSX.Element {
         </nav>
       </div>
 
-      <div className="site-frame pb-10">
-        <CarRunnerMiniGame />
-      </div>
-
       <div className="border-t border-white/10">
         <div className="site-frame flex flex-col gap-2 py-4 text-xs text-white/60 sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} {SITE_PROFILE.businessName}. All rights reserved.</p>
           <p>
-            Built with a documentation-first workflow.
-            <span className="ml-2 text-white/70">All site photos are open-source demo images (Pexels/Unsplash).</span>
+            Monday-Friday booking hours with weekend requests reviewed manually.
           </p>
         </div>
       </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Clock3, Mail, Phone } from 'lucide-react';
 import { useState } from 'react';
 
@@ -7,17 +8,29 @@ import { SiteShell } from '@/components/layout/site-shell';
 import type { ContactForm } from '@/lib/booking-types';
 import { submitContactMessage } from '@/lib/api-client';
 import { SITE_PROFILE } from '@/lib/site-profile';
+import { usePersistentState } from '@/lib/use-persistent-state';
+
+interface QuoteDraft {
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  message: string;
+}
+
+const INITIAL_QUOTE_DRAFT: QuoteDraft = {
+  fullName: '',
+  email: '',
+  phone: '',
+  address: '',
+  message: '',
+};
 
 /**
  * Renders a custom quote request form with business contact side panel.
  */
 export default function QuotePage(): JSX.Element {
-  const [form, setForm] = useState<ContactForm>({
-    fullName: '',
-    email: '',
-    phone: '',
-    message: '',
-  });
+  const [form, setForm, clearForm] = usePersistentState<QuoteDraft>('cruzn-clean-quote-form-v1', INITIAL_QUOTE_DRAFT);
   const [statusMessage, setStatusMessage] = useState('');
 
   /**
@@ -27,9 +40,15 @@ export default function QuotePage(): JSX.Element {
     event.preventDefault();
 
     try {
-      await submitContactMessage({ ...form, message: `[QUOTE REQUEST] ${form.message}` });
+      const payload: ContactForm = {
+        fullName: form.fullName,
+        email: form.email,
+        phone: form.phone,
+        message: `[QUOTE REQUEST] Address: ${form.address}\n${form.message}`,
+      };
+      await submitContactMessage(payload);
       setStatusMessage('Quote request sent. We will reply within 24 hours.');
-      setForm({ fullName: '', email: '', phone: '', message: '' });
+      clearForm();
     } catch {
       setStatusMessage('Quote request failed. Please retry.');
     }
@@ -44,6 +63,9 @@ export default function QuotePage(): JSX.Element {
           <p className="mx-auto mt-4 max-w-3xl text-base text-white/75 sm:text-xl">
             Tell us about the vehicle, the condition, and the result you want. We will respond with a tailored estimate for Yorba Linda-area service.
           </p>
+          <Link href="/faq" className="mt-5 inline-flex rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10">
+            Need sizing or booking help first?
+          </Link>
         </div>
       </section>
 
@@ -84,7 +106,13 @@ export default function QuotePage(): JSX.Element {
             </label>
             <label className="text-sm font-semibold text-ink/75">
               Address *
-              <input className="mt-1 w-full rounded-lg border border-black/15 px-3 py-2" placeholder="123 Main St, City, ST" required />
+              <input
+                value={form.address}
+                onChange={(event) => setForm((current) => ({ ...current, address: event.target.value }))}
+                className="mt-1 w-full rounded-lg border border-black/15 px-3 py-2"
+                placeholder="123 Main St, City, ST"
+                required
+              />
             </label>
           </div>
 

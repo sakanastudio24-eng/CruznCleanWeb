@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import {
   ArrowLeft,
   ArrowRight,
@@ -13,7 +14,7 @@ import {
   Trash2,
   User,
 } from 'lucide-react';
-import { useMemo, useState, type ComponentType } from 'react';
+import { useMemo, useRef, useState, type ComponentType } from 'react';
 
 import { SiteShell } from '@/components/layout/site-shell';
 import { useBooking } from '@/components/providers/booking-provider';
@@ -23,6 +24,7 @@ import type { CustomerBookingForm, VehicleProfile, VehicleSize } from '@/lib/boo
 import { getCalendarBookingUrl, submitBookingIntake } from '@/lib/api-client';
 import { formatSizeAdjustmentLabel, getAdjustedServicePrice } from '@/lib/pricing';
 import { getCorrectionServices, getPackageServices, getProtectionServices } from '@/lib/services-catalog';
+import { usePersistentState } from '@/lib/use-persistent-state';
 import { getVehicleDisplayName } from '@/lib/vehicle-utils';
 
 interface StepItem {
@@ -68,6 +70,8 @@ const INITIAL_FORM: CustomerBookingForm = {
   notes: '',
   acceptedConsent: false,
 };
+
+const BOOKING_FORM_STORAGE_KEY = 'cruzn-clean-booking-form-v1';
 
 /**
  * Returns the booking step sequence used by the progress header.
@@ -236,12 +240,13 @@ export default function BookingPage(): JSX.Element {
   } = useBooking();
 
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState<CustomerBookingForm>(INITIAL_FORM);
+  const [form, setForm, clearPersistedForm] = usePersistentState<CustomerBookingForm>(BOOKING_FORM_STORAGE_KEY, INITIAL_FORM);
   const [honeypot, setHoneypot] = useState('');
   const [fieldErrors, setFieldErrors] = useState<BookingFieldErrors>({});
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
+  const plannerTopRef = useRef<HTMLDivElement>(null);
 
   const steps = getBookingSteps();
   const sizes = getVehicleSizes();
@@ -254,7 +259,7 @@ export default function BookingPage(): JSX.Element {
   );
 
   const selectedServiceIds = activeVehicle?.serviceIds ?? [];
-  const selectedServiceRecords = getVehicleServices(activeVehicleId);
+  const selectedServiceRecords = activeVehicle ? getVehicleServices(activeVehicle.id) : [];
   const selectedPackageId = selectedServiceIds.find((serviceId) => serviceId.startsWith('pkg-'));
   const selectedPackage = selectedServiceRecords.find((service) => service.id.startsWith('pkg-'));
   const selectedPremiumServices = selectedServiceRecords.filter((service) => service.category !== 'package');
@@ -321,6 +326,15 @@ export default function BookingPage(): JSX.Element {
   }
 
   /**
+   * Scrolls the current planner card into view after step changes.
+   */
+  function scrollPlannerToTop(): void {
+    window.requestAnimationFrame(() => {
+      plannerTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  /**
    * Advances to the next step when current-step validation passes.
    */
   function goNext(): void {
@@ -333,6 +347,7 @@ export default function BookingPage(): JSX.Element {
     setFieldErrors({});
     setStatusMessage('');
     setStep((current) => Math.min(current + 1, steps.length));
+    scrollPlannerToTop();
   }
 
   /**
@@ -363,6 +378,7 @@ export default function BookingPage(): JSX.Element {
       const response = await submitBookingIntake({ customer: form, vehicles, honeypot });
       setBookingConfirmed(true);
       setStatusMessage(response.message ?? 'Booking confirmed. Continue to Cal.com to select your appointment time.');
+      clearPersistedForm();
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : 'Submission failed. Please try again.');
     } finally {
@@ -414,7 +430,7 @@ export default function BookingPage(): JSX.Element {
       </section>
 
       <section className="mx-auto grid max-w-6xl gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_380px]">
-        <div className="space-y-5 rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
+        <div ref={plannerTopRef} className="space-y-5 rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
           <div className="rounded-2xl border border-black/10 bg-canvas/60 p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
@@ -476,7 +492,7 @@ export default function BookingPage(): JSX.Element {
               <div>
                 <h2 className="font-heading text-2xl font-semibold text-ink">Your Details</h2>
                 <p className="mt-1 text-sm text-ink/65">
-                  Set vehicle size, choose a package if needed, and complete contact details before you move into coatings and correction work.
+                  Set the vehicle size, choose a package if it fits the job, and complete contact details before moving into add-ons and calendar handoff.
                 </p>
               </div>
 
@@ -542,10 +558,6 @@ export default function BookingPage(): JSX.Element {
                         model: match.model,
                         size: match.size,
                       });
-                    }}
-                    onManualSizeChange={(size) => {
-                      resetInteractionState();
-                      updateVehicle(activeVehicle.id, { size });
                     }}
                     className="mt-2"
                   />
@@ -742,18 +754,6 @@ export default function BookingPage(): JSX.Element {
                 {fieldErrors.smsConsent ? <p className="mt-2 text-xs font-medium text-charcoal">{fieldErrors.smsConsent}</p> : null}
               </section>
 
-              <label className={`flex items-start gap-2 rounded-xl border px-4 py-3 text-sm text-ink/80 ${
-                fieldErrors.acceptedConsent ? 'border-charcoal bg-charcoal/10' : 'border-fog/35 bg-fog/10'
-              }`}>
-                <input
-                  type="checkbox"
-                  checked={form.acceptedConsent}
-                  onChange={(event) => updateCustomerField('acceptedConsent', event.target.checked)}
-                  className="mt-1"
-                />
-                I agree to booking terms and consent to contact for scheduling updates.
-              </label>
-              {fieldErrors.acceptedConsent ? <p className="text-xs font-medium text-charcoal">{fieldErrors.acceptedConsent}</p> : null}
             </section>
           ) : null}
 
@@ -762,94 +762,102 @@ export default function BookingPage(): JSX.Element {
               <div>
                 <h2 className="font-heading text-2xl font-semibold text-ink">Services</h2>
                 <p className="mt-1 text-sm text-ink/65">
-                  Add coatings or correction work for {activeVehicle ? getVehicleDisplayName(activeVehicle) : 'this vehicle'}.
-                  These can be booked with or without a detail package.
+                  Add premium work for {activeVehicle ? getVehicleDisplayName(activeVehicle) : 'this vehicle'}.
+                  These add-ons can be booked with or without a detail package.
                 </p>
                 <p className="mt-1 text-xs font-semibold text-ink/55">
                   Current size pricing: {activeVehicleSize.replaceAll('_', ' ').toUpperCase()} ({formatSizeAdjustmentLabel(activeVehicleSize)})
                 </p>
               </div>
 
-              <section className="space-y-3">
+              <section className="space-y-5 rounded-2xl border border-black/10 bg-canvas/45 p-4">
                 <div>
-                  <h3 className="text-sm font-semibold uppercase tracking-[0.15em] text-ink/60">Protection + Coatings</h3>
+                  <h3 className="text-sm font-semibold uppercase tracking-[0.15em] text-ink/60">Add-Ons</h3>
+                  <p className="mt-1 text-sm text-ink/65">
+                    Protection, coatings, and correction work for vehicles that need more than routine upkeep.
+                  </p>
                 </div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {protectionServices.map((service) => {
-                    const selected = selectedServiceIds.includes(service.id);
-                    const adjustedPrice = getAdjustedServicePrice(service.price, activeVehicleSize);
+                <section className="space-y-3">
+                  <div>
+                    <h4 className="text-sm font-semibold uppercase tracking-[0.15em] text-ink/60">Protection + Coatings</h4>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {protectionServices.map((service) => {
+                      const selected = selectedServiceIds.includes(service.id);
+                      const adjustedPrice = getAdjustedServicePrice(service.price, activeVehicleSize);
 
-                    return (
-                      <button
-                        key={service.id}
-                        type="button"
-                        onClick={() => {
-                          resetInteractionState();
-                          toggleServiceForVehicle(activeVehicleId, service);
-                        }}
-                        className={`rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
-                          selected
-                            ? 'border-charcoal bg-charcoal/10 shadow-md'
-                            : 'border-black/10 bg-white hover:border-fog hover:bg-fog/10'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <p className="font-heading text-lg font-semibold text-ink">{service.name}</p>
-                          {selected ? <CheckCircle2 className="h-5 w-5 text-charcoal" /> : null}
-                        </div>
-                        <p className="mt-1 text-xs text-ink/60">{service.description}</p>
-                        <ul className="mt-3 space-y-1 text-xs text-ink/70">
-                          {service.highlights.map((highlight) => (
-                            <li key={highlight}>• {highlight}</li>
-                          ))}
-                        </ul>
-                        <p className="mt-3 text-sm text-ink/70">{service.duration}</p>
-                        <p className="mt-1 font-heading text-2xl font-extrabold text-charcoal">{formatCurrency(adjustedPrice)}</p>
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
+                      return (
+                        <button
+                          key={service.id}
+                          type="button"
+                          onClick={() => {
+                            resetInteractionState();
+                            toggleServiceForVehicle(activeVehicleId, service);
+                          }}
+                          className={`rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
+                            selected
+                              ? 'border-charcoal bg-charcoal/10 shadow-md'
+                              : 'border-black/10 bg-white hover:border-fog hover:bg-fog/10'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="font-heading text-lg font-semibold text-ink">{service.name}</p>
+                            {selected ? <CheckCircle2 className="h-5 w-5 text-charcoal" /> : null}
+                          </div>
+                          <p className="mt-1 text-xs text-ink/60">{service.description}</p>
+                          <ul className="mt-3 space-y-1 text-xs text-ink/70">
+                            {service.highlights.map((highlight) => (
+                              <li key={highlight}>• {highlight}</li>
+                            ))}
+                          </ul>
+                          <p className="mt-3 text-sm text-ink/70">{service.duration}</p>
+                          <p className="mt-1 font-heading text-2xl font-extrabold text-charcoal">{formatCurrency(adjustedPrice)}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
 
-              <section className="space-y-3">
-                <div>
-                  <h3 className="text-sm font-semibold uppercase tracking-[0.15em] text-ink/60">Paint Correction</h3>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                  {correctionServices.map((service) => {
-                    const selected = selectedServiceIds.includes(service.id);
-                    const adjustedPrice = getAdjustedServicePrice(service.price, activeVehicleSize);
+                <section className="space-y-3">
+                  <div>
+                    <h4 className="text-sm font-semibold uppercase tracking-[0.15em] text-ink/60">Paint Correction</h4>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                    {correctionServices.map((service) => {
+                      const selected = selectedServiceIds.includes(service.id);
+                      const adjustedPrice = getAdjustedServicePrice(service.price, activeVehicleSize);
 
-                    return (
-                      <button
-                        key={service.id}
-                        type="button"
-                        onClick={() => {
-                          resetInteractionState();
-                          toggleServiceForVehicle(activeVehicleId, service);
-                        }}
-                        className={`rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
-                          selected
-                            ? 'border-charcoal bg-charcoal/10 shadow-md'
-                            : 'border-black/10 bg-white hover:border-fog hover:bg-fog/10'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <p className="font-heading text-lg font-semibold text-ink">{service.name}</p>
-                          {selected ? <CheckCircle2 className="h-5 w-5 text-charcoal" /> : null}
-                        </div>
-                        <p className="mt-1 text-xs text-ink/60">{service.description}</p>
-                        <ul className="mt-3 space-y-1 text-xs text-ink/70">
-                          {service.highlights.map((highlight) => (
-                            <li key={highlight}>• {highlight}</li>
-                          ))}
-                        </ul>
-                        <p className="mt-3 text-sm text-ink/70">{service.duration}</p>
-                        <p className="mt-1 font-heading text-2xl font-extrabold text-charcoal">{formatCurrency(adjustedPrice)}</p>
-                      </button>
-                    );
-                  })}
-                </div>
+                      return (
+                        <button
+                          key={service.id}
+                          type="button"
+                          onClick={() => {
+                            resetInteractionState();
+                            toggleServiceForVehicle(activeVehicleId, service);
+                          }}
+                          className={`rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
+                            selected
+                              ? 'border-charcoal bg-charcoal/10 shadow-md'
+                              : 'border-black/10 bg-white hover:border-fog hover:bg-fog/10'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="font-heading text-lg font-semibold text-ink">{service.name}</p>
+                            {selected ? <CheckCircle2 className="h-5 w-5 text-charcoal" /> : null}
+                          </div>
+                          <p className="mt-1 text-xs text-ink/60">{service.description}</p>
+                          <ul className="mt-3 space-y-1 text-xs text-ink/70">
+                            {service.highlights.map((highlight) => (
+                              <li key={highlight}>• {highlight}</li>
+                            ))}
+                          </ul>
+                          <p className="mt-3 text-sm text-ink/70">{service.duration}</p>
+                          <p className="mt-1 font-heading text-2xl font-extrabold text-charcoal">{formatCurrency(adjustedPrice)}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
               </section>
 
               <label className="block text-sm font-semibold text-ink/75">
@@ -896,6 +904,53 @@ export default function BookingPage(): JSX.Element {
                 <li className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-fog" /> Weekend requests are reviewed manually and same-day rush fees may apply.</li>
                 <li className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-fog" /> Intake details are saved before redirect.</li>
               </ul>
+            </section>
+          ) : null}
+
+          {step < 3 ? (
+            <section className={`rounded-2xl border px-4 py-4 ${
+              fieldErrors.acceptedConsent ? 'border-charcoal bg-charcoal/10' : 'border-black/10 bg-canvas/65'
+            }`}>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/60">Terms + Policies</p>
+                  <p className="mt-1 max-w-2xl text-sm text-ink/75">
+                    Pricing starts at the listed rate for standard sizing. Modified, lifted, oversized, or specialty vehicles should request a tailored quote before scheduling.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2 text-xs font-semibold">
+                  <Link href="/terms" className="rounded-full border border-black/10 bg-white px-3 py-1.5 text-ink transition hover:border-fog hover:bg-fog/10">
+                    Terms
+                  </Link>
+                  <Link href="/privacy" className="rounded-full border border-black/10 bg-white px-3 py-1.5 text-ink transition hover:border-fog hover:bg-fog/10">
+                    Privacy
+                  </Link>
+                  <Link href="/faq" className="rounded-full border border-black/10 bg-white px-3 py-1.5 text-ink transition hover:border-fog hover:bg-fog/10">
+                    Help
+                  </Link>
+                  <Link href="/quote" className="rounded-full border border-black/10 bg-white px-3 py-1.5 text-ink transition hover:border-fog hover:bg-fog/10">
+                    Request a Quote
+                  </Link>
+                </div>
+              </div>
+
+              <div className="mt-3 grid gap-2 text-xs text-ink/70 sm:grid-cols-2">
+                <p>• Deposits may be required to secure your appointment.</p>
+                <p>• 24 hours notice is required to cancel or reschedule.</p>
+                <p>• Same-day requests may require a rush fee.</p>
+                <p>• Final pricing is confirmed after inspection and condition review.</p>
+              </div>
+
+              <label className="mt-4 flex items-start gap-2 rounded-xl border border-fog/35 bg-white px-4 py-3 text-sm text-ink/80">
+                <input
+                  type="checkbox"
+                  checked={form.acceptedConsent}
+                  onChange={(event) => updateCustomerField('acceptedConsent', event.target.checked)}
+                  className="mt-1"
+                />
+                I reviewed the booking terms and policies and agree to be contacted for scheduling updates.
+              </label>
+              {fieldErrors.acceptedConsent ? <p className="mt-2 text-xs font-medium text-charcoal">{fieldErrors.acceptedConsent}</p> : null}
             </section>
           ) : null}
 
@@ -1003,7 +1058,7 @@ export default function BookingPage(): JSX.Element {
             )}
 
             <article className="rounded-xl border border-black/10 p-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/55">Coatings + Correction</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/55">Add-Ons</p>
               {selectedPremiumServices.length > 0 ? (
                 <ul className="mt-2 space-y-1">
                   {selectedPremiumServices.map((service) => (
@@ -1014,7 +1069,7 @@ export default function BookingPage(): JSX.Element {
                   ))}
                 </ul>
               ) : (
-                <p className="mt-2 text-xs text-ink/60">No coatings or correction services selected.</p>
+                <p className="mt-2 text-xs text-ink/60">No add-ons selected yet.</p>
               )}
             </article>
 

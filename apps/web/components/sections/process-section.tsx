@@ -9,18 +9,18 @@ export function ProcessSection(): JSX.Element {
   return (
     <section className="py-16">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-charcoal">How It Works</p>
-        <h2 className="mt-2 font-heading text-3xl font-semibold text-ink sm:text-4xl">Simple flow, clear results</h2>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-fog">How It Works</p>
+        <h2 className="mt-2 font-heading text-3xl font-semibold text-white sm:text-4xl">Simple flow, clear results</h2>
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           {steps.map((step, index) => (
             <article
               key={step.title}
-              className="fade-in-up rounded-2xl border border-black/10 bg-white p-6 transition duration-300 hover:-translate-y-1 hover:shadow-lg"
+              className="fade-in-up rounded-2xl border border-white/10 bg-[#111111] p-6 transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-lg"
               style={{ animationDelay: `${index * 140}ms` }}
             >
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-fog">Step {index + 1}</p>
-              <h3 className="mt-2 font-heading text-2xl font-semibold text-ink">{step.title}</h3>
-              <p className="mt-2 text-sm text-ink/70">{step.detail}</p>
+              <h3 className="mt-2 font-heading text-2xl font-semibold text-white">{step.title}</h3>
+              <p className="mt-2 text-sm text-white/70">{step.detail}</p>
             </article>
           ))}
         </div>
