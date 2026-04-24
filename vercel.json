@@ -4,6 +4,5 @@
   "installCommand": "npm ci && npm --prefix apps/web ci",
   "buildCommand": "npm run vercel-build",
   "devCommand": "npm --prefix apps/web run dev",
-  "buildOutputDirectory": "apps/web/.next",
   "rootDirectory": "."
 }
