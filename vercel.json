@@ -3,6 +3,5 @@
   "framework": "nextjs",
   "installCommand": "npm ci && npm --prefix apps/web ci",
   "buildCommand": "npm run vercel-build",
-  "devCommand": "npm --prefix apps/web run dev",
-  "rootDirectory": "."
+  "devCommand": "npm --prefix apps/web run dev"
 }
