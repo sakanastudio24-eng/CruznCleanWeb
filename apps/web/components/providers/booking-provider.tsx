@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 import { MAX_BOOKED_VEHICLES_PER_DAY } from '@/lib/booking-policy';
 import type { ServiceOption, VehicleProfile, VehicleSize } from '@/lib/booking-types';
@@ -258,24 +258,21 @@ export function BookingProvider({ children }: BookingProviderProps): JSX.Element
     setActiveVehicleId(fallback.id);
   }
 
-  const value = useMemo<BookingContextValue>(
-    () => ({
-      vehicles,
-      activeVehicleId,
-      setActiveVehicleId,
-      addVehicle,
-      removeVehicle,
-      updateVehicle,
-      setVehiclePackage,
-      toggleServiceForVehicle,
-      getVehicleTotal,
-      getGrandTotal,
-      getVehicleServices,
-      getSelectedServiceCount,
-      clearAll,
-    }),
-    [activeVehicleId, vehicles],
-  );
+  const value: BookingContextValue = {
+    vehicles,
+    activeVehicleId,
+    setActiveVehicleId,
+    addVehicle,
+    removeVehicle,
+    updateVehicle,
+    setVehiclePackage,
+    toggleServiceForVehicle,
+    getVehicleTotal,
+    getGrandTotal,
+    getVehicleServices,
+    getSelectedServiceCount,
+    clearAll,
+  };
 
   return <BookingContext.Provider value={value}>{children}</BookingContext.Provider>;
 }

@@ -132,7 +132,7 @@ export function SiteHeader(): JSX.Element {
             <span>{SITE_PROFILE.businessName}</span>
           </Link>
 
-          <nav className="hidden min-w-0 items-center justify-center gap-8 xl:flex" aria-label="Primary">
+          <nav className="hidden min-w-0 items-center justify-center gap-8 lg:flex" aria-label="Primary">
             {links.map((link) => {
               const active = isActivePath(pathname, link.href);
               return (
@@ -152,7 +152,7 @@ export function SiteHeader(): JSX.Element {
             })}
           </nav>
 
-          <div className="hidden shrink-0 items-center justify-end gap-3 xl:flex" ref={cartRef}>
+          <div className="hidden shrink-0 items-center justify-end gap-3 lg:flex" ref={cartRef}>
             <a href={SITE_PROFILE.phoneHref} className="inline-flex items-center gap-2 text-sm font-semibold text-white transition hover:text-fog">
               <Phone className="h-4 w-4" />
               {SITE_PROFILE.phoneDisplay}
@@ -246,7 +246,7 @@ export function SiteHeader(): JSX.Element {
             ) : null}
           </div>
 
-          <div className="flex items-center justify-end gap-1 xl:hidden" ref={cartRef}>
+          <div className="flex items-center justify-end gap-1 lg:hidden" ref={cartRef}>
             <a
               href={SITE_PROFILE.phoneHref}
               className="inline-flex h-9 w-9 items-center justify-center rounded-full text-white transition duration-300 hover:bg-white/10"
@@ -297,7 +297,7 @@ export function SiteHeader(): JSX.Element {
       </header>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-black/95 pb-[calc(env(safe-area-inset-bottom)+0.35rem)] pt-2 backdrop-blur-md xl:hidden"
+        className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-black/95 pb-[calc(env(safe-area-inset-bottom)+0.35rem)] pt-2 backdrop-blur-md lg:hidden"
         aria-label="Mobile navigation"
       >
         <div className="mx-auto grid w-full max-w-[760px] grid-cols-6 gap-1 px-2 sm:px-4">

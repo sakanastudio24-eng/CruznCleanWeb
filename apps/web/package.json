@@ -9,8 +9,10 @@
     "build:raw": "next build",
     "start": "npm exec -- varlock run -- next start",
     "start:raw": "next start",
-    "lint": "next lint",
-    "env:check": "npm exec -- varlock load"
+    "lint": "npm exec -- varlock run -- next lint",
+    "typecheck": "tsc --noEmit",
+    "env:check": "npm exec -- varlock load",
+    "quality": "npm run env:check && npm run lint && npm run typecheck && npm run build"
   },
   "dependencies": {
     "clsx": "2.1.1",
@@ -21,11 +23,13 @@
     "tailwind-merge": "2.5.2"
   },
   "devDependencies": {
-    "@varlock/nextjs-integration": "latest",
     "@types/node": "20.16.1",
     "@types/react": "18.3.5",
     "@types/react-dom": "18.3.0",
+    "@varlock/nextjs-integration": "latest",
     "autoprefixer": "10.4.20",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.35",
     "postcss": "8.4.45",
     "tailwindcss": "3.4.10",
     "typescript": "5.5.4",
