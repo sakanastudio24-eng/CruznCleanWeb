@@ -48,6 +48,7 @@
 ## Web Variables
 - `NEXT_PUBLIC_API_BASE_URL`
 - `NEXT_PUBLIC_CAL_COM_URL`
+- `NEXT_PUBLIC_CAL_COM_LINK`
 
 ## Local API Example
 ```bash
@@ -68,3 +69,4 @@ TEMPLATE_ADMIN_TOKEN=replace_with_secure_admin_token
 ## Notes
 - Keep real secrets in local/runtime `.env` only.
 - Empty template IDs use inline fallback HTML/text bodies.
+- Create the safe test customer template with `python3 apps/api/scripts/seed_resend_test_template.py` after setting `TEMPLATE_ADMIN_TOKEN`.

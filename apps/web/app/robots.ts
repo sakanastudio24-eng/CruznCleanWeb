@@ -10,7 +10,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/email-preview', '/styleguide'],
+      disallow: ['/email-preview', '/styleguide', '/thank-you'],
     },
     sitemap: `${SITE_PROFILE.siteUrl}/sitemap.xml`,
   };

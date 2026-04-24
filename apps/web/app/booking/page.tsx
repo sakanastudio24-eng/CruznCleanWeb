@@ -16,12 +16,13 @@ import {
 } from 'lucide-react';
 import { useMemo, useRef, useState, type ComponentType } from 'react';
 
+import { CalInlineEmbed } from '@/components/booking/cal-inline-embed';
 import { SiteShell } from '@/components/layout/site-shell';
 import { useBooking } from '@/components/providers/booking-provider';
 import { VehicleSizeGuideLookup } from '@/components/vehicle/vehicle-size-guide-lookup';
 import { BOOKING_LIMIT_DISCLAIMER, MAX_BOOKED_VEHICLES_PER_DAY, countSelectedVehicles } from '@/lib/booking-policy';
-import type { CustomerBookingForm, VehicleProfile, VehicleSize } from '@/lib/booking-types';
-import { getCalendarBookingUrl, submitBookingIntake } from '@/lib/api-client';
+import type { CustomerBookingForm, ServiceOption, VehicleProfile, VehicleSize } from '@/lib/booking-types';
+import { getCalendarBookingLink, getCalendarBookingUrl, submitBookingIntake } from '@/lib/api-client';
 import { formatSizeAdjustmentLabel, getAdjustedServicePrice } from '@/lib/pricing';
 import { getCorrectionServices, getPackageServices, getProtectionServices } from '@/lib/services-catalog';
 import { usePersistentState } from '@/lib/use-persistent-state';
@@ -55,6 +56,14 @@ interface BookingFieldErrors {
   confirmationChannel?: string;
   smsConsent?: string;
   acceptedConsent?: string;
+}
+
+interface SubmittedBookingCalendarContext {
+  bookingId: string;
+  customer: Pick<CustomerBookingForm, 'email' | 'fullName' | 'phone'>;
+  estimatedTotal: number;
+  servicesSummary: string;
+  vehicleCount: number;
 }
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -222,6 +231,22 @@ function getVehicleHint(vehicle: VehicleProfile): string {
 }
 
 /**
+ * Builds a compact line of selected services for Cal.com metadata.
+ */
+function getSelectedServicesSummary(
+  selectedVehicles: VehicleProfile[],
+  getVehicleServices: (vehicleId: string) => ServiceOption[],
+): string {
+  return selectedVehicles
+    .map((vehicle) => {
+      const services = getVehicleServices(vehicle.id);
+      const serviceNames = services.map((service) => service.name).join(', ');
+      return `${getVehicleDisplayName(vehicle)}: ${serviceNames || 'No services selected'}`;
+    })
+    .join(' | ');
+}
+
+/**
  * Renders the booking workflow with improved visual hierarchy and flow.
  */
 export default function BookingPage(): JSX.Element {
@@ -244,6 +269,7 @@ export default function BookingPage(): JSX.Element {
   const [honeypot, setHoneypot] = useState('');
   const [fieldErrors, setFieldErrors] = useState<BookingFieldErrors>({});
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
+  const [submittedBookingContext, setSubmittedBookingContext] = useState<SubmittedBookingCalendarContext | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   const plannerTopRef = useRef<HTMLDivElement>(null);
@@ -280,6 +306,7 @@ export default function BookingPage(): JSX.Element {
   function resetInteractionState(): void {
     setFieldErrors({});
     setBookingConfirmed(false);
+    setSubmittedBookingContext(null);
   }
 
   /**
@@ -376,8 +403,20 @@ export default function BookingPage(): JSX.Element {
 
     try {
       const response = await submitBookingIntake({ customer: form, vehicles, honeypot });
+      const nextSubmittedBookingContext: SubmittedBookingCalendarContext = {
+        bookingId: response.bookingId || 'pending-cal-booking',
+        customer: {
+          email: form.email,
+          fullName: form.fullName,
+          phone: form.phone,
+        },
+        estimatedTotal: getGrandTotal(),
+        servicesSummary: getSelectedServicesSummary(selectedVehicles, getVehicleServices),
+        vehicleCount: selectedVehicles.length,
+      };
       setBookingConfirmed(true);
-      setStatusMessage(response.message ?? 'Booking confirmed. Continue to Cal.com to select your appointment time.');
+      setSubmittedBookingContext(nextSubmittedBookingContext);
+      setStatusMessage(response.message ?? 'Booking intake saved. Choose your appointment time below.');
       clearPersistedForm();
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : 'Submission failed. Please try again.');
@@ -924,24 +963,40 @@ export default function BookingPage(): JSX.Element {
                 <p className="mt-1 text-sm text-ink/65">Submit your details, then choose your appointment on Cal.com.</p>
               </div>
 
-              <div className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
-                <p className="text-sm text-ink/75">
-                  We pre-save your intake first so your booking request stays attached to your service selections before calendar scheduling.
-                </p>
-                <a
-                  href={getCalendarBookingUrl()}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-3 inline-flex items-center gap-2 rounded-full bg-charcoal px-4 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-ink"
-                >
-                  Open Cal.com <ArrowRight className="h-4 w-4" />
-                </a>
-              </div>
-
-              {bookingConfirmed ? (
-                <div className="inline-flex w-full items-center gap-2 rounded-xl border border-green-300 bg-green-50 px-4 py-3 text-sm font-medium text-green-800">
-                  <CheckCircle2 className="h-5 w-5" /> Booking confirmed. Your intake was saved successfully.
+              {!submittedBookingContext ? (
+                <div className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
+                  <p className="text-sm text-ink/75">
+                    We pre-save your intake first so your booking request stays attached to your service selections before calendar scheduling.
+                    After it is saved, the Cal.com calendar opens here for date, time, and deposit confirmation.
+                  </p>
+                  <a
+                    href={getCalendarBookingUrl()}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-[#111111] px-4 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-white/10"
+                  >
+                    Fallback Cal.com link <ArrowRight className="h-4 w-4" />
+                  </a>
                 </div>
+              ) : null}
+
+              {bookingConfirmed && submittedBookingContext ? (
+                <>
+                  <div className="inline-flex w-full items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm font-medium text-white">
+                    <CheckCircle2 className="h-5 w-5" /> Intake saved. Choose your Cal.com appointment below.
+                  </div>
+                  <CalInlineEmbed
+                    bookingId={submittedBookingContext.bookingId}
+                    calLink={getCalendarBookingLink()}
+                    customerName={submittedBookingContext.customer.fullName}
+                    email={submittedBookingContext.customer.email}
+                    phone={submittedBookingContext.customer.phone}
+                    estimatedTotal={submittedBookingContext.estimatedTotal}
+                    vehicleCount={submittedBookingContext.vehicleCount}
+                    servicesSummary={submittedBookingContext.servicesSummary}
+                    fallbackUrl={getCalendarBookingUrl()}
+                  />
+                </>
               ) : null}
 
               <ul className="space-y-2 text-sm text-ink/75">
@@ -1016,7 +1071,7 @@ export default function BookingPage(): JSX.Element {
                 disabled={submitting || bookingConfirmed}
                 className="inline-flex items-center gap-2 rounded-full bg-charcoal px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-ink disabled:opacity-65"
               >
-                {bookingConfirmed ? 'Booking Confirmed' : submitting ? 'Submitting...' : 'Submit and Confirm'}
+                {bookingConfirmed ? 'Calendar Ready' : submitting ? 'Saving...' : 'Save Intake + Open Calendar'}
               </button>
             )}
           </div>

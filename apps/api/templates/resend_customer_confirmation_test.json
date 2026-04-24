@@ -1,0 +1,36 @@
+{
+  "name": "cruzn-clean-customer-confirmation-test",
+  "html": "<div style=\"font-family:Arial,sans-serif;color:#111111\"><h1>Cruzn Clean booking intake saved</h1><p>Name: {{{CUSTOMER_NAME}}}</p><p>Booking ID: {{{BOOKING_ID}}}</p><p>Estimated total: ${{{ESTIMATE_TOTAL}}}</p><p>Vehicles: {{{VEHICLE_COUNT}}}</p><p>Services: {{{SERVICES_SUMMARY}}}</p><p><a href=\"{{{SITE_URL}}}/thank-you\">Return to Cruzn Clean</a></p></div>",
+  "variables": [
+    {
+      "key": "CUSTOMER_NAME",
+      "type": "string",
+      "fallback_value": "Customer"
+    },
+    {
+      "key": "BOOKING_ID",
+      "type": "string",
+      "fallback_value": "bk_test"
+    },
+    {
+      "key": "ESTIMATE_TOTAL",
+      "type": "number",
+      "fallback_value": 0
+    },
+    {
+      "key": "VEHICLE_COUNT",
+      "type": "number",
+      "fallback_value": 1
+    },
+    {
+      "key": "SERVICES_SUMMARY",
+      "type": "string",
+      "fallback_value": "Maintenance Detail"
+    },
+    {
+      "key": "SITE_URL",
+      "type": "string",
+      "fallback_value": "https://www.cruznclean.com"
+    }
+  ]
+}

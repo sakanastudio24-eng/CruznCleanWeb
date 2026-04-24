@@ -22,6 +22,13 @@ export function getCalendarBookingUrl(): string {
 }
 
 /**
+ * Returns the Cal.com event link slug used by inline embeds.
+ */
+export function getCalendarBookingLink(): string {
+  return getRuntimeConfig().calendarLink;
+}
+
+/**
  * Parses API error payloads into human-readable messages.
  */
 async function getApiErrorMessage(response: Response, fallbackMessage: string): Promise<string> {
@@ -58,17 +65,19 @@ export async function submitBookingIntake(payload: {
   customer: CustomerBookingForm;
   vehicles: VehicleProfile[];
   honeypot?: string;
-}): Promise<{ status: string; message?: string }> {
-  const vehicles: BookingVehicleRequest[] = payload.vehicles.map((vehicle) => ({
-    id: vehicle.id,
-    label: vehicle.label,
-    make: vehicle.make,
-    model: vehicle.model,
-    year: vehicle.year,
-    color: vehicle.color,
-    size: vehicle.size,
-    serviceIds: vehicle.serviceIds,
-  }));
+}): Promise<{ status: string; message?: string; bookingId?: string; receivedAt?: string }> {
+  const vehicles: BookingVehicleRequest[] = payload.vehicles
+    .filter((vehicle) => vehicle.serviceIds.length > 0)
+    .map((vehicle) => ({
+      id: vehicle.id,
+      label: vehicle.label,
+      make: vehicle.make,
+      model: vehicle.model,
+      year: vehicle.year,
+      color: vehicle.color,
+      size: vehicle.size,
+      serviceIds: vehicle.serviceIds,
+    }));
 
   const requestPayload: BookingIntakeRequest = {
     customer: payload.customer,
@@ -88,7 +97,7 @@ export async function submitBookingIntake(payload: {
     throw new Error(await getApiErrorMessage(response, 'Booking intake submission failed.'));
   }
 
-  return (await response.json()) as { status: string; message?: string };
+  return (await response.json()) as { status: string; message?: string; bookingId?: string; receivedAt?: string };
 }
 
 /**

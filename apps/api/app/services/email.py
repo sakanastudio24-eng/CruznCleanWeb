@@ -93,15 +93,37 @@ def _build_vehicle_breakdown(vehicles: list[dict[str, Any]]) -> tuple[list[dict[
     return enriched, grand_total
 
 
+def _build_services_summary(vehicles: list[dict[str, Any]]) -> str:
+    """Builds a flat services summary for provider-managed test templates."""
+    service_groups: list[str] = []
+    for vehicle in vehicles:
+        services = vehicle.get("services", [])
+        service_names = [str(service.get("name", "")).strip() for service in services if str(service.get("name", "")).strip()]
+        vehicle_label = str(vehicle.get("label", "Vehicle")).strip() or "Vehicle"
+        service_groups.append(f"{vehicle_label}: {', '.join(service_names) if service_names else 'No services selected'}")
+
+    return " | ".join(service_groups) if service_groups else "No services selected"
+
+
 def _build_template_variables(booking_record: dict[str, Any]) -> dict[str, Any]:
     """Builds the structured variable payload used by template and fallback sends."""
     customer = booking_record.get("customer", {})
     vehicles = booking_record.get("vehicles", [])
     enriched_vehicles, grand_total = _build_vehicle_breakdown(vehicles)
+    booking_id = str(booking_record.get("bookingId", "unknown"))
+    customer_name = str(customer.get("fullName", "")).strip()
+    services_summary = _build_services_summary(enriched_vehicles)
+    site_url = os.getenv("PUBLIC_SITE_URL", "https://www.cruznclean.com").rstrip("/")
 
     return {
+        "CUSTOMER_NAME": customer_name or "Customer",
+        "BOOKING_ID": booking_id,
+        "ESTIMATE_TOTAL": grand_total,
+        "VEHICLE_COUNT": len(enriched_vehicles),
+        "SERVICES_SUMMARY": services_summary,
+        "SITE_URL": site_url,
         "booking": {
-            "bookingId": booking_record.get("bookingId", "unknown"),
+            "bookingId": booking_id,
             "submittedAt": booking_record.get("submittedAt", datetime.now(timezone.utc).isoformat()),
             "scheduledAt": booking_record.get("scheduledAt", ""),
             "scheduledTimezone": booking_record.get("scheduledTimezone", ""),
