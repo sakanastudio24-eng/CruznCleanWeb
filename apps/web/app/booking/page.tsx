@@ -706,6 +706,19 @@ export default function BookingPage(): JSX.Element {
                 </p>
 
                 <div className="mt-3 space-y-2">
+                  <label className={`flex items-start gap-2 rounded-lg px-3 py-2 text-sm text-ink/80 ${
+                    fieldErrors.acceptedConsent ? 'border border-white/35 bg-white/10' : 'border border-white/15 bg-[#111111]'
+                  }`}>
+                    <input
+                      type="checkbox"
+                      checked={form.acceptedConsent}
+                      onChange={(event) => updateCustomerField('acceptedConsent', event.target.checked)}
+                      className="mt-1"
+                    />
+                    <span>I reviewed the booking terms and policies and agree to be contacted for scheduling updates.</span>
+                  </label>
+                  {fieldErrors.acceptedConsent ? <p className="text-xs font-medium text-charcoal">{fieldErrors.acceptedConsent}</p> : null}
+
                   <label className="flex items-start gap-2 rounded-lg border border-white/15 bg-[#111111] px-3 py-2 text-sm text-ink/80">
                     <input
                       type="checkbox"
@@ -941,16 +954,7 @@ export default function BookingPage(): JSX.Element {
                 <p>• Final pricing is confirmed after inspection and condition review.</p>
               </div>
 
-              <label className="mt-4 flex items-start gap-2 rounded-xl border border-white/15 bg-[#111111] px-4 py-3 text-sm text-ink/80">
-                <input
-                  type="checkbox"
-                  checked={form.acceptedConsent}
-                  onChange={(event) => updateCustomerField('acceptedConsent', event.target.checked)}
-                  className="mt-1"
-                />
-                I reviewed the booking terms and policies and agree to be contacted for scheduling updates.
-              </label>
-              {fieldErrors.acceptedConsent ? <p className="mt-2 text-xs font-medium text-charcoal">{fieldErrors.acceptedConsent}</p> : null}
+              <p className="mt-4 text-xs font-semibold text-ink/70">Review these before continuing.</p>
             </section>
           ) : null}
 
