@@ -47,8 +47,8 @@ export default function GalleryPage(): JSX.Element {
                 onClick={() => setFilter(id as 'all' | GalleryCategory)}
                 className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
                   selected
-                    ? 'border-charcoal bg-charcoal text-white shadow-md'
-                    : 'border-black/15 bg-white text-ink hover:border-fog hover:bg-fog/10'
+                    ? 'border-white bg-white text-black shadow-md'
+                    : 'border-white/15 bg-[#111111] text-white hover:border-white/30 hover:bg-[#161616]'
                 }`}
               >
                 {label}

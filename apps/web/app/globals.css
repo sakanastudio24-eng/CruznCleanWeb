@@ -106,6 +106,135 @@ textarea:focus-visible {
   animation: pageEnter 0.3s ease-out both;
 }
 
+.gray-card {
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 1rem;
+  background: #111111;
+  color: #f5f5f5;
+  box-shadow: 0 14px 34px rgb(0 0 0 / 0.22);
+  transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.gray-card-hover:hover {
+  border-color: rgb(255 255 255 / 0.2);
+  background: #161616;
+  box-shadow: 0 18px 42px rgb(0 0 0 / 0.32);
+}
+
+.gray-panel {
+  border: 1px solid rgb(255 255 255 / 0.16);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.08);
+  color: #f5f5f5;
+  box-shadow: 0 18px 50px rgb(0 0 0 / 0.28);
+  backdrop-filter: blur(12px);
+}
+
+.gray-field {
+  border: 1px solid rgb(255 255 255 / 0.16);
+  background: rgb(255 255 255 / 0.06);
+  color: #f5f5f5;
+}
+
+.gray-field::placeholder {
+  color: rgb(255 255 255 / 0.38);
+}
+
+.gray-field:focus {
+  border-color: rgb(255 255 255 / 0.38);
+}
+
+.gray-card .text-ink,
+.gray-panel .text-ink {
+  color: #f5f5f5;
+}
+
+.gray-card .text-charcoal,
+.gray-panel .text-charcoal {
+  color: #ffffff;
+}
+
+.gray-card .text-ink\/80,
+.gray-panel .text-ink\/80 {
+  color: rgb(255 255 255 / 0.8);
+}
+
+.gray-card .text-ink\/75,
+.gray-panel .text-ink\/75 {
+  color: rgb(255 255 255 / 0.75);
+}
+
+.gray-card .text-ink\/70,
+.gray-panel .text-ink\/70 {
+  color: rgb(255 255 255 / 0.7);
+}
+
+.gray-card .text-ink\/65,
+.gray-panel .text-ink\/65 {
+  color: rgb(255 255 255 / 0.65);
+}
+
+.gray-card .text-ink\/60,
+.gray-panel .text-ink\/60 {
+  color: rgb(255 255 255 / 0.6);
+}
+
+.gray-card .text-ink\/55,
+.gray-panel .text-ink\/55 {
+  color: rgb(255 255 255 / 0.55);
+}
+
+.gray-card .text-ink\/45,
+.gray-panel .text-ink\/45 {
+  color: rgb(255 255 255 / 0.45);
+}
+
+.gray-card .border-black\/10,
+.gray-panel .border-black\/10 {
+  border-color: rgb(255 255 255 / 0.12);
+}
+
+.gray-card .border-black\/15,
+.gray-panel .border-black\/15 {
+  border-color: rgb(255 255 255 / 0.16);
+}
+
+.gray-card .bg-canvas,
+.gray-panel .bg-canvas,
+.gray-card .bg-canvas\/45,
+.gray-panel .bg-canvas\/45,
+.gray-card .bg-canvas\/60,
+.gray-panel .bg-canvas\/60,
+.gray-card .bg-canvas\/65,
+.gray-panel .bg-canvas\/65 {
+  background: rgb(255 255 255 / 0.06);
+}
+
+.gray-card .hover\:bg-canvas:hover,
+.gray-panel .hover\:bg-canvas:hover,
+.gray-card .hover\:bg-canvas\/60:hover,
+.gray-panel .hover\:bg-canvas\/60:hover {
+  background: rgb(255 255 255 / 0.1);
+}
+
+.gray-card input:not([type='checkbox']),
+.gray-card select,
+.gray-card textarea,
+.gray-panel input:not([type='checkbox']),
+.gray-panel select,
+.gray-panel textarea {
+  border-color: rgb(255 255 255 / 0.16);
+  background: rgb(255 255 255 / 0.06);
+  color: #f5f5f5;
+}
+
+.gray-card input::placeholder,
+.gray-card textarea::placeholder,
+.gray-panel input::placeholder,
+.gray-panel textarea::placeholder {
+  color: rgb(255 255 255 / 0.38);
+}
+
 @media (max-width: 1023px) {
   body {
     padding-bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom));

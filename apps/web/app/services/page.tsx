@@ -125,8 +125,8 @@ function ServiceGrid({
                 selected
                   ? 'border-charcoal bg-charcoal/10 shadow-md'
                   : isBestValue
-                    ? 'border-charcoal/45 bg-[#f5f5f5] hover:-translate-y-0.5 hover:border-charcoal hover:bg-charcoal/10'
-                    : 'border-black/10 bg-white hover:-translate-y-0.5 hover:border-fog hover:bg-fog/10'
+                    ? 'border-white/35 bg-white/[0.08] hover:-translate-y-0.5 hover:border-white/45 hover:bg-white/[0.12]'
+                    : 'border-white/10 bg-[#111111] hover:-translate-y-0.5 hover:border-white/20 hover:bg-[#161616]'
               }`}
             >
               <div className="flex items-start justify-between gap-2">
@@ -161,7 +161,7 @@ function ServiceGrid({
     return <section>{content}</section>;
   }
 
-  return <section className="rounded-2xl border border-white/10 bg-white p-5 shadow-sm transition duration-300 hover:shadow-md">{content}</section>;
+  return <section className="gray-card gray-card-hover p-5">{content}</section>;
 }
 
 /**
@@ -177,7 +177,7 @@ function VehicleSizeSection(): JSX.Element {
   }
 
   return (
-    <section className="rounded-2xl border border-white/10 bg-white p-5 shadow-sm transition duration-300 hover:shadow-md">
+    <section className="gray-card gray-card-hover p-5">
       <h2 className="font-heading text-2xl font-semibold text-ink">Select Your Vehicle Size</h2>
       <p className="mt-2 text-sm text-ink/60">
         Sedan and coupe pricing uses the listed starting rate. SUVs, trucks, vans, and lifted vehicles reprice instantly.
@@ -194,7 +194,7 @@ function VehicleSizeSection(): JSX.Element {
               className={`rounded-2xl border px-4 py-5 text-left transition duration-300 ${
                 selected
                   ? 'border-charcoal bg-charcoal/5 shadow-md'
-                  : 'border-black/10 bg-white hover:border-fog hover:bg-fog/10'
+                  : 'border-white/10 bg-[#111111] hover:border-white/20 hover:bg-[#161616]'
               }`}
             >
               <p className="font-heading text-xl font-semibold text-ink">{option.label}</p>
@@ -240,7 +240,7 @@ export default function ServicesPage(): JSX.Element {
         <div className="space-y-6">
           <VehicleSizeSection />
           <ServiceGrid category="package" />
-          <section className="rounded-2xl border border-white/10 bg-white p-5 shadow-sm transition duration-300 hover:shadow-md">
+          <section className="gray-card gray-card-hover p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h2 className="font-heading text-2xl font-semibold text-ink">Add-Ons</h2>
@@ -248,7 +248,7 @@ export default function ServicesPage(): JSX.Element {
                   Standalone premium work for vehicles that need coating, correction, or more specialized protection without forcing a package.
                 </p>
               </div>
-              <Link href="/quote" className="text-sm font-semibold text-charcoal transition hover:text-ink">
+              <Link href="/quote" className="text-sm font-semibold text-white transition hover:text-fog">
                 Need a custom setup?
               </Link>
             </div>
@@ -262,7 +262,7 @@ export default function ServicesPage(): JSX.Element {
 
         <div className="services-sidebar space-y-4 self-start">
           <VehicleDock />
-          <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
+          <section className="gray-card p-5">
             <h2 className="font-heading text-xl font-semibold text-ink">Availability + Limits</h2>
             <ul className="mt-3 space-y-2 text-sm text-ink/70">
               <li>• Monday-Friday availability: 8am - 6pm</li>

@@ -79,7 +79,7 @@ export default function FaqPage(): JSX.Element {
       </section>
 
       <section id="service-readiness" className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <div className="rounded-2xl border border-fog/35 bg-fog/10 p-5 sm:p-6">
+        <div className="gray-panel p-5 sm:p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink/60">Service Readiness</p>
           <h2 className="mt-2 font-heading text-2xl font-semibold text-ink sm:text-3xl">Before We Arrive</h2>
           <p className="mt-2 text-sm text-ink/75">
@@ -87,25 +87,25 @@ export default function FaqPage(): JSX.Element {
           </p>
 
           <div className="mt-4 grid gap-3 md:grid-cols-2">
-            <article className="rounded-xl border border-black/10 bg-white p-4">
+            <article className="rounded-xl border border-white/10 bg-[#111111] p-4">
               <p className="text-sm font-semibold text-ink">1. Access + Location</p>
               <p className="mt-1 text-sm text-ink/75">
                 Keep the vehicle in an accessible area and share gate, parking, or arrival notes in booking details if needed.
               </p>
             </article>
-            <article className="rounded-xl border border-black/10 bg-white p-4">
+            <article className="rounded-xl border border-white/10 bg-[#111111] p-4">
               <p className="text-sm font-semibold text-ink">2. Vehicle Prep</p>
               <p className="mt-1 text-sm text-ink/75">
                 Remove valuables and personal items so interior areas are reachable for cleaning and inspection.
               </p>
             </article>
-            <article className="rounded-xl border border-black/10 bg-white p-4">
+            <article className="rounded-xl border border-white/10 bg-[#111111] p-4">
               <p className="text-sm font-semibold text-ink">3. Handoff</p>
               <p className="mt-1 text-sm text-ink/75">
                 Be available for start-time handoff and final walk-through so results, pricing, and payment can be confirmed.
               </p>
             </article>
-            <article className="rounded-xl border border-black/10 bg-white p-4">
+            <article className="rounded-xl border border-white/10 bg-[#111111] p-4">
               <p className="text-sm font-semibold text-ink">4. Final Scope</p>
               <p className="mt-1 text-sm text-ink/75">
                 Final pricing is confirmed on-site from actual condition, vehicle size, and selected service scope.
@@ -116,7 +116,7 @@ export default function FaqPage(): JSX.Element {
           <div className="mt-4 flex flex-wrap gap-2">
             <Link
               href="/terms"
-              className="rounded-full border border-black/15 bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:border-fog hover:text-fog"
+              className="rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
             >
               Terms & Conditions
             </Link>
@@ -143,8 +143,8 @@ export default function FaqPage(): JSX.Element {
                 onClick={() => setCategory(chip.id)}
                 className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
                   selected
-                    ? 'border-charcoal bg-charcoal text-white shadow-md'
-                    : 'border-black/15 bg-white text-ink hover:border-fog hover:bg-fog/10'
+                    ? 'border-white bg-white text-black shadow-md'
+                    : 'border-white/15 bg-[#111111] text-white hover:border-white/30 hover:bg-[#161616]'
                 }`}
               >
                 <ChipIcon className="h-4 w-4" />
@@ -154,12 +154,12 @@ export default function FaqPage(): JSX.Element {
           })}
         </div>
 
-        <div className="mt-8 space-y-3 rounded-2xl border border-black/10 bg-white p-4">
+        <div className="gray-card mt-8 space-y-3 p-4">
           {visible.map((record) => {
             const isOpen = expanded === record.q;
 
             return (
-              <article key={record.q} className="rounded-xl border border-black/10 bg-white">
+              <article key={record.q} className="rounded-xl border border-white/10 bg-[#111111]">
                 <button
                   type="button"
                   onClick={() => setExpanded((current) => (current === record.q ? null : record.q))}

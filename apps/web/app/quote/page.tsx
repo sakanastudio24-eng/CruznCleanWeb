@@ -70,7 +70,7 @@ export default function QuotePage(): JSX.Element {
       </section>
 
       <section className="mx-auto grid max-w-6xl gap-6 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_340px]">
-        <form onSubmit={handleSubmit} className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
+        <form onSubmit={handleSubmit} className="gray-card p-6">
           <h2 className="font-heading text-2xl font-semibold text-ink">Personal Information</h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <label className="text-sm font-semibold text-ink/75">
@@ -78,7 +78,7 @@ export default function QuotePage(): JSX.Element {
               <input
                 value={form.fullName}
                 onChange={(event) => setForm((current) => ({ ...current, fullName: event.target.value }))}
-                className="mt-1 w-full rounded-lg border border-black/15 px-3 py-2"
+                className="gray-field mt-1 w-full rounded-lg px-3 py-2"
                 placeholder="John Doe"
                 required
               />
@@ -89,7 +89,7 @@ export default function QuotePage(): JSX.Element {
                 type="email"
                 value={form.email}
                 onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
-                className="mt-1 w-full rounded-lg border border-black/15 px-3 py-2"
+                className="gray-field mt-1 w-full rounded-lg px-3 py-2"
                 placeholder="john@example.com"
                 required
               />
@@ -99,7 +99,7 @@ export default function QuotePage(): JSX.Element {
               <input
                 value={form.phone}
                 onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
-                className="mt-1 w-full rounded-lg border border-black/15 px-3 py-2"
+                className="gray-field mt-1 w-full rounded-lg px-3 py-2"
                 placeholder="(555) 123-4567"
                 required
               />
@@ -109,7 +109,7 @@ export default function QuotePage(): JSX.Element {
               <input
                 value={form.address}
                 onChange={(event) => setForm((current) => ({ ...current, address: event.target.value }))}
-                className="mt-1 w-full rounded-lg border border-black/15 px-3 py-2"
+                className="gray-field mt-1 w-full rounded-lg px-3 py-2"
                 placeholder="123 Main St, City, ST"
                 required
               />
@@ -120,12 +120,12 @@ export default function QuotePage(): JSX.Element {
           <textarea
             value={form.message}
             onChange={(event) => setForm((current) => ({ ...current, message: event.target.value }))}
-            className="mt-2 min-h-40 w-full rounded-lg border border-black/15 px-3 py-2"
+            className="gray-field mt-2 min-h-40 w-full rounded-lg px-3 py-2"
             placeholder="Vehicle year, make, model, color, service goals, and any condition notes"
             required
           />
 
-          <button type="submit" className="mt-4 w-full rounded-full bg-charcoal px-5 py-3 text-sm font-semibold text-white transition hover:bg-ink">
+          <button type="submit" className="mt-4 w-full rounded-full bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-fog">
             Submit Quote Request
           </button>
 
@@ -133,7 +133,7 @@ export default function QuotePage(): JSX.Element {
         </form>
 
         <aside className="space-y-4">
-          <article className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
+          <article className="gray-card p-5">
             <div className="inline-flex rounded-full bg-fog/15 p-2 text-fog">
               <Phone className="h-5 w-5" />
             </div>
@@ -141,7 +141,7 @@ export default function QuotePage(): JSX.Element {
             <a href={SITE_PROFILE.phoneHref} className="mt-1 block text-charcoal">{SITE_PROFILE.phoneDisplay}</a>
           </article>
 
-          <article className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
+          <article className="gray-card p-5">
             <div className="inline-flex rounded-full bg-fog/15 p-2 text-fog">
               <Mail className="h-5 w-5" />
             </div>
@@ -149,7 +149,7 @@ export default function QuotePage(): JSX.Element {
             <p className="mt-1 text-ink/75">{SITE_PROFILE.supportEmail}</p>
           </article>
 
-          <article className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
+          <article className="gray-card p-5">
             <div className="inline-flex rounded-full bg-fog/15 p-2 text-fog">
               <Clock3 className="h-5 w-5" />
             </div>

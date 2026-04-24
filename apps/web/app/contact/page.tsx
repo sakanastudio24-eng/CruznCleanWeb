@@ -63,13 +63,13 @@ export default function ContactPage(): JSX.Element {
       </section>
 
       <section className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
-        <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-black/10 bg-white p-6">
+        <form onSubmit={handleSubmit} className="gray-card space-y-4 p-6">
           <label className="block text-sm font-medium text-ink">
             Full Name
             <input
               value={form.fullName}
               onChange={(event) => updateField('fullName', event.target.value)}
-              className="mt-1 w-full rounded-lg border border-black/15 px-3 py-2"
+              className="gray-field mt-1 w-full rounded-lg px-3 py-2"
               required
             />
           </label>
@@ -80,7 +80,7 @@ export default function ContactPage(): JSX.Element {
               type="email"
               value={form.email}
               onChange={(event) => updateField('email', event.target.value)}
-              className="mt-1 w-full rounded-lg border border-black/15 px-3 py-2"
+              className="gray-field mt-1 w-full rounded-lg px-3 py-2"
               required
             />
           </label>
@@ -90,7 +90,7 @@ export default function ContactPage(): JSX.Element {
             <input
               value={form.phone}
               onChange={(event) => updateField('phone', event.target.value)}
-              className="mt-1 w-full rounded-lg border border-black/15 px-3 py-2"
+              className="gray-field mt-1 w-full rounded-lg px-3 py-2"
               placeholder="Optional"
             />
           </label>
@@ -100,7 +100,7 @@ export default function ContactPage(): JSX.Element {
             <textarea
               value={form.message}
               onChange={(event) => updateField('message', event.target.value)}
-              className="mt-1 min-h-32 w-full rounded-lg border border-black/15 px-3 py-2"
+              className="gray-field mt-1 min-h-32 w-full rounded-lg px-3 py-2"
               required
             />
           </label>
@@ -108,7 +108,7 @@ export default function ContactPage(): JSX.Element {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-full bg-charcoal px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
+            className="w-full rounded-full bg-white px-4 py-3 text-sm font-semibold text-black transition hover:bg-fog disabled:opacity-60"
           >
             {submitting ? 'Sending...' : 'Send Question'}
           </button>

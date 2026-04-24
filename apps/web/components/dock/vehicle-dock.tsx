@@ -27,8 +27,8 @@ export function VehicleDock(): JSX.Element {
   const canAddVehicle = vehicles.length < MAX_BOOKED_VEHICLES_PER_DAY;
 
   return (
-    <aside className="dock-shell rounded-2xl border border-black/10 bg-white shadow-xl">
-      <div className="border-b border-black/10 bg-gradient-to-r from-ink to-[#1f1f1f] px-4 py-4 text-white sm:px-5">
+    <aside className="dock-shell gray-card overflow-hidden">
+      <div className="border-b border-white/10 bg-[#151515] px-4 py-4 text-white sm:px-5">
         <div className="flex items-center justify-between gap-3">
           <h2 className="flex items-center gap-2 font-heading text-lg font-semibold">
             <Car className="h-5 w-5 text-fog" />
@@ -50,7 +50,7 @@ export function VehicleDock(): JSX.Element {
 
       <div className={`space-y-4 p-4 sm:p-5 ${mobileExpanded ? 'block' : 'hidden lg:block'}`}>
         <section>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink/55">Select Vehicle</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/55">Select Vehicle</p>
           <div className="mt-2 space-y-2">
             {vehicles.map((vehicle) => {
               const active = vehicle.id === activeVehicleId;
@@ -60,7 +60,7 @@ export function VehicleDock(): JSX.Element {
                 <article
                   key={vehicle.id}
                   className={`rounded-xl border p-3 transition duration-300 ${
-                    active ? 'border-charcoal bg-charcoal/5 shadow-sm' : 'border-black/10 bg-white hover:border-fog'
+                    active ? 'border-white/35 bg-white/10 shadow-sm' : 'border-white/10 bg-[#111111] hover:border-white/25 hover:bg-[#161616]'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -72,7 +72,7 @@ export function VehicleDock(): JSX.Element {
                       <button
                         type="button"
                         onClick={() => removeVehicle(vehicle.id)}
-                        className="rounded-md p-1 text-ink/45 transition hover:bg-canvas hover:text-charcoal"
+                        className="rounded-md p-1 text-white/45 transition hover:bg-white/10 hover:text-white"
                         aria-label="Remove vehicle"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -102,15 +102,15 @@ export function VehicleDock(): JSX.Element {
           <p className="mt-2 text-center text-xs font-medium text-ink/60">{BOOKING_LIMIT_DISCLAIMER}</p>
         </section>
 
-        <section className="rounded-xl border border-black/10 bg-canvas p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink/55">Pricing Reliability</p>
+        <section className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/55">Pricing Reliability</p>
           <p className="mt-2 text-sm text-ink/70">
             Switch cars here, then manage sizing and service selections in the main planner so pricing always updates from one active source of truth.
           </p>
         </section>
       </div>
 
-      <div className="space-y-3 border-t border-black/10 bg-white px-4 py-4 sm:px-5">
+      <div className="space-y-3 border-t border-white/10 bg-white/[0.04] px-4 py-4 sm:px-5">
         <div className="flex items-center justify-between">
           <p className="text-sm font-semibold text-ink">Total</p>
           <p className="font-heading text-2xl font-extrabold text-charcoal">${getGrandTotal()}</p>

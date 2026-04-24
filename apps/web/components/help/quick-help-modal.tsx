@@ -124,10 +124,10 @@ export function QuickHelpModal(): JSX.Element {
                 id={dialogId}
                 tabIndex={-1}
                 ref={dialogRef}
-                className="relative my-auto w-full max-w-2xl rounded-2xl border border-black/10 bg-white shadow-[0_20px_60px_rgba(0,0,0,0.35)] transition-transform duration-300 animate-[fadeUp_0.25s_ease-out]"
+                className="gray-card relative my-auto w-full max-w-2xl transition-transform duration-300 animate-[fadeUp_0.25s_ease-out]"
                 onClick={(event) => event.stopPropagation()}
               >
-                <div className="flex items-center justify-between border-b border-black/10 px-5 py-4">
+                <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
                   <div className="flex items-center gap-2">
                     <div className="rounded-full bg-fog/20 p-2 text-fog">
                       <CircleHelp className="h-5 w-5" />
@@ -144,7 +144,7 @@ export function QuickHelpModal(): JSX.Element {
                   <button
                     type="button"
                     onClick={() => setOpen(false)}
-                    className="rounded-full p-2 text-ink/55 transition hover:bg-canvas hover:text-ink"
+                    className="rounded-full p-2 text-white/55 transition hover:bg-white/10 hover:text-white"
                     aria-label="Close quick help"
                   >
                     ✕
@@ -157,13 +157,13 @@ export function QuickHelpModal(): JSX.Element {
                     const Icon = faq.icon;
 
                     return (
-                      <article key={faq.question} className="rounded-xl border border-black/10 bg-white">
+                      <article key={faq.question} className="rounded-xl border border-white/10 bg-[#111111]">
                         <button
                           type="button"
                           onClick={() => toggleFaq(index)}
                           aria-expanded={expanded}
                           aria-controls={`quick-help-faq-answer-${index}`}
-                          className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-canvas/60"
+                          className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-white/10"
                         >
                           <span className="rounded-full bg-fog/20 p-2 text-fog">
                             <Icon className="h-4 w-4" />
@@ -180,7 +180,7 @@ export function QuickHelpModal(): JSX.Element {
                     );
                   })}
 
-                  <div className="rounded-xl border border-fog/40 bg-fog/10 p-4">
+                  <div className="rounded-xl border border-white/15 bg-white/[0.06] p-4">
                     <p className="text-sm text-ink/75">
                       Need more details? View full FAQ or continue directly to booking.
                     </p>

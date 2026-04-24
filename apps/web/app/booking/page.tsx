@@ -430,8 +430,8 @@ export default function BookingPage(): JSX.Element {
       </section>
 
       <section className="mx-auto grid max-w-6xl gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_380px]">
-        <div ref={plannerTopRef} className="space-y-5 rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
-          <div className="rounded-2xl border border-black/10 bg-canvas/60 p-4">
+        <div ref={plannerTopRef} className="gray-card space-y-5 p-5">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/60">Vehicle Deck</p>
@@ -440,7 +440,7 @@ export default function BookingPage(): JSX.Element {
               <button
                 type="button"
                 onClick={handleAddVehicle}
-                className="inline-flex items-center gap-2 rounded-full border border-fog bg-white px-3 py-1.5 text-xs font-semibold text-fog transition duration-300 hover:bg-fog/10"
+                className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white transition duration-300 hover:bg-white/10"
               >
                 <Plus className="h-4 w-4" /> Add Vehicle
               </button>
@@ -453,8 +453,8 @@ export default function BookingPage(): JSX.Element {
                 return (
                   <article
                     key={vehicle.id}
-                    className={`rounded-xl border bg-white p-3 transition-all duration-300 ${
-                      active ? 'border-charcoal shadow-sm' : 'border-black/10 hover:border-fog'
+                    className={`rounded-xl border p-3 transition-all duration-300 ${
+                      active ? 'border-white/35 bg-white/10 shadow-sm' : 'border-white/10 bg-[#111111] hover:border-white/25 hover:bg-[#161616]'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -470,7 +470,7 @@ export default function BookingPage(): JSX.Element {
                         <button
                           type="button"
                           onClick={() => handleRemoveVehicle(vehicle.id)}
-                          className="rounded-full p-1 text-ink/55 transition hover:bg-canvas hover:text-charcoal"
+                          className="rounded-full p-1 text-white/55 transition hover:bg-white/10 hover:text-white"
                           aria-label={`Remove ${getVehicleDisplayName(vehicle)}`}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -488,7 +488,7 @@ export default function BookingPage(): JSX.Element {
           </div>
 
           {step === 1 ? (
-            <section className="space-y-4 rounded-2xl border border-black/10 p-4 transition-all duration-300">
+            <section className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition-all duration-300">
               <div>
                 <h2 className="font-heading text-2xl font-semibold text-ink">Your Details</h2>
                 <p className="mt-1 text-sm text-ink/65">
@@ -514,8 +514,8 @@ export default function BookingPage(): JSX.Element {
                         selected
                           ? 'border-charcoal bg-charcoal/10 shadow-md'
                           : isBestValue
-                            ? 'border-charcoal/45 bg-[#f5f5f5] hover:border-charcoal hover:bg-charcoal/10'
-                            : 'border-black/10 bg-white hover:border-fog hover:bg-fog/10'
+                            ? 'border-white/35 bg-white/[0.08] hover:border-white/45 hover:bg-white/[0.12]'
+                            : 'border-white/10 bg-[#111111] hover:border-white/25 hover:bg-[#161616]'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
@@ -537,7 +537,7 @@ export default function BookingPage(): JSX.Element {
                   );
                 })}
               </div>
-              <div className="rounded-xl border border-black/10 bg-canvas p-3 text-xs">
+              <div className="rounded-xl border border-white/10 bg-white/[0.06] p-3 text-xs">
                 <p className="font-semibold text-ink/75">
                   Size pricing active: {activeVehicleSize.replaceAll('_', ' ').toUpperCase()} ({formatSizeAdjustmentLabel(activeVehicleSize)})
                 </p>
@@ -580,7 +580,7 @@ export default function BookingPage(): JSX.Element {
                         className={`rounded-xl border px-4 py-3 text-left transition-all duration-300 ${
                           selected
                             ? 'border-charcoal bg-charcoal/10'
-                            : 'border-black/10 bg-white hover:border-fog hover:bg-fog/10'
+                            : 'border-white/10 bg-[#111111] hover:border-white/25 hover:bg-[#161616]'
                         }`}
                       >
                         <p className="font-heading text-base font-semibold text-ink">{size.label}</p>
@@ -591,7 +591,7 @@ export default function BookingPage(): JSX.Element {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-black/10 bg-canvas/65 p-3 text-xs text-ink/75">
+              <div className="rounded-xl border border-white/10 bg-white/[0.06] p-3 text-xs text-ink/75">
                 <p>Booking window: Monday-Friday 8am - 6pm.</p>
                 <p className="mt-1">Weekend appointments are reviewed by request and may be reserved for business maintenance or advertising work.</p>
               </div>
@@ -699,14 +699,14 @@ export default function BookingPage(): JSX.Element {
                 </label>
               </div>
 
-              <section className="rounded-xl border border-black/10 bg-canvas/65 p-3 sm:p-4">
+              <section className="rounded-xl border border-white/10 bg-white/[0.06] p-3 sm:p-4">
                 <h3 className="text-sm font-semibold text-ink">Confirmation Preferences</h3>
                 <p className="mt-1 text-xs text-ink/70">
                   Choose how you want appointment confirmations and status updates.
                 </p>
 
                 <div className="mt-3 space-y-2">
-                  <label className="flex items-start gap-2 rounded-lg border border-fog/30 bg-white px-3 py-2 text-sm text-ink/80">
+                  <label className="flex items-start gap-2 rounded-lg border border-white/15 bg-[#111111] px-3 py-2 text-sm text-ink/80">
                     <input
                       type="checkbox"
                       checked={form.sendEmailConfirmation}
@@ -716,7 +716,7 @@ export default function BookingPage(): JSX.Element {
                     <span>I agree to receive booking confirmations and service-related emails.</span>
                   </label>
 
-                  <label className="flex items-start gap-2 rounded-lg border border-fog/30 bg-white px-3 py-2 text-sm text-ink/80">
+                  <label className="flex items-start gap-2 rounded-lg border border-white/15 bg-[#111111] px-3 py-2 text-sm text-ink/80">
                     <input
                       type="checkbox"
                       checked={form.sendSmsConfirmation}
@@ -758,7 +758,7 @@ export default function BookingPage(): JSX.Element {
           ) : null}
 
           {step === 2 ? (
-            <section className="space-y-4 rounded-2xl border border-black/10 p-4 transition-all duration-300">
+            <section className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition-all duration-300">
               <div>
                 <h2 className="font-heading text-2xl font-semibold text-ink">Services</h2>
                 <p className="mt-1 text-sm text-ink/65">
@@ -770,7 +770,7 @@ export default function BookingPage(): JSX.Element {
                 </p>
               </div>
 
-              <section className="space-y-5 rounded-2xl border border-black/10 bg-canvas/45 p-4">
+              <section className="space-y-5 rounded-2xl border border-white/10 bg-white/[0.06] p-4">
                 <div>
                   <h3 className="text-sm font-semibold uppercase tracking-[0.15em] text-ink/60">Add-Ons</h3>
                   <p className="mt-1 text-sm text-ink/65">
@@ -797,7 +797,7 @@ export default function BookingPage(): JSX.Element {
                           className={`rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
                             selected
                               ? 'border-charcoal bg-charcoal/10 shadow-md'
-                              : 'border-black/10 bg-white hover:border-fog hover:bg-fog/10'
+                              : 'border-white/10 bg-[#111111] hover:border-white/25 hover:bg-[#161616]'
                           }`}
                         >
                           <div className="flex items-center justify-between gap-2">
@@ -838,7 +838,7 @@ export default function BookingPage(): JSX.Element {
                           className={`rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
                             selected
                               ? 'border-charcoal bg-charcoal/10 shadow-md'
-                              : 'border-black/10 bg-white hover:border-fog hover:bg-fog/10'
+                              : 'border-white/10 bg-[#111111] hover:border-white/25 hover:bg-[#161616]'
                           }`}
                         >
                           <div className="flex items-center justify-between gap-2">
@@ -873,13 +873,13 @@ export default function BookingPage(): JSX.Element {
           ) : null}
 
           {step === 3 ? (
-            <section className="space-y-4 rounded-2xl border border-black/10 p-4 transition-all duration-300">
+            <section className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition-all duration-300">
               <div>
                 <h2 className="font-heading text-2xl font-semibold text-ink">Schedule</h2>
                 <p className="mt-1 text-sm text-ink/65">Submit your details, then choose your appointment on Cal.com.</p>
               </div>
 
-              <div className="rounded-xl border border-black/10 bg-canvas p-4">
+              <div className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
                 <p className="text-sm text-ink/75">
                   We pre-save your intake first so your booking request stays attached to your service selections before calendar scheduling.
                 </p>
@@ -909,7 +909,7 @@ export default function BookingPage(): JSX.Element {
 
           {step < 3 ? (
             <section className={`rounded-2xl border px-4 py-4 ${
-              fieldErrors.acceptedConsent ? 'border-charcoal bg-charcoal/10' : 'border-black/10 bg-canvas/65'
+              fieldErrors.acceptedConsent ? 'border-white/35 bg-white/10' : 'border-white/10 bg-white/[0.06]'
             }`}>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
@@ -919,16 +919,16 @@ export default function BookingPage(): JSX.Element {
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2 text-xs font-semibold">
-                  <Link href="/terms" className="rounded-full border border-black/10 bg-white px-3 py-1.5 text-ink transition hover:border-fog hover:bg-fog/10">
+                  <Link href="/terms" className="rounded-full border border-white/15 bg-[#111111] px-3 py-1.5 text-white transition hover:border-white/30 hover:bg-white/10">
                     Terms
                   </Link>
-                  <Link href="/privacy" className="rounded-full border border-black/10 bg-white px-3 py-1.5 text-ink transition hover:border-fog hover:bg-fog/10">
+                  <Link href="/privacy" className="rounded-full border border-white/15 bg-[#111111] px-3 py-1.5 text-white transition hover:border-white/30 hover:bg-white/10">
                     Privacy
                   </Link>
-                  <Link href="/faq" className="rounded-full border border-black/10 bg-white px-3 py-1.5 text-ink transition hover:border-fog hover:bg-fog/10">
+                  <Link href="/faq" className="rounded-full border border-white/15 bg-[#111111] px-3 py-1.5 text-white transition hover:border-white/30 hover:bg-white/10">
                     Help
                   </Link>
-                  <Link href="/quote" className="rounded-full border border-black/10 bg-white px-3 py-1.5 text-ink transition hover:border-fog hover:bg-fog/10">
+                  <Link href="/quote" className="rounded-full border border-white/15 bg-[#111111] px-3 py-1.5 text-white transition hover:border-white/30 hover:bg-white/10">
                     Request a Quote
                   </Link>
                 </div>
@@ -941,7 +941,7 @@ export default function BookingPage(): JSX.Element {
                 <p>• Final pricing is confirmed after inspection and condition review.</p>
               </div>
 
-              <label className="mt-4 flex items-start gap-2 rounded-xl border border-fog/35 bg-white px-4 py-3 text-sm text-ink/80">
+              <label className="mt-4 flex items-start gap-2 rounded-xl border border-white/15 bg-[#111111] px-4 py-3 text-sm text-ink/80">
                 <input
                   type="checkbox"
                   checked={form.acceptedConsent}
@@ -954,7 +954,7 @@ export default function BookingPage(): JSX.Element {
             </section>
           ) : null}
 
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-black/10 pt-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
             {step > 1 ? (
               <button
                 type="button"
@@ -1017,8 +1017,8 @@ export default function BookingPage(): JSX.Element {
           ) : null}
         </div>
 
-        <aside className="h-fit rounded-2xl border border-black/10 bg-white shadow-sm lg:sticky lg:top-28">
-          <div className="rounded-t-2xl bg-gradient-to-r from-ink to-[#1f1f1f] px-4 py-3 text-white">
+        <aside className="gray-card h-fit overflow-hidden lg:sticky lg:top-28">
+          <div className="bg-[#151515] px-4 py-3 text-white">
             <h2 className="inline-flex items-center gap-2 font-heading text-xl font-semibold">
               <ShieldCheck className="h-5 w-5 text-fog" /> Your Selection
             </h2>
