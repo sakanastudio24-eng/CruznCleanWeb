@@ -101,7 +101,6 @@ function getVehicleSizes(): VehicleSizeOption[] {
     { id: 'sedan_coupe', label: 'Sedan / Coupe', hint: 'Base listed pricing' },
     { id: 'small_suv_truck', label: 'Small SUV / Truck', hint: '+20%' },
     { id: 'large_suv_truck', label: 'Large SUV / Truck', hint: '+40%' },
-    { id: 'oversized', label: 'Oversized', hint: '+50%' },
   ];
 }
 
@@ -134,6 +133,20 @@ function hasValidConfirmationPreference(form: CustomerBookingForm): boolean {
  */
 function hasFirstAndLastName(fullName: string): boolean {
   return fullName.trim().split(/\s+/).filter(Boolean).length >= 2;
+}
+
+/**
+ * Keeps make and color inputs to text-style characters while preserving natural names.
+ */
+function sanitizeVehicleTextInput(value: string): string {
+  return value.replace(/[^a-zA-Z\s'-]/g, '');
+}
+
+/**
+ * Keeps vehicle year entry numeric and bounded to a normal four-digit year.
+ */
+function sanitizeVehicleYearInput(value: string): string {
+  return value.replace(/\D/g, '').slice(0, 4);
 }
 
 /**
@@ -341,7 +354,13 @@ export default function BookingPage(): JSX.Element {
     }
 
     resetInteractionState();
-    updateVehicle(activeVehicle.id, { [field]: value });
+    const sanitizedValue =
+      field === 'year'
+        ? sanitizeVehicleYearInput(value)
+        : field === 'make' || field === 'color'
+          ? sanitizeVehicleTextInput(value)
+          : value;
+    updateVehicle(activeVehicle.id, { [field]: sanitizedValue });
   }
 
   /**
@@ -547,8 +566,72 @@ export default function BookingPage(): JSX.Element {
               <div>
                 <h2 className="font-heading text-2xl font-semibold text-ink">Your Details</h2>
                 <p className="mt-1 text-sm text-ink/65">
-                  Set the vehicle size, choose a package if it fits the job, and complete contact details before moving into add-ons and calendar handoff.
+                  Select the active vehicle, choose a package if it fits the job, and complete contact details before moving into add-ons and calendar handoff.
                 </p>
+              </div>
+
+              <div className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
+                <h3 className="font-heading text-xl font-semibold text-ink">Select Your Vehicle</h3>
+                <p className="mt-1 text-sm text-ink/60">
+                  Match the active vehicle to the closest standard category before selecting services.
+                </p>
+                {activeVehicle ? (
+                  <VehicleSizeGuideLookup
+                    activeVehicle={activeVehicle}
+                    includeOversized={false}
+                    onApplyLookupMatch={(match) => {
+                      resetInteractionState();
+                      updateVehicle(activeVehicle.id, {
+                        make: match.make,
+                        model: match.model,
+                        size: match.size,
+                      });
+                    }}
+                    className="mt-3"
+                  />
+                ) : null}
+                <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                  {sizes.map((size) => {
+                    const selected = activeVehicle?.size === size.id;
+                    return (
+                      <button
+                        key={size.id}
+                        type="button"
+                        onClick={() => {
+                          if (!activeVehicle) {
+                            return;
+                          }
+
+                          resetInteractionState();
+                          updateVehicle(activeVehicle.id, { size: size.id });
+                        }}
+                        aria-pressed={selected}
+                        className={`rounded-xl border px-4 py-3 text-left transition-all duration-300 ${
+                          getSelectableCardClass(selected)
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="font-heading text-base font-semibold text-ink">{size.label}</p>
+                          {selected ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-black">
+                              <CheckCircle2 className="h-3 w-3" />
+                              Selected
+                            </span>
+                          ) : null}
+                        </div>
+                        <p className="text-xs text-ink/55">{size.hint}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#111111] px-4 py-3">
+                  <p className="text-sm text-ink/70">
+                    Oversized, lifted, modified, specialty, or unlisted vehicles should get a custom quote before scheduling.
+                  </p>
+                  <Link href="/quote" className="rounded-full bg-white px-4 py-2 text-xs font-bold text-black transition hover:bg-fog">
+                    Request a Quote
+                  </Link>
+                </div>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -596,66 +679,6 @@ export default function BookingPage(): JSX.Element {
                     </button>
                   );
                 })}
-              </div>
-              <div className="rounded-xl border border-white/10 bg-white/[0.06] p-3 text-xs">
-                <p className="font-semibold text-ink/75">
-                  Size pricing active: {activeVehicleSize.replaceAll('_', ' ').toUpperCase()} ({formatSizeAdjustmentLabel(activeVehicleSize)})
-                </p>
-                <p className="mt-2 text-ink/70">
-                  Sedan/coupe pricing is the listed base. Small SUVs/trucks add 20%, large SUVs/trucks add 40%, and oversized vehicles add 50%.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="text-sm font-semibold text-ink/80">Vehicle Size</h3>
-                {activeVehicle ? (
-                  <VehicleSizeGuideLookup
-                    activeVehicle={activeVehicle}
-                    onApplyLookupMatch={(match) => {
-                      resetInteractionState();
-                      updateVehicle(activeVehicle.id, {
-                        make: match.make,
-                        model: match.model,
-                        size: match.size,
-                      });
-                    }}
-                    className="mt-2"
-                  />
-                ) : null}
-                <div className="mt-2 grid gap-3 sm:grid-cols-2">
-                  {sizes.map((size) => {
-                    const selected = activeVehicle?.size === size.id;
-                    return (
-                      <button
-                        key={size.id}
-                        type="button"
-                        onClick={() => {
-                          if (!activeVehicle) {
-                            return;
-                          }
-
-                          resetInteractionState();
-                          updateVehicle(activeVehicle.id, { size: size.id });
-                        }}
-                        aria-pressed={selected}
-                        className={`rounded-xl border px-4 py-3 text-left transition-all duration-300 ${
-                          getSelectableCardClass(selected)
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <p className="font-heading text-base font-semibold text-ink">{size.label}</p>
-                          {selected ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-black">
-                              <CheckCircle2 className="h-3 w-3" />
-                              Selected
-                            </span>
-                          ) : null}
-                        </div>
-                        <p className="text-xs text-ink/55">{size.hint}</p>
-                      </button>
-                    );
-                  })}
-                </div>
               </div>
 
               <div className="rounded-xl border border-white/10 bg-white/[0.06] p-3 text-xs text-ink/75">

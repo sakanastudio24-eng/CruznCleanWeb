@@ -104,7 +104,7 @@ export function VehicleSizeGuideLookup({
 
   return (
     <div className={`rounded-xl border border-white/10 bg-white/[0.06] p-3 ${className}`}>
-      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/55">Vehicle Size Guide</p>
+      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/55">Vehicle Lookup</p>
 
       <label className="mt-2 block text-xs font-semibold text-ink/70">
         Quick Pick (Dropdown)

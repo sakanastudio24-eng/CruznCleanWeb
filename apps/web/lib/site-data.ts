@@ -1,6 +1,7 @@
 import { getPackageServices } from '@/lib/services-catalog';
 
 export interface ServiceItem {
+  id: string;
   title: string;
   description: string;
   priceFrom: string;
@@ -33,6 +34,7 @@ export function getHomeServices(): ServiceItem[] {
   };
 
   return getPackageServices().map((service) => ({
+    id: service.id,
     title: service.name,
     description: descriptionById[service.id] ?? service.description,
     priceFrom: `$${service.price}`,
@@ -69,12 +71,12 @@ export function getHomeProcess(): ProcessItem[] {
       detail: 'Review packages, correction work, and coatings for each vehicle using the service planner.',
     },
     {
-      title: 'Submit Booking Intake',
+      title: 'Submit Booking',
       detail: 'Send vehicle details, contact info, and service notes in one intake flow.',
     },
     {
-      title: 'Confirm on Cal.com',
-      detail: 'Choose the final appointment time through Cal.com after the intake is saved.',
+      title: 'Make Your Downpayment',
+      detail: 'Choose the final appointment time and pay the deposit inside Cal.com after the intake is saved.',
     },
   ];
 }

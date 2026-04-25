@@ -104,46 +104,22 @@ textarea:focus-visible {
   animation: pageEnter 0.3s ease-out both;
 }
 
-@keyframes serviceAreaPrimary {
+@keyframes serviceAreaFrame {
   0%,
-  43% {
+  20% {
     opacity: 1;
     transform: translateY(0);
   }
-  50%,
-  93% {
+  25%,
+  100% {
     opacity: 0;
     transform: translateY(-0.35rem);
   }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
-@keyframes serviceAreaSecondary {
-  0%,
-  43% {
-    opacity: 0;
-    transform: translateY(0.35rem);
-  }
-  50%,
-  93% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(0.35rem);
-  }
-}
-
-.service-area-cycle-primary {
-  animation: serviceAreaPrimary 5.8s ease-in-out infinite;
-}
-
-.service-area-cycle-secondary {
-  animation: serviceAreaSecondary 5.8s ease-in-out infinite;
+.service-area-frame {
+  animation: serviceAreaFrame 12s ease-in-out infinite;
+  opacity: 0;
 }
 
 .a11y-error {
@@ -296,13 +272,14 @@ textarea:focus-visible {
     transition-duration: 0.001ms !important;
   }
 
-  .service-area-cycle-primary {
+  .service-area-frame {
+    display: none !important;
     opacity: 1 !important;
     transform: none !important;
   }
 
-  .service-area-cycle-secondary {
-    display: none !important;
+  .service-area-frame:first-child {
+    display: inline-flex !important;
   }
 }
 
