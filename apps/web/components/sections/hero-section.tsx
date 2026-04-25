@@ -8,6 +8,11 @@ import { getPackageServices } from '@/lib/services-catalog';
 import { SITE_PROFILE } from '@/lib/site-profile';
 import heroImage from '../../../../attachments/Exter12.jpg';
 
+const SERVICE_AREA_GROUPS = [
+  { label: '928xx', detail: 'North OC' },
+  { label: '926xx', detail: 'Irvine / HB' },
+];
+
 /**
  * Renders an editorial, image-led hero with quick booking setup and location cues.
  */
@@ -39,8 +44,8 @@ export function HeroSection(): JSX.Element {
       <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.86)_0%,rgba(0,0,0,0.68)_42%,rgba(0,0,0,0.38)_100%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_16%,rgba(255,255,255,0.18),transparent_34%)]" />
 
-      <div className="relative mx-auto flex min-h-[calc(100svh-var(--site-header-height))] w-full max-w-6xl flex-col justify-end px-4 py-8 sm:px-6 sm:py-10">
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_380px] lg:items-end">
+      <div className="relative mx-auto flex min-h-[calc(100svh-var(--site-header-height))] w-full max-w-6xl flex-col justify-center px-4 py-8 sm:px-6 sm:py-10">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_380px] lg:items-center">
           <div className="fade-in-up max-w-3xl">
             <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/90">
               <Sparkles className="h-3.5 w-3.5" />
@@ -74,10 +79,23 @@ export function HeroSection(): JSX.Element {
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               <div className="rounded-2xl border border-white/15 bg-white/8 px-4 py-3 backdrop-blur-sm">
                 <p className="text-[11px] uppercase tracking-[0.14em] text-white/60">Location</p>
-                <p className="mt-1 inline-flex items-center gap-2 text-sm font-semibold text-white">
+                <div className="mt-1 inline-flex items-center gap-2 text-sm font-semibold text-white">
                   <MapPin className="h-4 w-4 text-fog" />
-                  {SITE_PROFILE.locationLabel}
-                </p>
+                  <span className="sr-only">Available service areas: 928xx North OC and 926xx Irvine / HB.</span>
+                  <span aria-hidden="true" className="service-area-cycle relative inline-grid min-w-[128px] overflow-hidden">
+                    {SERVICE_AREA_GROUPS.map((area, index) => (
+                      <span
+                        key={area.label}
+                        className={`col-start-1 row-start-1 inline-flex items-center gap-1 ${
+                          index === 0 ? 'service-area-cycle-primary' : 'service-area-cycle-secondary'
+                        }`}
+                      >
+                        <span>{area.label}</span>
+                        <span className="text-white/65">{area.detail}</span>
+                      </span>
+                    ))}
+                  </span>
+                </div>
               </div>
               <div className="rounded-2xl border border-white/15 bg-white/8 px-4 py-3 backdrop-blur-sm">
                 <p className="text-[11px] uppercase tracking-[0.14em] text-white/60">Availability</p>

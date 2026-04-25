@@ -106,6 +106,21 @@ function getVehicleSizes(): VehicleSizeOption[] {
 }
 
 /**
+ * Returns the shared visual treatment for selectable booking cards.
+ */
+function getSelectableCardClass(selected: boolean, emphasized = false): string {
+  if (selected) {
+    return 'border-white bg-white/[0.16] shadow-[0_0_0_1px_rgb(255_255_255_/_0.55),0_18px_38px_rgb(0_0_0_/_0.38)] ring-1 ring-white/45';
+  }
+
+  if (emphasized) {
+    return 'border-white/35 bg-white/[0.08] hover:border-white/45 hover:bg-white/[0.12]';
+  }
+
+  return 'border-white/10 bg-[#111111] hover:border-white/25 hover:bg-[#161616]';
+}
+
+/**
  * Validates confirmation preference inputs for email and SMS updates.
  */
 function hasValidConfirmationPreference(form: CustomerBookingForm): boolean {
@@ -552,20 +567,24 @@ export default function BookingPage(): JSX.Element {
                       }}
                       aria-pressed={selected}
                       className={`rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
-                        selected
-                          ? 'border-charcoal bg-charcoal/10 shadow-md'
-                          : isBestValue
-                            ? 'border-white/35 bg-white/[0.08] hover:border-white/45 hover:bg-white/[0.12]'
-                            : 'border-white/10 bg-[#111111] hover:border-white/25 hover:bg-[#161616]'
+                        getSelectableCardClass(selected, isBestValue)
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
                         <p className="font-heading text-lg font-semibold text-ink">{service.name}</p>
-                        {isBestValue ? (
-                          <span className="rounded-full bg-charcoal px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-white">
-                            Best Value
-                          </span>
-                        ) : null}
+                        <span className="flex flex-wrap justify-end gap-1">
+                          {selected ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-black">
+                              <CheckCircle2 className="h-3 w-3" />
+                              Selected
+                            </span>
+                          ) : null}
+                          {isBestValue ? (
+                            <span className="rounded-full bg-charcoal px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-white">
+                              Best Value
+                            </span>
+                          ) : null}
+                        </span>
                       </div>
                       <p className="mt-1 text-xs text-ink/60">{service.description}</p>
                       <ul className="mt-3 space-y-1 text-xs text-ink/70">
@@ -620,12 +639,18 @@ export default function BookingPage(): JSX.Element {
                         }}
                         aria-pressed={selected}
                         className={`rounded-xl border px-4 py-3 text-left transition-all duration-300 ${
-                          selected
-                            ? 'border-charcoal bg-charcoal/10'
-                            : 'border-white/10 bg-[#111111] hover:border-white/25 hover:bg-[#161616]'
+                          getSelectableCardClass(selected)
                         }`}
                       >
-                        <p className="font-heading text-base font-semibold text-ink">{size.label}</p>
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="font-heading text-base font-semibold text-ink">{size.label}</p>
+                          {selected ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-black">
+                              <CheckCircle2 className="h-3 w-3" />
+                              Selected
+                            </span>
+                          ) : null}
+                        </div>
                         <p className="text-xs text-ink/55">{size.hint}</p>
                       </button>
                     );
@@ -877,14 +902,17 @@ export default function BookingPage(): JSX.Element {
                           }}
                           aria-pressed={selected}
                           className={`rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
-                            selected
-                              ? 'border-charcoal bg-charcoal/10 shadow-md'
-                              : 'border-white/10 bg-[#111111] hover:border-white/25 hover:bg-[#161616]'
+                            getSelectableCardClass(selected)
                           }`}
                         >
                           <div className="flex items-center justify-between gap-2">
                             <p className="font-heading text-lg font-semibold text-ink">{service.name}</p>
-                            {selected ? <CheckCircle2 className="h-5 w-5 text-charcoal" /> : null}
+                            {selected ? (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-black">
+                                <CheckCircle2 className="h-3 w-3" />
+                                Selected
+                              </span>
+                            ) : null}
                           </div>
                           <p className="mt-1 text-xs text-ink/60">{service.description}</p>
                           <ul className="mt-3 space-y-1 text-xs text-ink/70">
@@ -919,14 +947,17 @@ export default function BookingPage(): JSX.Element {
                           }}
                           aria-pressed={selected}
                           className={`rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
-                            selected
-                              ? 'border-charcoal bg-charcoal/10 shadow-md'
-                              : 'border-white/10 bg-[#111111] hover:border-white/25 hover:bg-[#161616]'
+                            getSelectableCardClass(selected)
                           }`}
                         >
                           <div className="flex items-center justify-between gap-2">
                             <p className="font-heading text-lg font-semibold text-ink">{service.name}</p>
-                            {selected ? <CheckCircle2 className="h-5 w-5 text-charcoal" /> : null}
+                            {selected ? (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-black">
+                                <CheckCircle2 className="h-3 w-3" />
+                                Selected
+                              </span>
+                            ) : null}
                           </div>
                           <p className="mt-1 text-xs text-ink/60">{service.description}</p>
                           <ul className="mt-3 space-y-1 text-xs text-ink/70">
@@ -1008,41 +1039,20 @@ export default function BookingPage(): JSX.Element {
           ) : null}
 
           {step < 3 ? (
-            <section className={`rounded-2xl border px-4 py-4 ${
-              fieldErrors.acceptedConsent ? 'border-white/35 bg-white/10' : 'border-white/10 bg-white/[0.06]'
-            }`}>
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/60">Terms + Policies</p>
-                  <p className="mt-1 max-w-2xl text-sm text-ink/75">
-                    Pricing starts at the listed rate for standard sizing. Modified, lifted, oversized, or specialty vehicles should request a tailored quote before scheduling.
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2 text-xs font-semibold">
-                  <Link href="/terms" className="rounded-full border border-white/15 bg-[#111111] px-3 py-1.5 text-white transition hover:border-white/30 hover:bg-white/10">
-                    Terms
-                  </Link>
-                  <Link href="/privacy" className="rounded-full border border-white/15 bg-[#111111] px-3 py-1.5 text-white transition hover:border-white/30 hover:bg-white/10">
-                    Privacy
-                  </Link>
-                  <Link href="/faq" className="rounded-full border border-white/15 bg-[#111111] px-3 py-1.5 text-white transition hover:border-white/30 hover:bg-white/10">
-                    Help
-                  </Link>
-                  <Link href="/quote" className="rounded-full border border-white/15 bg-[#111111] px-3 py-1.5 text-white transition hover:border-white/30 hover:bg-white/10">
-                    Request a Quote
-                  </Link>
-                </div>
-              </div>
-
-              <div className="mt-3 grid gap-2 text-xs text-ink/70 sm:grid-cols-2">
-                <p>• Deposits may be required to secure your appointment.</p>
-                <p>• 24 hours notice is required to cancel or reschedule.</p>
-                <p>• Same-day requests may require a rush fee.</p>
-                <p>• Final pricing is confirmed after inspection and condition review.</p>
-              </div>
-
-              <p className="mt-4 text-xs font-semibold text-ink/70">Review these before continuing.</p>
-            </section>
+            <nav aria-label="Booking policy links" className="flex flex-wrap justify-end gap-2 text-xs font-semibold">
+              <Link href="/terms" className="rounded-full border border-white/15 bg-[#111111] px-3 py-1.5 text-white transition hover:border-white/30 hover:bg-white/10">
+                Terms
+              </Link>
+              <Link href="/privacy" className="rounded-full border border-white/15 bg-[#111111] px-3 py-1.5 text-white transition hover:border-white/30 hover:bg-white/10">
+                Privacy
+              </Link>
+              <Link href="/faq" className="rounded-full border border-white/15 bg-[#111111] px-3 py-1.5 text-white transition hover:border-white/30 hover:bg-white/10">
+                Help
+              </Link>
+              <Link href="/quote" className="rounded-full border border-white/15 bg-[#111111] px-3 py-1.5 text-white transition hover:border-white/30 hover:bg-white/10">
+                Request a Quote
+              </Link>
+            </nav>
           ) : null}
 
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">

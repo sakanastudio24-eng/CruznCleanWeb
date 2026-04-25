@@ -106,6 +106,48 @@ textarea:focus-visible {
   animation: pageEnter 0.3s ease-out both;
 }
 
+@keyframes serviceAreaPrimary {
+  0%,
+  43% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  50%,
+  93% {
+    opacity: 0;
+    transform: translateY(-0.35rem);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes serviceAreaSecondary {
+  0%,
+  43% {
+    opacity: 0;
+    transform: translateY(0.35rem);
+  }
+  50%,
+  93% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(0.35rem);
+  }
+}
+
+.service-area-cycle-primary {
+  animation: serviceAreaPrimary 5.8s ease-in-out infinite;
+}
+
+.service-area-cycle-secondary {
+  animation: serviceAreaSecondary 5.8s ease-in-out infinite;
+}
+
 .a11y-error {
   color: #ffb4b4;
 }
@@ -254,6 +296,15 @@ textarea:focus-visible {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+  }
+
+  .service-area-cycle-primary {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .service-area-cycle-secondary {
+    display: none !important;
   }
 }
 
