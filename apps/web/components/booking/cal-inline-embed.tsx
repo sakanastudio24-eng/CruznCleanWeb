@@ -47,6 +47,28 @@ function createMountId(namespace: string): string {
 }
 
 /**
+ * Formats common US phone input into the E.164-style value Cal.com expects.
+ */
+function getCalPhoneLocation(phone: string): string {
+  const trimmedPhone = phone.trim();
+  const numericPhone = trimmedPhone.replace(/\D/g, '');
+
+  if (trimmedPhone.startsWith('+') && numericPhone.length >= 10) {
+    return `+${numericPhone}`;
+  }
+
+  if (numericPhone.length === 10) {
+    return `+1${numericPhone}`;
+  }
+
+  if (numericPhone.length === 11 && numericPhone.startsWith('1')) {
+    return `+${numericPhone}`;
+  }
+
+  return '';
+}
+
+/**
  * Installs Cal.com's queueing embed loader without using raw inline script tags.
  */
 function ensureCalEmbedApi(): CalQueueFunction {
@@ -111,6 +133,7 @@ export function CalInlineEmbed({
 }: CalInlineEmbedProps): JSX.Element {
   const namespace = useMemo(() => getCalNamespace(calLink), [calLink]);
   const mountId = useMemo(() => createMountId(namespace), [namespace]);
+  const calPhoneLocation = useMemo(() => getCalPhoneLocation(phone), [phone]);
   const [embedReady, setEmbedReady] = useState(false);
   const [embedError, setEmbedError] = useState('');
 
@@ -136,23 +159,28 @@ export function CalInlineEmbed({
       return;
     }
 
+    const embedConfig: Record<string, string> = {
+      layout: 'month_view',
+      useSlotsViewOnSmallScreen: 'true',
+      name: customerName,
+      email,
+      'metadata[bookingId]': bookingId,
+      'metadata[phone]': phone,
+      'metadata[vehicleCount]': String(vehicleCount),
+      'metadata[estimatedTotal]': String(estimatedTotal),
+      'metadata[servicesSummary]': servicesSummary,
+    };
+
+    if (calPhoneLocation) {
+      embedConfig.location = JSON.stringify({
+        value: 'phone',
+        optionValue: calPhoneLocation,
+      });
+    }
+
     namespacedCal('inline', {
       elementOrSelector: `#${mountId}`,
-      config: {
-        layout: 'month_view',
-        useSlotsViewOnSmallScreen: 'true',
-        name: customerName,
-        email,
-        location: JSON.stringify({
-          value: 'phone',
-          optionValue: phone,
-        }),
-        'metadata[bookingId]': bookingId,
-        'metadata[phone]': phone,
-        'metadata[vehicleCount]': String(vehicleCount),
-        'metadata[estimatedTotal]': String(estimatedTotal),
-        'metadata[servicesSummary]': servicesSummary,
-      },
+      config: embedConfig,
       calLink,
     });
 
@@ -161,7 +189,7 @@ export function CalInlineEmbed({
       layout: 'month_view',
     });
     setEmbedReady(true);
-  }, [bookingId, calLink, customerName, email, estimatedTotal, mountId, namespace, phone, servicesSummary, vehicleCount]);
+  }, [bookingId, calLink, calPhoneLocation, customerName, email, estimatedTotal, mountId, namespace, phone, servicesSummary, vehicleCount]);
 
   return (
     <section className="rounded-2xl border border-white/10 bg-[#111111] p-3 sm:p-4">
