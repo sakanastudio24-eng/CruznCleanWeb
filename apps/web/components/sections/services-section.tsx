@@ -19,11 +19,13 @@ export function ServicesSection(): JSX.Element {
           Full service menu
         </Link>
       </div>
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-6">
         {services.map((service, index) => (
           <article
             key={service.title}
-            className="fade-in-up rounded-2xl border border-white/10 bg-[#111111] p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-lg"
+            className={`fade-in-up rounded-2xl border border-white/10 bg-[#111111] p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-lg lg:col-span-2 ${
+              index === 3 ? 'lg:col-start-2' : ''
+            }`}
             style={{ animationDelay: `${index * 120}ms` }}
           >
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-fog">from {service.priceFrom}</p>

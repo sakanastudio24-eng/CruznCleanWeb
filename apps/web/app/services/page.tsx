@@ -7,9 +7,10 @@ import { VehicleDock } from '@/components/dock/vehicle-dock';
 import { SiteShell } from '@/components/layout/site-shell';
 import { useBooking } from '@/components/providers/booking-provider';
 import { VehicleSizeGuideLookup } from '@/components/vehicle/vehicle-size-guide-lookup';
-import type { ServiceCategory, ServiceOption, VehicleSize } from '@/lib/booking-types';
+import type { ServiceCategory, ServiceOption, VehicleProfile, VehicleSize } from '@/lib/booking-types';
 import { formatSizeAdjustmentLabel, getAdjustedServicePrice } from '@/lib/pricing';
 import { getCorrectionServices, getPackageServices, getProtectionServices } from '@/lib/services-catalog';
+import { getVehicleDisplayName } from '@/lib/vehicle-utils';
 
 interface VehicleSizeOption {
   id: VehicleSize;
@@ -18,15 +19,21 @@ interface VehicleSizeOption {
 }
 
 /**
- * Returns supported vehicle size options for pricing context.
+ * Returns standard vehicle options shown directly on the services page.
  */
-function getVehicleSizeOptions(): VehicleSizeOption[] {
+function getStandardVehicleOptions(): VehicleSizeOption[] {
   return [
     { id: 'sedan_coupe', label: 'Sedan / Coupe', hint: 'Base listed pricing' },
     { id: 'small_suv_truck', label: 'Small SUV / Truck', hint: '+20% pricing adjustment' },
     { id: 'large_suv_truck', label: 'Large SUV / Truck', hint: '+40% pricing adjustment' },
-    { id: 'oversized', label: 'Oversized', hint: '+50% pricing adjustment' },
   ];
+}
+
+/**
+ * Returns a readable pricing context for the active vehicle.
+ */
+function getActiveVehiclePricingLabel(activeVehicle: VehicleProfile): string {
+  return `${getVehicleDisplayName(activeVehicle)}: ${activeVehicle.size.replaceAll('_', ' ').toUpperCase()} • ${formatSizeAdjustmentLabel(activeVehicle.size)}`;
 }
 
 /**
@@ -104,7 +111,7 @@ function ServiceGrid({
           <h2 className="font-heading text-2xl font-semibold text-ink">{title ?? getSectionTitle(category)}</h2>
           {activeVehicle ? (
             <p className="mt-1 text-xs font-semibold text-ink/60">
-              Active size: {activeVehicle.size.replaceAll('_', ' ').toUpperCase()} • {formatSizeAdjustmentLabel(activeVehicle.size)}
+              {getActiveVehiclePricingLabel(activeVehicle)}
             </p>
           ) : null}
         </div>
@@ -166,12 +173,12 @@ function ServiceGrid({
 }
 
 /**
- * Renders size cards and lookup tools for the active vehicle.
+ * Renders active-vehicle lookup tools and standard pricing categories.
  */
-function VehicleSizeSection(): JSX.Element {
+function VehicleSelectSection(): JSX.Element {
   const { vehicles, activeVehicleId, updateVehicle } = useBooking();
   const activeVehicle = vehicles.find((vehicle) => vehicle.id === activeVehicleId);
-  const options = getVehicleSizeOptions();
+  const options = getStandardVehicleOptions();
 
   if (!activeVehicle) {
     return <></>;
@@ -179,12 +186,25 @@ function VehicleSizeSection(): JSX.Element {
 
   return (
     <section className="gray-card gray-card-hover p-5">
-      <h2 className="font-heading text-2xl font-semibold text-ink">Select Your Vehicle Size</h2>
+      <h2 className="font-heading text-2xl font-semibold text-ink">Select Your Vehicle</h2>
       <p className="mt-2 text-sm text-ink/60">
-        Sedan and coupe pricing uses the listed starting rate. SUVs, trucks, vans, and lifted vehicles reprice instantly.
+        Pick the active vehicle from the dock, then match it to the closest standard category before selecting services.
       </p>
 
-      <div className="mt-4 grid gap-3 md:grid-cols-2">
+      <VehicleSizeGuideLookup
+        activeVehicle={activeVehicle}
+        includeOversized={false}
+        onApplyLookupMatch={(match) => {
+          updateVehicle(activeVehicle.id, {
+            make: match.make,
+            model: match.model,
+            size: match.size,
+          });
+        }}
+        className="mt-4"
+      />
+
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
         {options.map((option) => {
           const selected = activeVehicle.size === option.id;
           return (
@@ -206,17 +226,22 @@ function VehicleSizeSection(): JSX.Element {
         })}
       </div>
 
-      <VehicleSizeGuideLookup
-        activeVehicle={activeVehicle}
-        onApplyLookupMatch={(match) => {
-          updateVehicle(activeVehicle.id, {
-            make: match.make,
-            model: match.model,
-            size: match.size,
-          });
-        }}
-        className="mt-4"
-      />
+      <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.06] p-4">
+        <h3 className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/60">Pricing adjustments</h3>
+        <div className="mt-3 grid gap-2 text-sm text-ink/75 sm:grid-cols-3">
+          <p>Sedan / Coupe: base price</p>
+          <p>Small SUV / Truck: +20%</p>
+          <p>Large SUV / Truck: +40%</p>
+        </div>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#111111] px-4 py-3">
+          <p className="text-sm text-ink/70">
+            Oversized, lifted, modified, specialty, or unlisted vehicles should get a custom quote before scheduling.
+          </p>
+          <Link href="/quote" className="rounded-full bg-white px-4 py-2 text-xs font-bold text-black transition hover:bg-fog">
+            Request a Quote
+          </Link>
+        </div>
+      </div>
     </section>
   );
 }
@@ -240,7 +265,7 @@ export default function ServicesPage(): JSX.Element {
 
       <section className="mx-auto grid max-w-6xl gap-6 px-4 py-8 sm:px-6 services-bottom-safe lg:grid-cols-[1fr_360px]">
         <div className="space-y-6">
-          <VehicleSizeSection />
+          <VehicleSelectSection />
           <ServiceGrid category="package" />
           <section className="gray-card gray-card-hover p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">

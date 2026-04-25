@@ -9,8 +9,8 @@ import { SITE_PROFILE } from '@/lib/site-profile';
 import heroImage from '../../../../attachments/Exter12.jpg';
 
 const SERVICE_AREA_GROUPS = [
-  { label: '928xx', detail: 'North OC' },
-  { label: '926xx', detail: 'Irvine / HB' },
+  { label: '928 ZIPs', detail: '92801-92809, 92821, 92823, 92831-92835, 92840-92846, 92865-92871, 92886-92887' },
+  { label: '926 ZIPs', detail: '92602-92620, 92626-92628, 92683-92685' },
 ];
 
 /**
@@ -81,17 +81,19 @@ export function HeroSection(): JSX.Element {
                 <p className="text-[11px] uppercase tracking-[0.14em] text-white/60">Location</p>
                 <div className="mt-1 inline-flex items-center gap-2 text-sm font-semibold text-white">
                   <MapPin className="h-4 w-4 text-fog" />
-                  <span className="sr-only">Available service areas: 928xx North OC and 926xx Irvine / HB.</span>
-                  <span aria-hidden="true" className="service-area-cycle relative inline-grid min-w-[128px] overflow-hidden">
+                  <span className="sr-only">
+                    Available service areas: 92801 through 92809, 92821, 92823, 92831 through 92835, 92840 through 92846, 92865 through 92871, 92886 through 92887, 92602 through 92620, 92626 through 92628, and 92683 through 92685.
+                  </span>
+                  <span aria-hidden="true" className="service-area-cycle relative inline-grid min-w-[255px] overflow-hidden">
                     {SERVICE_AREA_GROUPS.map((area, index) => (
                       <span
                         key={area.label}
-                        className={`col-start-1 row-start-1 inline-flex items-center gap-1 ${
+                        className={`col-start-1 row-start-1 inline-flex items-center gap-1 whitespace-nowrap ${
                           index === 0 ? 'service-area-cycle-primary' : 'service-area-cycle-secondary'
                         }`}
                       >
                         <span>{area.label}</span>
-                        <span className="text-white/65">{area.detail}</span>
+                        <span className="max-w-[160px] overflow-hidden text-ellipsis text-white/65 sm:max-w-[180px]">{area.detail}</span>
                       </span>
                     ))}
                   </span>

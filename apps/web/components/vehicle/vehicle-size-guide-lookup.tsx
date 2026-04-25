@@ -17,6 +17,7 @@ interface VehicleSizeGuideLookupProps {
   activeVehicle: VehicleProfile;
   onApplyLookupMatch: (match: { make: string; model: string; size: VehicleSize }) => void;
   className?: string;
+  includeOversized?: boolean;
 }
 
 const SIZE_LABELS: Record<VehicleSize, string> = {
@@ -40,6 +41,7 @@ export function VehicleSizeGuideLookup({
   activeVehicle,
   onApplyLookupMatch,
   className = '',
+  includeOversized = true,
 }: VehicleSizeGuideLookupProps): JSX.Element {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -57,6 +59,8 @@ export function VehicleSizeGuideLookup({
     [activeVehicle.make, activeVehicle.model],
   );
   const matchedByVehicleFields = vehicleFieldMatches.length === 1 ? vehicleFieldMatches[0] : undefined;
+  const selectedDropdownEntry =
+    matchedByVehicleFields && (includeOversized || matchedByVehicleFields.size !== 'oversized') ? matchedByVehicleFields : undefined;
   const ambiguousVehicleMatch = useMemo(
     () => isVehicleGuideAmbiguous(activeVehicle.make, activeVehicle.model),
     [activeVehicle.make, activeVehicle.model],
@@ -67,8 +71,10 @@ export function VehicleSizeGuideLookup({
       return [];
     }
 
-    return searchVehicleGuide(searchQuery).slice(0, 8);
-  }, [searchQuery]);
+    return searchVehicleGuide(searchQuery)
+      .filter((entry) => includeOversized || entry.size !== 'oversized')
+      .slice(0, 8);
+  }, [includeOversized, searchQuery]);
 
   const needsSupportRouting = ambiguousVehicleMatch || !matchedByVehicleFields || activeVehicle.size === 'oversized';
 
@@ -103,7 +109,7 @@ export function VehicleSizeGuideLookup({
       <label className="mt-2 block text-xs font-semibold text-ink/70">
         Quick Pick (Dropdown)
         <select
-          value={matchedByVehicleFields && !ambiguousVehicleMatch ? getEntryValue(matchedByVehicleFields) : ''}
+          value={selectedDropdownEntry && !ambiguousVehicleMatch ? getEntryValue(selectedDropdownEntry) : ''}
           onChange={(event) => handleSelectChange(event.target.value)}
           className="gray-field mt-1 w-full rounded-lg px-3 py-2 text-sm"
         >
@@ -129,13 +135,15 @@ export function VehicleSizeGuideLookup({
               </option>
             ))}
           </optgroup>
-          <optgroup label="Oversized">
-            {groupedEntries.oversized.map((entry) => (
-              <option key={getEntryValue(entry)} value={getEntryValue(entry)}>
-                {entry.make} {entry.model}
-              </option>
-            ))}
-          </optgroup>
+          {includeOversized ? (
+            <optgroup label="Oversized">
+              {groupedEntries.oversized.map((entry) => (
+                <option key={getEntryValue(entry)} value={getEntryValue(entry)}>
+                  {entry.make} {entry.model}
+                </option>
+              ))}
+            </optgroup>
+          ) : null}
         </select>
       </label>
 
@@ -169,7 +177,7 @@ export function VehicleSizeGuideLookup({
               ))}
             </div>
           ) : (
-            <p className="text-xs text-ink/65">No catalog match yet. Use the size cards on this page or request a custom quote for specialty vehicles.</p>
+            <p className="text-xs text-ink/65">No catalog match yet. Select the closest standard vehicle type, or request a custom quote for specialty vehicles.</p>
           )}
         </div>
       ) : null}
@@ -192,7 +200,7 @@ export function VehicleSizeGuideLookup({
             <span className="font-semibold"> {SIZE_LABELS[matchedByVehicleFields.size]}</span> sizing guidance.
           </>
         ) : (
-          'This vehicle is not in our standard sizing guide yet. Use the size cards on this page, or request a custom quote if the vehicle is modified, lifted, or specialty fitment.'
+          'This vehicle is not in our standard sizing guide yet. Select the closest standard vehicle type, or request a custom quote if the vehicle is modified, lifted, or specialty fitment.'
         )}
       </div>
 
