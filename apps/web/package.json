@@ -3,34 +3,36 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm exec -- varlock run -- next dev",
+    "dev": "varlock run -- next dev",
     "dev:raw": "next dev",
-    "build": "npm exec -- varlock run -- next build",
+    "build": "varlock run -- next build",
     "build:raw": "next build",
-    "start": "npm exec -- varlock run -- next start",
+    "start": "varlock run -- next start",
     "start:raw": "next start",
-    "lint": "npm exec -- varlock run -- next lint",
+    "lint": "varlock run -- next lint",
     "typecheck": "tsc --noEmit",
-    "env:check": "npm exec -- varlock load",
-    "quality": "npm run env:check && npm run lint && npm run typecheck && npm run build"
+    "env:check": "varlock load",
+    "quality": "pnpm run env:check && pnpm run lint && pnpm run typecheck && pnpm run build"
   },
   "dependencies": {
     "clsx": "2.1.1",
-    "lucide-react": "^0.460.0",
+    "lucide-react": "^1.11.0",
     "next": "14.2.35",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "tailwind-merge": "2.5.2"
+    "sharp": "^0.34.5",
+    "tailwind-merge": "3.5.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@types/node": "20.16.1",
     "@types/react": "18.3.5",
     "@types/react-dom": "18.3.0",
     "@varlock/nextjs-integration": "latest",
-    "autoprefixer": "10.4.20",
+    "autoprefixer": "10.5.0",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.35",
-    "postcss": "8.4.45",
+    "postcss": "8.5.10",
     "tailwindcss": "3.4.10",
     "typescript": "5.5.4",
     "varlock": "latest"
@@ -41,6 +43,6 @@
     }
   },
   "engines": {
-    "node": "24.x"
+    "node": ">=22.0.0"
   }
 }

@@ -1,21 +1,25 @@
 {
   "name": "cruzn-clean-deploy",
   "private": true,
+  "packageManager": "pnpm@10.30.3",
   "scripts": {
-    "dev": "npm --prefix apps/web run dev",
-    "build": "npm --prefix apps/web run build",
-    "start": "npm --prefix apps/web run start",
-    "vercel-build": "npm --prefix apps/web run build",
-    "env:check:web": "npm --prefix apps/web run env:check",
-    "lint:web": "npm --prefix apps/web run lint",
-    "typecheck:web": "npm --prefix apps/web run typecheck",
-    "quality:web": "npm --prefix apps/web run quality",
-    "quality": "npm run quality:web"
-  },
-  "devDependencies": {
-    "next": "14.2.35"
+    "dev": "pnpm --dir apps/web dev",
+    "build": "pnpm --dir apps/web build",
+    "start": "pnpm --dir apps/web start",
+    "vercel-build": "pnpm --dir apps/web build",
+    "env:check:web": "pnpm --dir apps/web env:check",
+    "lint:web": "pnpm --dir apps/web lint",
+    "typecheck:web": "pnpm --dir apps/web typecheck",
+    "quality:web": "pnpm --dir apps/web quality",
+    "quality": "pnpm quality:web"
   },
   "engines": {
-    "node": "24.x"
+    "node": ">=22.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sharp",
+      "unrs-resolver"
+    ]
   }
 }
