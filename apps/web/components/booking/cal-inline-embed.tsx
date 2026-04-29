@@ -136,6 +136,7 @@ export function CalInlineEmbed({
   const calPhoneLocation = useMemo(() => getCalPhoneLocation(phone), [phone]);
   const [embedReady, setEmbedReady] = useState(false);
   const [embedError, setEmbedError] = useState('');
+  const [showFallback, setShowFallback] = useState(false);
 
   useEffect(() => {
     if (!calLink.trim()) {
@@ -151,6 +152,7 @@ export function CalInlineEmbed({
 
     mountElement.replaceChildren();
     setEmbedError('');
+    setShowFallback(false);
     const Cal = ensureCalEmbedApi();
     Cal('init', namespace, { origin: CAL_EMBED_ORIGIN });
     const namespacedCal = window.Cal?.ns?.[namespace];
@@ -189,33 +191,42 @@ export function CalInlineEmbed({
       layout: 'month_view',
     });
     setEmbedReady(true);
+
+    const fallbackTimer = window.setTimeout(() => {
+      if (!mountElement.querySelector('iframe')) {
+        setShowFallback(true);
+      }
+    }, 10000);
+
+    return () => {
+      window.clearTimeout(fallbackTimer);
+    };
   }, [bookingId, calLink, calPhoneLocation, customerName, email, estimatedTotal, mountId, namespace, phone, servicesSummary, vehicleCount]);
 
   return (
-    <section className="rounded-2xl border border-white/10 bg-[#111111] p-3 sm:p-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h3 className="font-heading text-xl font-semibold text-white">Choose your date and time</h3>
-          <p className="mt-1 text-sm text-white/70">
-            Your intake is saved. Cal.com handles the confirmed appointment, deposit, and final confirmation.
-          </p>
+    <section className="space-y-4">
+      {embedError || showFallback ? (
+        <div className="flex justify-end">
+          <a
+            href={fallbackUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white transition hover:border-burgundyAccent hover:bg-burgundyAccent/10"
+          >
+            Open fallback link
+          </a>
         </div>
-        <a
-          href={fallbackUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/10"
-        >
-          Open fallback link
-        </a>
-      </div>
+      ) : null}
 
       {embedError ? <p className="a11y-error mt-3 text-sm font-medium">{embedError}</p> : null}
+      {showFallback && !embedError ? (
+        <p className="mt-3 text-sm text-white/65">Calendar is taking longer than expected. Use the fallback link if it does not load.</p>
+      ) : null}
       {!embedReady && !embedError ? <p className="mt-3 text-sm text-white/65">Loading calendar...</p> : null}
 
       <div
         id={mountId}
-        className="mt-4 h-[720px] min-h-[620px] w-full overflow-auto rounded-xl border border-white/10 bg-black sm:h-[760px]"
+        className="h-[720px] min-h-[620px] w-full overflow-auto rounded-xl border border-line bg-ink sm:h-[760px]"
       />
     </section>
   );

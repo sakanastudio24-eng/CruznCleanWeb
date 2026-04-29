@@ -7,10 +7,9 @@ import {
   Calendar,
   CarFront,
   CheckCircle2,
-  Clock3,
+  CreditCard,
   Plus,
   ShieldCheck,
-  Sparkles,
   Trash2,
   User,
 } from 'lucide-react';
@@ -22,9 +21,7 @@ import { useBooking } from '@/components/providers/booking-provider';
 import { VehicleSizeGuideLookup } from '@/components/vehicle/vehicle-size-guide-lookup';
 import { BOOKING_LIMIT_DISCLAIMER, MAX_BOOKED_VEHICLES_PER_DAY, countSelectedVehicles } from '@/lib/booking-policy';
 import type { CustomerBookingForm, ServiceOption, VehicleProfile, VehicleSize } from '@/lib/booking-types';
-import { getCalendarBookingLink, getCalendarBookingUrl, submitBookingIntake } from '@/lib/api-client';
-import { formatSizeAdjustmentLabel, getAdjustedServicePrice } from '@/lib/pricing';
-import { getCorrectionServices, getPackageServices, getProtectionServices } from '@/lib/services-catalog';
+import { createStripeCheckoutSession, getCalendarBookingLink, getCalendarBookingUrl, submitBookingIntake } from '@/lib/api-client';
 import { usePersistentState } from '@/lib/use-persistent-state';
 import { getVehicleDisplayName } from '@/lib/vehicle-utils';
 
@@ -88,8 +85,8 @@ const BOOKING_FORM_STORAGE_KEY = 'cruzn-clean-booking-form-v1';
 function getBookingSteps(): StepItem[] {
   return [
     { id: 1, title: 'Your Details', icon: User },
-    { id: 2, title: 'Services', icon: Sparkles },
-    { id: 3, title: 'Schedule', icon: Calendar },
+    { id: 2, title: 'Schedule', icon: Calendar },
+    { id: 3, title: 'Payment', icon: CreditCard },
   ];
 }
 
@@ -109,14 +106,14 @@ function getVehicleSizes(): VehicleSizeOption[] {
  */
 function getSelectableCardClass(selected: boolean, emphasized = false): string {
   if (selected) {
-    return 'border-white bg-white/[0.16] shadow-[0_0_0_1px_rgb(255_255_255_/_0.55),0_18px_38px_rgb(0_0_0_/_0.38)] ring-1 ring-white/45';
+    return 'border-burgundyAccent bg-burgundy/20 shadow-[0_0_0_1px_rgb(140_28_44_/_0.55),0_18px_38px_rgb(0_0_0_/_0.38)] ring-1 ring-burgundyAccent/45';
   }
 
   if (emphasized) {
-    return 'border-white/35 bg-white/[0.08] hover:border-white/45 hover:bg-white/[0.12]';
+    return 'border-white/20 bg-white/[0.08] hover:border-burgundyAccent/45 hover:bg-burgundy/10';
   }
 
-  return 'border-white/10 bg-[#111111] hover:border-white/25 hover:bg-[#161616]';
+  return 'border-line bg-[#141414] hover:border-burgundyAccent/35 hover:bg-burgundy/10';
 }
 
 /**
@@ -269,9 +266,17 @@ function getSelectedServicesSummary(
     .map((vehicle) => {
       const services = getVehicleServices(vehicle.id);
       const serviceNames = services.map((service) => service.name).join(', ');
-      return `${getVehicleDisplayName(vehicle)}: ${serviceNames || 'No services selected'}`;
+      return `${getBookedVehicleDetail(vehicle)}: ${serviceNames || 'No services selected'}`;
     })
     .join(' | ');
+}
+
+/**
+ * Formats one booked vehicle with its own year, make, model, and optional color.
+ */
+function getBookedVehicleDetail(vehicle: VehicleProfile): string {
+  const primaryDetail = getVehicleDisplayName(vehicle);
+  return vehicle.color.trim() ? `${primaryDetail} (${vehicle.color.trim()})` : primaryDetail;
 }
 
 /**
@@ -285,8 +290,6 @@ export default function BookingPage(): JSX.Element {
     addVehicle,
     removeVehicle,
     updateVehicle,
-    setVehiclePackage,
-    toggleServiceForVehicle,
     getVehicleServices,
     getVehicleTotal,
     getGrandTotal,
@@ -299,22 +302,18 @@ export default function BookingPage(): JSX.Element {
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
   const [submittedBookingContext, setSubmittedBookingContext] = useState<SubmittedBookingCalendarContext | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [paymentSubmitting, setPaymentSubmitting] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   const plannerTopRef = useRef<HTMLDivElement>(null);
 
   const steps = getBookingSteps();
   const sizes = getVehicleSizes();
-  const packageServices = useMemo(() => getPackageServices(), []);
-  const protectionServices = useMemo(() => getProtectionServices(), []);
-  const correctionServices = useMemo(() => getCorrectionServices(), []);
   const activeVehicle = useMemo(
     () => vehicles.find((vehicle) => vehicle.id === activeVehicleId) ?? vehicles[0],
     [activeVehicleId, vehicles],
   );
 
-  const selectedServiceIds = activeVehicle?.serviceIds ?? [];
   const selectedServiceRecords = activeVehicle ? getVehicleServices(activeVehicle.id) : [];
-  const selectedPackageId = selectedServiceIds.find((serviceId) => serviceId.startsWith('pkg-'));
   const selectedPackage = selectedServiceRecords.find((service) => service.id.startsWith('pkg-'));
   const selectedPremiumServices = selectedServiceRecords.filter((service) => service.category !== 'package');
   const selectedVehicles = useMemo(
@@ -326,7 +325,6 @@ export default function BookingPage(): JSX.Element {
     [activeVehicle, form],
   );
   const stepOneValid = Object.keys(stepOneErrors).length === 0;
-  const activeVehicleSize = activeVehicle?.size ?? 'sedan_coupe';
 
   /**
    * Clears field-level errors and optimistic confirmation state before new edits.
@@ -335,6 +333,7 @@ export default function BookingPage(): JSX.Element {
     setFieldErrors({});
     setBookingConfirmed(false);
     setSubmittedBookingContext(null);
+    setPaymentSubmitting(false);
   }
 
   /**
@@ -427,7 +426,7 @@ export default function BookingPage(): JSX.Element {
     const submissionErrors = validateSubmission(form, vehicles);
     if (Object.keys(submissionErrors).length > 0) {
       setFieldErrors(submissionErrors);
-      setStatusMessage('Please complete required booking details and select at least one service before submitting.');
+      setStatusMessage('Select at least one service on the Services page before scheduling.');
       return;
     }
 
@@ -459,18 +458,46 @@ export default function BookingPage(): JSX.Element {
     }
   }
 
+  /**
+   * Creates a hosted Stripe Checkout Session and redirects the customer for deposit payment.
+   */
+  async function handleCreateCheckoutSession(): Promise<void> {
+    if (!submittedBookingContext) {
+      setStatusMessage('Save the intake and choose a calendar time before payment.');
+      return;
+    }
+
+    setPaymentSubmitting(true);
+    setStatusMessage('Opening secure deposit checkout...');
+
+    try {
+      const checkoutSession = await createStripeCheckoutSession({
+        bookingId: submittedBookingContext.bookingId,
+        customer: {
+          email: submittedBookingContext.customer.email,
+          fullName: submittedBookingContext.customer.fullName,
+        },
+        vehicles,
+      });
+      window.location.href = checkoutSession.checkoutUrl;
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : 'Unable to open Stripe checkout.');
+      setPaymentSubmitting(false);
+    }
+  }
+
   return (
     <SiteShell>
       <section className="relative overflow-hidden bg-ink px-4 py-10 text-white sm:px-6 sm:py-12 md:py-14">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#a3a3a336,transparent_65%)]" />
-        <div className="relative mx-auto max-w-6xl rounded-[28px] border border-white/15 bg-white/10 px-4 py-6 backdrop-blur-md sm:rounded-[30px] sm:px-8 sm:py-8 md:px-10 md:py-9">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#8c1c2c44,transparent_65%)]" />
+        <div className="relative mx-auto max-w-6xl rounded-[28px] border border-line bg-[#141414]/80 px-4 py-6 backdrop-blur-md sm:rounded-[30px] sm:px-8 sm:py-8 md:px-10 md:py-9">
           <h1 className="text-center font-heading text-2xl font-semibold sm:text-4xl md:text-5xl">Book Your Appointment</h1>
-          <p className="mt-2 text-center text-sm text-white/75 sm:text-base">Three simple steps to a pristine vehicle.</p>
+          <p className="mt-2 text-center text-sm text-white/75 sm:text-base">Details, schedule, deposit, and confirmation.</p>
 
           <div className="mx-auto mt-6 max-w-4xl">
             <div className="h-2 rounded-full bg-black/30">
               <div
-                className="h-2 rounded-full bg-charcoal transition-all duration-500"
+                className="h-2 rounded-full bg-burgundy transition-all duration-500"
                 style={{ width: `${(step / steps.length) * 100}%` }}
               />
             </div>
@@ -478,16 +505,16 @@ export default function BookingPage(): JSX.Element {
               {steps.map((item) => {
                 const Icon = item.icon;
                 const active = item.id === step;
-                const complete = item.id < step;
+                const complete = item.id < Math.min(step, steps.length);
 
                 return (
                   <div key={item.id} className="flex flex-col items-center gap-2 text-center">
                     <div
                       className={`flex h-10 w-10 items-center justify-center rounded-full border transition duration-300 ${
                         complete
-                          ? 'border-green-300 bg-green-500 text-white'
-                          : active
-                            ? 'border-fog bg-fog text-ink'
+                          ? 'border-burgundyAccent bg-burgundy text-white'
+                        : active
+                            ? 'border-burgundyAccent bg-burgundyAccent text-white'
                             : 'border-white/30 bg-white/5 text-white/70'
                       }`}
                     >
@@ -503,8 +530,8 @@ export default function BookingPage(): JSX.Element {
       </section>
 
       <section className="mx-auto grid max-w-6xl gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_380px]">
-        <div ref={plannerTopRef} className="gray-card space-y-5 p-5">
-          <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4">
+        <div ref={plannerTopRef} className="gray-card flex min-h-[760px] flex-col p-5">
+          <div className="rounded-2xl border border-line bg-white/[0.04] p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/60">Vehicle Deck</p>
@@ -513,7 +540,7 @@ export default function BookingPage(): JSX.Element {
               <button
                 type="button"
                 onClick={handleAddVehicle}
-                className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white transition duration-300 hover:bg-white/10"
+                    className="inline-flex items-center gap-2 rounded-full border border-burgundy/60 bg-burgundy px-3 py-1.5 text-xs font-semibold text-white transition duration-300 hover:bg-burgundyAccent"
               >
                 <Plus className="h-4 w-4" /> Add Vehicle
               </button>
@@ -527,7 +554,7 @@ export default function BookingPage(): JSX.Element {
                   <article
                     key={vehicle.id}
                     className={`rounded-xl border p-3 transition-all duration-300 ${
-                      active ? 'border-white/35 bg-white/10 shadow-sm' : 'border-white/10 bg-[#111111] hover:border-white/25 hover:bg-[#161616]'
+                      active ? 'border-burgundyAccent bg-burgundy/15 shadow-sm' : 'border-line bg-[#141414] hover:border-burgundyAccent/35 hover:bg-burgundy/10'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -561,19 +588,20 @@ export default function BookingPage(): JSX.Element {
             </div>
           </div>
 
+          <div className="flex-1 space-y-5">
           {step === 1 ? (
             <section className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition-all duration-300">
               <div>
                 <h2 className="font-heading text-2xl font-semibold text-ink">Your Details</h2>
                 <p className="mt-1 text-sm text-ink/65">
-                  Select the active vehicle, choose a package if it fits the job, and complete contact details before moving into add-ons and calendar handoff.
+                  Review the active vehicle, complete contact details, and keep your selected services attached before calendar handoff.
                 </p>
               </div>
 
-              <div className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
+              <div className="space-y-4">
                 <h3 className="font-heading text-xl font-semibold text-ink">Select Your Vehicle</h3>
                 <p className="mt-1 text-sm text-ink/60">
-                  Match the active vehicle to the closest standard category before selecting services.
+                  Match the active vehicle to the closest standard category.
                 </p>
                 {activeVehicle ? (
                   <VehicleSizeGuideLookup
@@ -612,78 +640,47 @@ export default function BookingPage(): JSX.Element {
                       >
                         <div className="flex items-start justify-between gap-2">
                           <p className="font-heading text-base font-semibold text-ink">{size.label}</p>
-                          {selected ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-black">
-                              <CheckCircle2 className="h-3 w-3" />
-                              Selected
-                            </span>
-                          ) : null}
                         </div>
                         <p className="text-xs text-ink/55">{size.hint}</p>
                       </button>
                     );
                   })}
                 </div>
-                <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#111111] px-4 py-3">
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-[#141414] px-4 py-3">
                   <p className="text-sm text-ink/70">
                     Oversized, lifted, modified, specialty, or unlisted vehicles should get a custom quote before scheduling.
                   </p>
-                  <Link href="/quote" className="rounded-full bg-white px-4 py-2 text-xs font-bold text-black transition hover:bg-fog">
+                  <Link href="/quote" className="rounded-full bg-burgundy px-4 py-2 text-xs font-bold text-white transition hover:bg-burgundyAccent">
                     Request a Quote
                   </Link>
                 </div>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                {packageServices.map((service) => {
-                  const selected = selectedPackageId === service.id;
-                  const adjustedPrice = getAdjustedServicePrice(service.price, activeVehicleSize);
-                  const isBestValue = service.id === 'pkg-maintenance';
-
-                  return (
-                    <button
-                      key={service.id}
-                      type="button"
-                      onClick={() => {
-                        resetInteractionState();
-                        setVehiclePackage(activeVehicleId, service.id);
-                      }}
-                      aria-pressed={selected}
-                      className={`rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
-                        getSelectableCardClass(selected, isBestValue)
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="font-heading text-lg font-semibold text-ink">{service.name}</p>
-                        <span className="flex flex-wrap justify-end gap-1">
-                          {selected ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-black">
-                              <CheckCircle2 className="h-3 w-3" />
-                              Selected
-                            </span>
-                          ) : null}
-                          {isBestValue ? (
-                            <span className="rounded-full bg-charcoal px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-white">
-                              Best Value
-                            </span>
-                          ) : null}
-                        </span>
-                      </div>
-                      <p className="mt-1 text-xs text-ink/60">{service.description}</p>
-                      <ul className="mt-3 space-y-1 text-xs text-ink/70">
-                        {service.highlights.map((highlight) => (
-                          <li key={highlight}>• {highlight}</li>
-                        ))}
-                      </ul>
-                      <p className="mt-3 font-heading text-2xl font-extrabold text-charcoal">{formatCurrency(adjustedPrice)}</p>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="rounded-xl border border-white/10 bg-white/[0.06] p-3 text-xs text-ink/75">
-                <p>Booking window: Monday-Friday 8am - 6pm.</p>
-                <p className="mt-1">Weekend appointments are reviewed by request and may be reserved for business maintenance or advertising work.</p>
+              <div className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/60">Selected Services</p>
+                    <h3 className="mt-1 font-heading text-xl font-semibold text-ink">
+                      {selectedServiceRecords.length > 0 ? `${selectedServiceRecords.length} service${selectedServiceRecords.length === 1 ? '' : 's'} ready` : 'No services selected yet'}
+                    </h3>
+                  </div>
+                  <Link href="/services" className="rounded-full border border-line bg-[#141414] px-4 py-2 text-xs font-bold text-white transition hover:border-burgundyAccent hover:bg-burgundy/10">
+                    Edit Services
+                  </Link>
+                </div>
+                {selectedServiceRecords.length > 0 ? (
+                  <ul className="mt-3 grid gap-2 text-sm text-ink/75 sm:grid-cols-2">
+                    {selectedServiceRecords.map((service) => (
+                      <li key={service.id} className="rounded-lg border border-line bg-[#141414] px-3 py-2">
+                        {service.name}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-3 text-sm text-ink/65">
+                    Choose a package or add-on on the Services page before scheduling so the estimate and Cal.com metadata stay accurate.
+                  </p>
+                )}
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
@@ -815,15 +812,9 @@ export default function BookingPage(): JSX.Element {
                 </label>
               </div>
 
-              <section className="rounded-xl border border-white/10 bg-white/[0.06] p-3 sm:p-4">
-                <h3 className="text-sm font-semibold text-ink">Confirmation Preferences</h3>
-                <p className="mt-1 text-xs text-ink/70">
-                  Choose how you want appointment confirmations and status updates.
-                </p>
-
-                <div className="mt-3 space-y-2">
+              <div className="space-y-2">
                   <label className={`flex items-start gap-2 rounded-lg px-3 py-2 text-sm text-ink/80 ${
-                    fieldErrors.acceptedConsent ? 'border border-white/35 bg-white/10' : 'border border-white/15 bg-[#111111]'
+                    fieldErrors.acceptedConsent ? 'border border-burgundyAccent bg-burgundy/15' : 'border border-line bg-[#141414]'
                   }`}>
                     <input
                       type="checkbox"
@@ -835,7 +826,7 @@ export default function BookingPage(): JSX.Element {
                   </label>
                   {fieldErrors.acceptedConsent ? <p className="a11y-error text-xs font-medium">{fieldErrors.acceptedConsent}</p> : null}
 
-                  <label className="flex items-start gap-2 rounded-lg border border-white/15 bg-[#111111] px-3 py-2 text-sm text-ink/80">
+                  <label className="flex items-start gap-2 rounded-lg border border-line bg-[#141414] px-3 py-2 text-sm text-ink/80">
                     <input
                       type="checkbox"
                       checked={form.sendEmailConfirmation}
@@ -845,7 +836,7 @@ export default function BookingPage(): JSX.Element {
                     <span>I agree to receive booking confirmations and service-related emails.</span>
                   </label>
 
-                  <label className="flex items-start gap-2 rounded-lg border border-white/15 bg-[#111111] px-3 py-2 text-sm text-ink/80">
+                  <label className="flex items-start gap-2 rounded-lg border border-line bg-[#141414] px-3 py-2 text-sm text-ink/80">
                     <input
                       type="checkbox"
                       checked={form.sendSmsConfirmation}
@@ -862,11 +853,9 @@ export default function BookingPage(): JSX.Element {
                       SMS confirmations to <span className="font-semibold text-ink">your phone number</span>
                     </span>
                   </label>
-                </div>
-
                 {form.sendSmsConfirmation ? (
-                  <label className={`mt-3 flex items-start gap-2 rounded-lg px-3 py-2 text-xs text-ink/80 ${
-                    fieldErrors.smsConsent ? 'border border-charcoal bg-charcoal/10' : 'border border-charcoal/30 bg-charcoal/5'
+                  <label className={`flex items-start gap-2 rounded-lg px-3 py-2 text-xs text-ink/80 ${
+                    fieldErrors.smsConsent ? 'border border-burgundyAccent bg-burgundy/15' : 'border border-burgundy/30 bg-burgundy/5'
                   }`}>
                     <input
                       type="checkbox"
@@ -878,234 +867,118 @@ export default function BookingPage(): JSX.Element {
                   </label>
                 ) : null}
                 {fieldErrors.confirmationChannel ? (
-                  <p className="a11y-error mt-2 text-xs font-medium">{fieldErrors.confirmationChannel}</p>
+                  <p className="a11y-error text-xs font-medium">{fieldErrors.confirmationChannel}</p>
                 ) : null}
-                {fieldErrors.smsConsent ? <p className="a11y-error mt-2 text-xs font-medium">{fieldErrors.smsConsent}</p> : null}
-              </section>
+                {fieldErrors.smsConsent ? <p className="a11y-error text-xs font-medium">{fieldErrors.smsConsent}</p> : null}
+              </div>
 
             </section>
           ) : null}
 
           {step === 2 ? (
-            <section className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition-all duration-300">
-              <div>
-                <h2 className="font-heading text-2xl font-semibold text-ink">Services</h2>
-                <p className="mt-1 text-sm text-ink/65">
-                  Add premium work for {activeVehicle ? getVehicleDisplayName(activeVehicle) : 'this vehicle'}.
-                  These add-ons can be booked with or without a detail package.
-                </p>
-                <p className="mt-1 text-xs font-semibold text-ink/55">
-                  Current size pricing: {activeVehicleSize.replaceAll('_', ' ').toUpperCase()} ({formatSizeAdjustmentLabel(activeVehicleSize)})
-                </p>
-              </div>
-
-              <section className="space-y-5 rounded-2xl border border-white/10 bg-white/[0.06] p-4">
-                <div>
-                  <h3 className="text-sm font-semibold uppercase tracking-[0.15em] text-ink/60">Add-Ons</h3>
-                  <p className="mt-1 text-sm text-ink/65">
-                    Protection, coatings, and correction work for vehicles that need more than routine upkeep.
-                  </p>
-                </div>
-                <section className="space-y-3">
-                  <div>
-                    <h4 className="text-sm font-semibold uppercase tracking-[0.15em] text-ink/60">Protection + Coatings</h4>
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {protectionServices.map((service) => {
-                      const selected = selectedServiceIds.includes(service.id);
-                      const adjustedPrice = getAdjustedServicePrice(service.price, activeVehicleSize);
-
-                      return (
-                        <button
-                          key={service.id}
-                          type="button"
-                          onClick={() => {
-                            resetInteractionState();
-                            toggleServiceForVehicle(activeVehicleId, service);
-                          }}
-                          aria-pressed={selected}
-                          className={`rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
-                            getSelectableCardClass(selected)
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-2">
-                            <p className="font-heading text-lg font-semibold text-ink">{service.name}</p>
-                            {selected ? (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-black">
-                                <CheckCircle2 className="h-3 w-3" />
-                                Selected
-                              </span>
-                            ) : null}
-                          </div>
-                          <p className="mt-1 text-xs text-ink/60">{service.description}</p>
-                          <ul className="mt-3 space-y-1 text-xs text-ink/70">
-                            {service.highlights.map((highlight) => (
-                              <li key={highlight}>• {highlight}</li>
-                            ))}
-                          </ul>
-                          <p className="mt-3 text-sm text-ink/70">{service.duration}</p>
-                          <p className="mt-1 font-heading text-2xl font-extrabold text-charcoal">{formatCurrency(adjustedPrice)}</p>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </section>
-
-                <section className="space-y-3">
-                  <div>
-                    <h4 className="text-sm font-semibold uppercase tracking-[0.15em] text-ink/60">Paint Correction</h4>
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                    {correctionServices.map((service) => {
-                      const selected = selectedServiceIds.includes(service.id);
-                      const adjustedPrice = getAdjustedServicePrice(service.price, activeVehicleSize);
-
-                      return (
-                        <button
-                          key={service.id}
-                          type="button"
-                          onClick={() => {
-                            resetInteractionState();
-                            toggleServiceForVehicle(activeVehicleId, service);
-                          }}
-                          aria-pressed={selected}
-                          className={`rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
-                            getSelectableCardClass(selected)
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-2">
-                            <p className="font-heading text-lg font-semibold text-ink">{service.name}</p>
-                            {selected ? (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-black">
-                                <CheckCircle2 className="h-3 w-3" />
-                                Selected
-                              </span>
-                            ) : null}
-                          </div>
-                          <p className="mt-1 text-xs text-ink/60">{service.description}</p>
-                          <ul className="mt-3 space-y-1 text-xs text-ink/70">
-                            {service.highlights.map((highlight) => (
-                              <li key={highlight}>• {highlight}</li>
-                            ))}
-                          </ul>
-                          <p className="mt-3 text-sm text-ink/70">{service.duration}</p>
-                          <p className="mt-1 font-heading text-2xl font-extrabold text-charcoal">{formatCurrency(adjustedPrice)}</p>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </section>
-              </section>
-
-              <label className="block text-sm font-semibold text-ink/75">
-                Special Notes
-                <textarea
-                  value={form.notes}
-                  onChange={(event) => updateCustomerField('notes', event.target.value)}
-                  autoComplete="off"
-                  className="mt-1 min-h-24 w-full rounded-lg border border-black/15 px-3 py-2 transition duration-300 focus:border-fog focus:outline-none"
-                  placeholder="Gate code, same-day need, weekend request, pet hair, heavy stains, or condition notes..."
+            <section className="min-h-[520px] transition-all duration-300">
+              {bookingConfirmed && submittedBookingContext ? (
+                <CalInlineEmbed
+                  bookingId={submittedBookingContext.bookingId}
+                  calLink={getCalendarBookingLink()}
+                  customerName={submittedBookingContext.customer.fullName}
+                  email={submittedBookingContext.customer.email}
+                  phone={submittedBookingContext.customer.phone}
+                  estimatedTotal={submittedBookingContext.estimatedTotal}
+                  vehicleCount={submittedBookingContext.vehicleCount}
+                  servicesSummary={submittedBookingContext.servicesSummary}
+                  fallbackUrl={getCalendarBookingUrl()}
                 />
-              </label>
+              ) : null}
             </section>
           ) : null}
 
           {step === 3 ? (
             <section className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition-all duration-300">
               <div>
-                <h2 className="font-heading text-2xl font-semibold text-ink">Schedule</h2>
-                <p className="mt-1 text-sm text-ink/65">Submit your details, then choose your appointment on Cal.com.</p>
+                <h2 className="font-heading text-2xl font-semibold text-ink">Payment</h2>
+                <p className="mt-1 text-sm text-ink/65">
+                  Open secure Stripe Checkout to pay the deposit. The deposit is applied toward the final service total.
+                </p>
               </div>
-
-              {!submittedBookingContext ? (
-                <div className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
-                  <p className="text-sm text-ink/75">
-                    We pre-save your intake first so your booking request stays attached to your service selections before calendar scheduling.
-                    After it is saved, the Cal.com calendar opens here for date, time, and deposit confirmation.
-                  </p>
-                  <a
-                    href={getCalendarBookingUrl()}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-[#111111] px-4 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-white/10"
-                  >
-                    Fallback Cal.com link <ArrowRight className="h-4 w-4" />
-                  </a>
-                </div>
-              ) : null}
-
-              {bookingConfirmed && submittedBookingContext ? (
-                <>
-                  <div className="inline-flex w-full items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm font-medium text-white">
-                    <CheckCircle2 className="h-5 w-5" /> Intake saved. Choose your Cal.com appointment below.
-                  </div>
-                  <CalInlineEmbed
-                    bookingId={submittedBookingContext.bookingId}
-                    calLink={getCalendarBookingLink()}
-                    customerName={submittedBookingContext.customer.fullName}
-                    email={submittedBookingContext.customer.email}
-                    phone={submittedBookingContext.customer.phone}
-                    estimatedTotal={submittedBookingContext.estimatedTotal}
-                    vehicleCount={submittedBookingContext.vehicleCount}
-                    servicesSummary={submittedBookingContext.servicesSummary}
-                    fallbackUrl={getCalendarBookingUrl()}
-                  />
-                </>
-              ) : null}
-
-              <ul className="space-y-2 text-sm text-ink/75">
-                <li className="inline-flex items-center gap-2"><Clock3 className="h-4 w-4 text-fog" /> Monday-Friday booking window: 8am - 6pm.</li>
-                <li className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-fog" /> Weekend requests are reviewed manually and same-day rush fees may apply.</li>
-                <li className="inline-flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-fog" /> Intake details are saved before redirect.</li>
-              </ul>
+              <div className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
+                <p className="text-sm text-ink/75">
+                  Deposit due now: 10% of the estimate, with a $25 minimum and $100 maximum.
+                </p>
+              </div>
             </section>
           ) : null}
+          </div>
 
-          {step < 3 ? (
+          {step === 1 ? (
             <nav aria-label="Booking policy links" className="flex flex-wrap justify-end gap-2 text-xs font-semibold">
-              <Link href="/terms" className="rounded-full border border-white/15 bg-[#111111] px-3 py-1.5 text-white transition hover:border-white/30 hover:bg-white/10">
+              <Link href="/terms" className="rounded-full border border-line bg-[#141414] px-3 py-1.5 text-white transition hover:border-burgundyAccent hover:bg-burgundy/10">
                 Terms
               </Link>
-              <Link href="/privacy" className="rounded-full border border-white/15 bg-[#111111] px-3 py-1.5 text-white transition hover:border-white/30 hover:bg-white/10">
+              <Link href="/privacy" className="rounded-full border border-line bg-[#141414] px-3 py-1.5 text-white transition hover:border-burgundyAccent hover:bg-burgundy/10">
                 Privacy
               </Link>
-              <Link href="/faq" className="rounded-full border border-white/15 bg-[#111111] px-3 py-1.5 text-white transition hover:border-white/30 hover:bg-white/10">
+              <Link href="/faq" className="rounded-full border border-line bg-[#141414] px-3 py-1.5 text-white transition hover:border-burgundyAccent hover:bg-burgundy/10">
                 Help
               </Link>
-              <Link href="/quote" className="rounded-full border border-white/15 bg-[#111111] px-3 py-1.5 text-white transition hover:border-white/30 hover:bg-white/10">
+              <Link href="/quote" className="rounded-full border border-line bg-[#141414] px-3 py-1.5 text-white transition hover:border-burgundyAccent hover:bg-burgundy/10">
                 Request a Quote
               </Link>
             </nav>
           ) : null}
 
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
+          <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
             {step > 1 ? (
               <button
                 type="button"
                 onClick={goBack}
-                className="inline-flex items-center gap-2 rounded-full border border-fog px-4 py-2 text-sm font-semibold text-fog transition duration-300 hover:bg-fog/10"
+                className="inline-flex items-center gap-2 rounded-full border border-fog px-4 py-2 text-sm font-semibold text-fog transition duration-300 hover:border-burgundyAccent hover:bg-burgundy/10 hover:text-white"
               >
                 <ArrowLeft className="h-4 w-4" /> Back
               </button>
             ) : <span />}
 
-            {step < 3 ? (
+            {step === 1 ? (
               <button
                 type="button"
                 onClick={goNext}
-                className="inline-flex items-center gap-2 rounded-full bg-charcoal px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-ink"
+                className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent"
               >
                 Continue <ArrowRight className="h-4 w-4" />
               </button>
-            ) : (
+            ) : step === 2 ? (
+              selectedVehicles.length === 0 ? (
+                <Link href="/services" className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent">
+                  Select Services First
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (bookingConfirmed) {
+                      goNext();
+                      return;
+                    }
+
+                    void handleSubmitBooking();
+                  }}
+                  disabled={submitting}
+                  className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:opacity-65"
+                >
+                  {submitting ? 'Saving...' : 'Continue'}
+                </button>
+              )
+            ) : step === 3 ? (
               <button
                 type="button"
-                onClick={() => void handleSubmitBooking()}
-                disabled={submitting || bookingConfirmed}
-                className="inline-flex items-center gap-2 rounded-full bg-charcoal px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-ink disabled:opacity-65"
+                onClick={() => void handleCreateCheckoutSession()}
+                disabled={paymentSubmitting}
+                className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent"
               >
-                {bookingConfirmed ? 'Calendar Ready' : submitting ? 'Saving...' : 'Save Intake + Open Calendar'}
+                {paymentSubmitting ? 'Opening Checkout...' : 'Pay Deposit'} <ArrowRight className="h-4 w-4" />
               </button>
+            ) : (
+              <span />
             )}
           </div>
 
@@ -1126,7 +999,9 @@ export default function BookingPage(): JSX.Element {
           {fieldErrors.serviceSelection ? <p className="a11y-error text-xs font-medium">{fieldErrors.serviceSelection}</p> : null}
           {fieldErrors.selectedVehicleDetails ? <p className="a11y-error text-xs font-medium">{fieldErrors.selectedVehicleDetails}</p> : null}
           {fieldErrors.selectedVehicleLimit ? <p className="a11y-error text-xs font-medium">{fieldErrors.selectedVehicleLimit}</p> : null}
-          <p className="text-xs font-medium text-ink/60">{BOOKING_LIMIT_DISCLAIMER}</p>
+          <p className="text-xs font-medium text-ink/60">
+            {BOOKING_LIMIT_DISCLAIMER} Booking window: Monday-Saturday 8am - 6pm.
+          </p>
 
           {statusMessage ? (
             <p className={`text-sm ${
@@ -1162,8 +1037,8 @@ export default function BookingPage(): JSX.Element {
                 <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/55">Booked Vehicles</p>
                 <ul className="mt-2 space-y-2">
                   {selectedVehicles.map((vehicle) => (
-                    <li key={vehicle.id} className="flex items-center justify-between text-xs">
-                      <span className="text-ink/75">{getVehicleDisplayName(vehicle)}</span>
+                    <li key={vehicle.id} className="flex items-start justify-between gap-3 text-xs">
+                      <span className="text-ink/75">{getBookedVehicleDetail(vehicle)}</span>
                       <span className="font-semibold text-ink">{formatCurrency(getVehicleTotal(vehicle.id))}</span>
                     </li>
                   ))}
