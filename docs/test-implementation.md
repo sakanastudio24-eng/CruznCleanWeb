@@ -12,7 +12,7 @@ uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 2. Start Web:
 ```bash
 cd apps/web
-npm run dev
+pnpm dev
 ```
 3. Open booking UI:
 - `http://127.0.0.1:3000/booking`

@@ -5,11 +5,11 @@ Deploy the Next.js frontend as a subdomain of your portfolio domain with a repea
 
 ## Build Configuration In Repo
 - Root `vercel.json` defines:
-  - `installCommand`: `npm --prefix apps/web ci`
-  - `buildCommand`: `npm run vercel-build`
-  - `devCommand`: `npm --prefix apps/web run dev`
+  - `installCommand`: `pnpm install --frozen-lockfile`
+  - `buildCommand`: `pnpm vercel-build`
+  - `devCommand`: `pnpm --dir apps/web dev`
 - Root `package.json` defines:
-  - `vercel-build`: `npm --prefix apps/web run build`
+  - `vercel-build`: `pnpm --dir apps/web build`
 
 This ensures Vercel builds the Next.js app from `apps/web` instead of assuming a root-level Next.js project.
 

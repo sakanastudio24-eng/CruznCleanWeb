@@ -3,7 +3,7 @@
 ## Workflow
 1. Write/update docs for the section.
 2. Implement only that section.
-3. Validate the section with `npm run quality:web`.
+3. Validate the section with `pnpm quality:web`.
 4. Commit the section.
 
 ## Commit Standard
