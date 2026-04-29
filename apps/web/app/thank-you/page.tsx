@@ -5,7 +5,7 @@ import { SiteShell } from '@/components/layout/site-shell';
 import { SITE_PROFILE } from '@/lib/site-profile';
 
 /**
- * Confirms the customer has returned from Cal.com after completing scheduling.
+ * Confirms the customer has returned after completing scheduling and deposit payment.
  */
 export default function ThankYouPage(): JSX.Element {
   return (
@@ -19,8 +19,8 @@ export default function ThankYouPage(): JSX.Element {
           </p>
           <h1 className="mt-5 font-heading text-4xl font-semibold sm:text-5xl">Thanks. Your appointment is being confirmed.</h1>
           <p className="mx-auto mt-4 max-w-2xl text-base text-white/72 sm:text-lg">
-            Cal.com will send the final confirmation after your date, time, and deposit are completed. Cruzn Clean will use
-            your saved intake to prepare the right service plan for your vehicle.
+            Your intake, calendar selection, and Stripe deposit are complete. Cruzn Clean will use your saved details to
+            prepare the right service plan for your vehicle.
           </p>
 
           <div className="mt-8 grid gap-4 text-left sm:grid-cols-2">
@@ -28,7 +28,7 @@ export default function ThankYouPage(): JSX.Element {
               <MailCheck className="h-6 w-6 text-white/80" />
               <h2 className="mt-4 font-heading text-xl font-semibold text-white">Watch your inbox</h2>
               <p className="mt-2 text-sm text-white/70">
-                Your Cal.com confirmation email includes the appointment details and any deposit receipt handled through Cal.com.
+                Your confirmation email includes the appointment details. Stripe will provide the deposit receipt separately.
               </p>
             </article>
             <article className="gray-card p-5">

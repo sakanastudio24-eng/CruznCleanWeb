@@ -101,6 +101,46 @@ export async function submitBookingIntake(payload: {
 }
 
 /**
+ * Creates a server-side Stripe Checkout Session for the saved booking deposit.
+ */
+export async function createStripeCheckoutSession(payload: {
+  bookingId: string;
+  customer: Pick<CustomerBookingForm, 'email' | 'fullName'>;
+  vehicles: VehicleProfile[];
+}): Promise<{ checkoutUrl: string; depositCents: number; estimatedTotalCents: number }> {
+  const vehicles: BookingVehicleRequest[] = payload.vehicles
+    .filter((vehicle) => vehicle.serviceIds.length > 0)
+    .map((vehicle) => ({
+      id: vehicle.id,
+      label: vehicle.label,
+      make: vehicle.make,
+      model: vehicle.model,
+      year: vehicle.year,
+      color: vehicle.color,
+      size: vehicle.size,
+      serviceIds: vehicle.serviceIds,
+    }));
+
+  const response = await fetch(`${getApiBaseUrl()}/payments/checkout-session`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      bookingId: payload.bookingId,
+      customer: payload.customer,
+      vehicles,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(await getApiErrorMessage(response, 'Stripe checkout session creation failed.'));
+  }
+
+  return (await response.json()) as { checkoutUrl: string; depositCents: number; estimatedTotalCents: number };
+}
+
+/**
  * Submits contact questions to the backend.
  */
 export async function submitContactMessage(payload: ContactForm): Promise<void> {
