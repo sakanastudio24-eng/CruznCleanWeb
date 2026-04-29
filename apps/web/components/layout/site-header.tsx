@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   CalendarDays,
   FileText,
@@ -68,6 +68,7 @@ function isActivePath(pathname: string, href: string): boolean {
  */
 export function SiteHeader(): JSX.Element {
   const pathname = usePathname();
+  const router = useRouter();
   const links = getNavLinks();
   const mobileLinks = getMobileNavLinks();
   const {
@@ -126,7 +127,7 @@ export function SiteHeader(): JSX.Element {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-white/12 bg-black/98 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-line bg-ink/98 backdrop-blur-xl">
         <div className="site-frame grid grid-cols-[auto_1fr_auto] items-center gap-4 py-3">
           <Link href="/" className="brand-mark shrink-0 whitespace-nowrap text-white">
             <span>{SITE_PROFILE.businessName}</span>
@@ -140,7 +141,7 @@ export function SiteHeader(): JSX.Element {
                   key={link.href}
                   href={link.href}
                   aria-current={active ? 'page' : undefined}
-                  className={`relative py-1 text-sm font-medium transition duration-300 after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:bg-charcoal after:transition-all after:duration-300 ${
+                  className={`relative py-1 text-sm font-medium transition duration-300 after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:bg-burgundyAccent/80 after:transition-all after:duration-300 ${
                     active
                       ? 'text-white after:w-full'
                       : 'text-white/70 hover:text-white after:w-0 hover:after:w-full'
@@ -153,14 +154,14 @@ export function SiteHeader(): JSX.Element {
           </nav>
 
           <div className="hidden shrink-0 items-center justify-end gap-3 lg:flex" ref={cartRef}>
-            <a href={SITE_PROFILE.phoneHref} className="inline-flex items-center gap-2 text-sm font-semibold text-white transition hover:text-fog">
+            <a href={SITE_PROFILE.phoneHref} className="inline-flex items-center gap-2 text-sm font-semibold text-white transition hover:text-burgundyAccent">
               <Phone className="h-4 w-4" />
               {SITE_PROFILE.phoneDisplay}
             </a>
 
             <Link
               href="/booking"
-              className="group relative overflow-hidden rounded-full bg-charcoal px-7 py-2.5 text-sm font-semibold text-white transition duration-300 hover:bg-[#3a3a3a]"
+              className="group relative overflow-hidden rounded-full bg-burgundy px-7 py-2.5 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent"
             >
               <span className="relative z-10">Book Now</span>
               <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
@@ -171,7 +172,7 @@ export function SiteHeader(): JSX.Element {
             <button
               type="button"
               onClick={() => setCartOpen((current) => !current)}
-              className="relative inline-flex h-11 w-11 items-center justify-center rounded-full text-white transition duration-300 hover:bg-white/10 hover:text-fog"
+              className="relative inline-flex h-11 w-11 items-center justify-center rounded-full text-white transition duration-300 hover:bg-burgundy/10 hover:text-burgundyAccent"
               aria-label="Open cart summary"
               aria-haspopup="dialog"
               aria-expanded={cartOpen}
@@ -179,7 +180,7 @@ export function SiteHeader(): JSX.Element {
             >
               <ShoppingCart className="h-5 w-5" />
               {selectedServiceCount > 0 ? (
-                <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-charcoal px-1 text-[10px] font-bold text-white">
+                <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-burgundy px-1 text-[10px] font-bold text-white">
                   {selectedServiceCount}
                 </span>
               ) : null}
@@ -190,7 +191,7 @@ export function SiteHeader(): JSX.Element {
                 id={desktopCartSummaryId}
                 role="region"
                 aria-label="Cart summary"
-                className="absolute right-6 top-[74px] z-50 w-[330px] rounded-2xl border border-white/10 bg-[#111111] p-4 text-white shadow-2xl"
+                className="absolute right-6 top-[74px] z-50 w-[330px] rounded-2xl border border-line bg-[#141414] p-4 text-white shadow-2xl"
               >
                 <h3 className="font-heading text-lg font-semibold text-white">Cart Summary</h3>
 
@@ -233,13 +234,16 @@ export function SiteHeader(): JSX.Element {
                     >
                       Edit Services
                     </Link>
-                    <Link
-                      href="/booking"
-                      onClick={() => setCartOpen(false)}
-                      className="rounded-full bg-charcoal px-3 py-2 text-center text-xs font-semibold text-white"
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCartOpen(false);
+                        router.push('/booking');
+                      }}
+                      className="rounded-full bg-burgundy px-3 py-2 text-center text-xs font-semibold text-white transition hover:bg-burgundyAccent"
                     >
                       Book Now
-                    </Link>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -249,7 +253,7 @@ export function SiteHeader(): JSX.Element {
           <div className="flex items-center justify-end gap-1 lg:hidden" ref={cartRef}>
             <a
               href={SITE_PROFILE.phoneHref}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-white transition duration-300 hover:bg-white/10"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-white transition duration-300 hover:bg-burgundy/10 hover:text-burgundyAccent"
               aria-label="Call us"
             >
               <Phone className="h-5 w-5" />
@@ -258,7 +262,7 @@ export function SiteHeader(): JSX.Element {
             <button
               type="button"
               onClick={() => setCartOpen((current) => !current)}
-              className="relative inline-flex h-11 w-11 items-center justify-center rounded-full text-white transition duration-300 hover:bg-white/10"
+              className="relative inline-flex h-11 w-11 items-center justify-center rounded-full text-white transition duration-300 hover:bg-burgundy/10 hover:text-burgundyAccent"
               aria-label="Open cart summary"
               aria-haspopup="dialog"
               aria-expanded={cartOpen}
@@ -266,7 +270,7 @@ export function SiteHeader(): JSX.Element {
             >
               <ShoppingCart className="h-5 w-5" />
               {selectedServiceCount > 0 ? (
-                <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-charcoal px-1 text-[10px] font-bold text-white">
+                <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-burgundy px-1 text-[10px] font-bold text-white">
                   {selectedServiceCount}
                 </span>
               ) : null}
@@ -277,7 +281,7 @@ export function SiteHeader(): JSX.Element {
                 id={mobileCartSummaryId}
                 role="region"
                 aria-label="Cart summary"
-                className="fixed inset-x-3 bottom-[calc(5.75rem+env(safe-area-inset-bottom))] z-[95] rounded-2xl border border-white/10 bg-[#111111] p-4 text-white shadow-2xl"
+                className="fixed inset-x-3 bottom-[calc(5.75rem+env(safe-area-inset-bottom))] z-[95] rounded-2xl border border-line bg-[#141414] p-4 text-white shadow-2xl"
               >
                 <h3 className="font-heading text-lg font-semibold text-white">Cart Summary</h3>
                 <p className="mt-1 text-xs text-white/60">{vehiclesWithSelections.length} vehicles selected</p>
@@ -286,7 +290,7 @@ export function SiteHeader(): JSX.Element {
                   <Link href="/services" onClick={() => setCartOpen(false)} className="rounded-full border border-white/20 px-3 py-2 text-center text-xs font-semibold text-white">
                     View
                   </Link>
-                  <Link href="/booking" onClick={() => setCartOpen(false)} className="rounded-full bg-charcoal px-3 py-2 text-center text-xs font-semibold text-white">
+                  <Link href="/booking" onClick={() => setCartOpen(false)} className="rounded-full bg-burgundy px-3 py-2 text-center text-xs font-semibold text-white transition hover:bg-burgundyAccent">
                     Checkout
                   </Link>
                 </div>
@@ -297,7 +301,7 @@ export function SiteHeader(): JSX.Element {
       </header>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-black/95 pb-[calc(env(safe-area-inset-bottom)+0.35rem)] pt-2 backdrop-blur-md lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-ink/95 pb-[calc(env(safe-area-inset-bottom)+0.35rem)] pt-2 backdrop-blur-md lg:hidden"
         aria-label="Mobile navigation"
       >
         <div className="mx-auto grid w-full max-w-[760px] grid-cols-5 gap-1 px-2 sm:px-4">
@@ -314,10 +318,10 @@ export function SiteHeader(): JSX.Element {
                 className={`mobile-bottom-nav-item flex flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-[11px] font-semibold transition-all duration-300 ${
                   bookingLink
                     ? active
-                      ? 'bg-charcoal text-white shadow-md'
-                      : 'bg-white/5 text-white hover:bg-white/10'
+                      ? 'bg-burgundy text-white shadow-md'
+                      : 'bg-white/5 text-white hover:bg-burgundy/20'
                     : active
-                      ? 'bg-white text-black'
+                      ? 'bg-burgundy text-white'
                       : 'text-white/70 hover:bg-white/5 hover:text-white'
                 }`}
               >

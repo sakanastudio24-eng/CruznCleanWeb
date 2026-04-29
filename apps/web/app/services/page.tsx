@@ -131,16 +131,16 @@ function ServiceGrid({
               aria-pressed={selected}
               className={`rounded-xl border p-4 text-left transition duration-300 ${
                 selected
-                  ? 'border-charcoal bg-charcoal/10 shadow-md'
+                  ? 'border-burgundyAccent bg-burgundy/20 shadow-md'
                   : isBestValue
-                    ? 'border-white/35 bg-white/[0.08] hover:-translate-y-0.5 hover:border-white/45 hover:bg-white/[0.12]'
-                    : 'border-white/10 bg-[#111111] hover:-translate-y-0.5 hover:border-white/20 hover:bg-[#161616]'
+                    ? 'border-white/25 bg-white/[0.08] hover:-translate-y-0.5 hover:border-burgundyAccent/45 hover:bg-burgundy/10'
+                    : 'border-line bg-[#141414] hover:-translate-y-0.5 hover:border-burgundyAccent/35 hover:bg-burgundy/10'
               }`}
             >
               <div className="flex items-start justify-between gap-2">
                 <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/55">{service.duration}</p>
                 {isBestValue ? (
-                  <span className="rounded-full bg-charcoal px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-white">
+                  <span className="rounded-full bg-burgundy px-2 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-white">
                     Best Value
                   </span>
                 ) : null}
@@ -208,39 +208,22 @@ function VehicleSelectSection(): JSX.Element {
         {options.map((option) => {
           const selected = activeVehicle.size === option.id;
           return (
-            <button
+            <div
               key={option.id}
-              type="button"
-              onClick={() => updateVehicle(activeVehicle.id, { size: option.id })}
-              aria-pressed={selected}
-              className={`rounded-2xl border px-4 py-5 text-left transition duration-300 ${
+              aria-current={selected ? 'true' : undefined}
+              className={`rounded-2xl border px-4 py-5 transition duration-300 ${
                 selected
-                  ? 'border-charcoal bg-charcoal/5 shadow-md'
-                  : 'border-white/10 bg-[#111111] hover:border-white/20 hover:bg-[#161616]'
+                  ? 'border-white/45 bg-white/[0.12] shadow-md'
+                  : 'border-white/10 bg-[#111111]'
               }`}
             >
-              <p className="font-heading text-xl font-semibold text-ink">{option.label}</p>
+              <div className="flex items-start justify-between gap-2">
+                <p className="font-heading text-xl font-semibold text-ink">{option.label}</p>
+              </div>
               <p className="mt-1 text-sm text-ink/55">{option.hint}</p>
-            </button>
+            </div>
           );
         })}
-      </div>
-
-      <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.06] p-4">
-        <h3 className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/60">Pricing adjustments</h3>
-        <div className="mt-3 grid gap-2 text-sm text-ink/75 sm:grid-cols-3">
-          <p>Sedan / Coupe: base price</p>
-          <p>Small SUV / Truck: +20%</p>
-          <p>Large SUV / Truck: +40%</p>
-        </div>
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#111111] px-4 py-3">
-          <p className="text-sm text-ink/70">
-            Oversized, lifted, modified, specialty, or unlisted vehicles should get a custom quote before scheduling.
-          </p>
-          <Link href="/quote" className="rounded-full bg-white px-4 py-2 text-xs font-bold text-black transition hover:bg-fog">
-            Request a Quote
-          </Link>
-        </div>
       </div>
     </section>
   );
@@ -253,7 +236,7 @@ export default function ServicesPage(): JSX.Element {
   return (
     <SiteShell>
       <section className="relative overflow-hidden bg-ink px-4 py-16 text-white sm:px-6">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#a3a3a333,transparent_55%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#8c1c2c33,transparent_55%)]" />
         <div className="relative mx-auto max-w-6xl text-center">
           <h1 className="font-heading text-4xl font-semibold sm:text-5xl">Cruzn Clean Services</h1>
           <p className="mx-auto mt-4 max-w-3xl text-base text-white/75 sm:text-xl">
@@ -275,7 +258,7 @@ export default function ServicesPage(): JSX.Element {
                   Standalone premium work for vehicles that need coating, correction, or more specialized protection without forcing a package.
                 </p>
               </div>
-              <Link href="/quote" className="text-sm font-semibold text-white transition hover:text-fog">
+              <Link href="/quote" className="text-sm font-semibold text-white transition hover:text-burgundyAccent">
                 Need a custom setup?
               </Link>
             </div>
@@ -292,8 +275,7 @@ export default function ServicesPage(): JSX.Element {
           <section className="gray-card p-5">
             <h2 className="font-heading text-xl font-semibold text-ink">Availability + Limits</h2>
             <ul className="mt-3 space-y-2 text-sm text-ink/70">
-              <li>• Monday-Friday availability: 8am - 6pm</li>
-              <li>• Saturday and Sunday requests are reviewed manually</li>
+              <li>• Monday-Saturday availability: 8am - 6pm</li>
               <li>• Up to 4 vehicles can be submitted per customer per day</li>
               <li>• Same-day requests may require a rush fee</li>
             </ul>

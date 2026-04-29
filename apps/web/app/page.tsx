@@ -14,20 +14,20 @@ export default function HomePage(): JSX.Element {
   return (
     <SiteShell>
       <HeroSection />
-      <div className="relative overflow-hidden bg-[linear-gradient(180deg,#070707_0%,#0b0b0b_100%)]">
+      <div className="relative overflow-hidden bg-[linear-gradient(180deg,#0D0D0D_0%,#141414_100%)]">
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,transparent_28%,transparent_100%)]" />
         <div className="relative">
           <ServicesSection />
           <ProcessSection />
         </div>
       </div>
-      <div className="relative overflow-hidden bg-[linear-gradient(180deg,#050505_0%,#080808_100%)]">
+      <div className="relative overflow-hidden bg-[linear-gradient(180deg,#0D0D0D_0%,#141414_100%)]">
         <div className="relative">
           <GalleryPreviewSection />
           <ResultsSection />
         </div>
       </div>
-      <div className="relative overflow-hidden bg-[linear-gradient(180deg,#070707_0%,#050505_100%)]">
+      <div className="relative overflow-hidden bg-[linear-gradient(180deg,#141414_0%,#0D0D0D_100%)]">
         <div className="relative">
           <TestimonialsSection />
         </div>

@@ -9,10 +9,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        charcoal: '#262626',
-        ink: '#111111',
-        fog: '#a3a3a3',
-        canvas: '#f8f8f8',
+        charcoal: '#6A0F1B',
+        burgundy: '#6A0F1B',
+        burgundyAccent: '#8C1C2C',
+        ink: '#0D0D0D',
+        fog: '#A1A1A1',
+        canvas: '#141414',
+        line: '#1F1F1F',
       },
       fontFamily: {
         heading: ['Manrope', 'system-ui', 'sans-serif'],

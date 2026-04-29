@@ -12,7 +12,7 @@ export function SiteShell({ children }: SiteShellProps): JSX.Element {
   return (
     <>
       <SiteHeader />
-      <main id="main-content" tabIndex={-1} className="bg-black">
+      <main id="main-content" tabIndex={-1} className="bg-ink">
         {children}
       </main>
       <SiteFooter />

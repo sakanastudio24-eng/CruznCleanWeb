@@ -15,7 +15,7 @@ export function ProcessSection(): JSX.Element {
           {steps.map((step, index) => (
             <article
               key={step.title}
-              className="fade-in-up rounded-2xl border border-white/10 bg-[#111111] p-6 transition duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-lg"
+              className="fade-in-up rounded-2xl border border-line bg-[#141414] p-6 transition duration-300 hover:-translate-y-1 hover:border-burgundyAccent/45 hover:bg-burgundy/10 hover:shadow-lg"
               style={{ animationDelay: `${index * 140}ms` }}
             >
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-fog">Step {index + 1}</p>

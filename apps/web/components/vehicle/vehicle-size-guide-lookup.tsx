@@ -103,7 +103,7 @@ export function VehicleSizeGuideLookup({
   }
 
   return (
-    <div className={`rounded-xl border border-white/10 bg-white/[0.06] p-3 ${className}`}>
+    <div className={`rounded-xl border border-line bg-transparent p-3 ${className}`}>
       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/55">Vehicle Lookup</p>
 
       <label className="mt-2 block text-xs font-semibold text-ink/70">
@@ -161,7 +161,7 @@ export function VehicleSizeGuideLookup({
       </label>
 
       {searchQuery.trim() ? (
-        <div className="mt-2 rounded-lg border border-white/10 bg-[#111111] p-2">
+        <div className="mt-2 rounded-lg border border-line bg-[#141414] p-2">
           {searchResults.length > 0 ? (
             <div className="space-y-1">
               {searchResults.map((entry) => (
@@ -169,7 +169,7 @@ export function VehicleSizeGuideLookup({
                   key={getEntryValue(entry)}
                   type="button"
                   onClick={() => applyLookupEntry(entry)}
-                  className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm transition hover:bg-white/10"
+                  className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm transition hover:bg-burgundy/10"
                 >
                   <span className="text-ink">{entry.make} {entry.model}</span>
                   <span className="text-xs font-semibold text-ink/60">{SIZE_LABELS[entry.size]}</span>
@@ -184,9 +184,9 @@ export function VehicleSizeGuideLookup({
 
       <div className={`mt-3 rounded-lg border px-3 py-2 text-xs ${
         ambiguousVehicleMatch
-          ? 'border-amber-300 bg-amber-50 text-amber-900'
+          ? 'border-burgundyAccent bg-burgundy/15 text-white'
           : matchedByVehicleFields
-          ? 'border-green-300 bg-green-50 text-green-900'
+          ? 'border-burgundyAccent/55 bg-burgundy/10 text-white'
           : 'border-white/15 bg-white/[0.06] text-white/75'
       }`}>
         {ambiguousVehicleMatch ? (
@@ -205,16 +205,16 @@ export function VehicleSizeGuideLookup({
       </div>
 
       {needsSupportRouting ? (
-        <div className="mt-3 rounded-lg border border-white/10 bg-[#111111] px-3 py-3 text-xs text-ink/75">
+        <div className="mt-3 rounded-lg border border-line bg-[#141414] px-3 py-3 text-xs text-ink/75">
           <p className="font-semibold text-ink">Mismatch check</p>
           <p className="mt-1">
             If this vehicle has modifications, lift kits, oversized wheels, accessories, or anything else that changes service time, request a custom quote before booking.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <Link href="/quote" className="rounded-full bg-charcoal px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-ink">
+            <Link href="/quote" className="rounded-full bg-burgundy px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-burgundyAccent">
               Request a Quote
             </Link>
-            <Link href="/faq" className="rounded-full border border-white/20 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-white/10">
+            <Link href="/faq" className="rounded-full border border-white/20 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:border-burgundyAccent hover:bg-burgundy/10">
               Review Help + FAQ
             </Link>
           </div>

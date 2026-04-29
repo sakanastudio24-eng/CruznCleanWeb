@@ -53,7 +53,7 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
   return (
     <html lang="en">
-      <body className="bg-black text-white font-body antialiased">
+      <body className="bg-ink text-white font-body antialiased">
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>
