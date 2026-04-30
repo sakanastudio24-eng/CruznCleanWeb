@@ -25,12 +25,19 @@ const INITIAL_QUOTE_DRAFT: QuoteDraft = {
   address: '',
   message: '',
 };
+const QUOTE_STORAGE_KEY = 'cruizn-clean-quote-form-v1';
+// Legacy pre-rename keys are intentionally retained for one-time draft migration after brand spelling updates.
+const LEGACY_QUOTE_STORAGE_KEYS = ['cruzin-clean-quote-form-v1', 'cruzn-clean-quote-form-v1'];
 
 /**
  * Renders a custom quote request form with business contact side panel.
  */
 export default function QuotePage(): JSX.Element {
-  const [form, setForm, clearForm] = usePersistentState<QuoteDraft>('cruzn-clean-quote-form-v1', INITIAL_QUOTE_DRAFT);
+  const [form, setForm, clearForm] = usePersistentState<QuoteDraft>(
+    QUOTE_STORAGE_KEY,
+    INITIAL_QUOTE_DRAFT,
+    LEGACY_QUOTE_STORAGE_KEYS,
+  );
   const [statusMessage, setStatusMessage] = useState('');
 
   /**

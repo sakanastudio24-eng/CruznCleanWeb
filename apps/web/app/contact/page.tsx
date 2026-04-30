@@ -14,12 +14,19 @@ const INITIAL_CONTACT: ContactForm = {
   phone: '',
   message: '',
 };
+const CONTACT_STORAGE_KEY = 'cruizn-clean-contact-form-v1';
+// Legacy pre-rename keys are intentionally retained for one-time draft migration after brand spelling updates.
+const LEGACY_CONTACT_STORAGE_KEYS = ['cruzin-clean-contact-form-v1', 'cruzn-clean-contact-form-v1'];
 
 /**
  * Renders question-only contact form separate from booking flow.
  */
 export default function ContactPage(): JSX.Element {
-  const [form, setForm, clearForm] = usePersistentState<ContactForm>('cruzn-clean-contact-form-v1', INITIAL_CONTACT);
+  const [form, setForm, clearForm] = usePersistentState<ContactForm>(
+    CONTACT_STORAGE_KEY,
+    INITIAL_CONTACT,
+    LEGACY_CONTACT_STORAGE_KEYS,
+  );
   const [statusMessage, setStatusMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
 

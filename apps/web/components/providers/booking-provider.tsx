@@ -27,7 +27,9 @@ interface BookingProviderProps {
   children: React.ReactNode;
 }
 
-const STORAGE_KEY = 'cruzn-clean-booking-v2';
+const STORAGE_KEY = 'cruizn-clean-booking-v2';
+// Legacy pre-rename keys are intentionally retained for one-time draft migration after brand spelling updates.
+const LEGACY_STORAGE_KEYS = ['cruzin-clean-booking-v2', 'cruzn-clean-booking-v2'];
 
 const BookingContext = createContext<BookingContextValue | undefined>(undefined);
 
@@ -90,13 +92,16 @@ export function BookingProvider({ children }: BookingProviderProps): JSX.Element
 
   useEffect(() => {
     const raw = window.localStorage.getItem(STORAGE_KEY);
+    const matchedLegacyKey = LEGACY_STORAGE_KEYS.find((legacyKey) => window.localStorage.getItem(legacyKey));
+    const legacyRaw = matchedLegacyKey ? window.localStorage.getItem(matchedLegacyKey) : null;
+    const storedValue = raw ?? legacyRaw;
 
-    if (!raw) {
+    if (!storedValue) {
       return;
     }
 
     try {
-      const parsed = JSON.parse(raw) as { vehicles: VehicleProfile[]; activeVehicleId: string };
+      const parsed = JSON.parse(storedValue) as { vehicles: VehicleProfile[]; activeVehicleId: string };
 
       if (Array.isArray(parsed.vehicles) && parsed.vehicles.length > 0) {
         const normalizedVehicles = parsed.vehicles.map((vehicle, index) => ({
@@ -110,9 +115,15 @@ export function BookingProvider({ children }: BookingProviderProps): JSX.Element
           : normalizedVehicles[0].id;
         setVehicles(normalizedVehicles);
         setActiveVehicleId(resolvedActiveVehicleId);
+
+        if (!raw && legacyRaw) {
+          window.localStorage.setItem(STORAGE_KEY, legacyRaw);
+          LEGACY_STORAGE_KEYS.forEach((legacyKey) => window.localStorage.removeItem(legacyKey));
+        }
       }
     } catch {
       window.localStorage.removeItem(STORAGE_KEY);
+      LEGACY_STORAGE_KEYS.forEach((legacyKey) => window.localStorage.removeItem(legacyKey));
     }
   }, []);
 
@@ -254,6 +265,8 @@ export function BookingProvider({ children }: BookingProviderProps): JSX.Element
    */
   function clearAll(): void {
     const fallback = createDefaultVehicle(0);
+    window.localStorage.removeItem(STORAGE_KEY);
+    LEGACY_STORAGE_KEYS.forEach((legacyKey) => window.localStorage.removeItem(legacyKey));
     setVehicles([fallback]);
     setActiveVehicleId(fallback.id);
   }
