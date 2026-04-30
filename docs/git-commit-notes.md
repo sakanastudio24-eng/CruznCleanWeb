@@ -24,25 +24,20 @@ For this project workflow:
 ```
 
 ## Current Phase Suggested Commits
-1. `feat(booking): enforce 3-car daily cap across UI and API`
-- Adds backend daily cap guard with identity/day normalization.
-- Adds frontend hard-block and disclaimer placement.
-- Keeps email pipeline non-blocking for accepted bookings.
+1. `feat(pricing): apply conditional savings across booking flow`
+- Recalculates savings from service IDs and vehicle size rules.
+- Keeps frontend totals as previews only.
+- Uses backend-derived totals for email and Stripe deposit creation.
 
-2. `feat(lookup): add ambiguous vehicle-match handling for size guide`
-- Adds multi-match helper APIs.
-- Prevents implicit auto-apply on ambiguous make/model.
-- Preserves manual size override behavior.
+2. `feat(content): add service requirements and premium promo copy`
+- Adds service-readiness requirements to customer-facing help surfaces.
+- Keeps the seasonal banner visually premium without changing booking logic.
+- Preserves the 3-step booking flow: details, schedule, payment.
 
-3. `refactor(api): centralize service catalog metadata`
-- Moves API catalog IDs/prices to shared module.
-- Reuses catalog in booking validation and email rendering.
-- Reduces duplicate constants.
-
-4. `docs(project): add edge-rule tests and commit notes`
-- Adds solved edge-case implementation checklist.
-- Updates README documentation index and policy notes.
-- Documents commit guidance for section-based workflow.
+3. `docs(copy): refresh front-facing site copy`
+- Documents current customer-visible copy by route.
+- Captures trusted-pricing and payment-flow expectations.
+- Keeps launch review wording in one place.
 
 ## Security Note for Commits
 - Never include real API keys, tokens, or personal secrets in commits.

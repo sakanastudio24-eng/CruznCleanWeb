@@ -73,14 +73,14 @@ pnpm dev
 - Steps: `sendSmsConfirmation=true` + `acceptedSmsConsent=false`.
 - Expected: Validation error requiring explicit SMS consent.
 
-### Lookup and Vehicle Size UX Edges
+### Lookup and Vehicle Category UX Edges
 14. `EC-14` No query in Type Finder does not force suggestions.
 - Steps: Open lookup with empty query.
-- Expected: No forced result list; user can use dropdown or manual size chips.
+- Expected: No forced result list; user can use dropdown or the standard category indicators.
 
-15. `EC-15` Unknown query keeps manual sizing path clear.
+15. `EC-15` Unknown query keeps quote routing clear.
 - Steps: Enter query that has no catalog match.
-- Expected: No-match message shown and manual size remains editable.
+- Expected: No-match message shown and quote/help links remain visible for non-standard vehicles.
 
 16. `EC-16` Ambiguous make/model input is detected.
 - Steps: Enter make/model fields that produce multiple catalog matches.
@@ -90,9 +90,9 @@ pnpm dev
 - Steps: Pick known vehicle from dropdown or finder.
 - Expected: Vehicle make/model/size applies immediately.
 
-18. `EC-18` Manual size override remains allowed after a match.
-- Steps: Match known vehicle, then change size via manual chips.
-- Expected: Override state shown and pricing updates for override size.
+18. `EC-18` Standard category reflects matched vehicle.
+- Steps: Match known vehicle, then inspect category indicators and service pricing.
+- Expected: Active category state and service pricing both reflect the matched vehicle size.
 
 ### Email + Non-Blocking Delivery Edges
 19. `EC-19` Owner email attempt always runs for accepted bookings.
