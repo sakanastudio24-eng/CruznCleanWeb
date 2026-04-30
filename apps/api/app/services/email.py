@@ -4,11 +4,10 @@ from datetime import datetime, timezone
 from html import escape
 import json
 import os
-from typing import Any, cast
+from typing import Any
 from urllib import error, request
 
-from app.services.pricing import VehicleSize, get_adjusted_service_price
-from app.services.service_catalog import SERVICE_CATALOG
+from app.services.discounts import build_vehicle_pricing_breakdown, normalize_vehicle_size
 
 RESEND_API_URL = "https://api.resend.com/emails"
 
@@ -46,34 +45,12 @@ def _build_vehicle_breakdown(vehicles: list[dict[str, Any]]) -> tuple[list[dict[
     grand_total = 0
 
     for vehicle in vehicles:
-        vehicle_size = str(vehicle.get("size", "sedan_coupe")).strip().lower()
-        normalized_size = cast(
-            VehicleSize,
-            vehicle_size if vehicle_size in {"sedan_coupe", "small_suv_truck", "large_suv_truck", "oversized"} else "sedan_coupe",
-        )
-        service_rows: list[dict[str, Any]] = []
-        vehicle_total = 0
-
         raw_service_ids = vehicle.get("serviceIds", [])
-        service_ids = raw_service_ids if isinstance(raw_service_ids, list) else []
-
-        for raw_service_id in service_ids:
-            service_id = str(raw_service_id).strip()
-            if not service_id:
-                continue
-
-            service_meta = SERVICE_CATALOG.get(service_id, {"name": service_id, "price": 0})
-            base_price = int(service_meta.get("price", 0))
-            price = get_adjusted_service_price(base_price, normalized_size)
-            service_rows.append(
-                {
-                    "id": service_id,
-                    "name": str(service_meta.get("name", service_id)),
-                    "basePrice": base_price,
-                    "price": price,
-                }
-            )
-            vehicle_total += price
+        service_ids = [str(service_id).strip() for service_id in raw_service_ids if str(service_id).strip()] if isinstance(raw_service_ids, list) else []
+        normalized_size = normalize_vehicle_size(vehicle.get("size", "sedan_coupe"))
+        pricing_breakdown = build_vehicle_pricing_breakdown(service_ids, normalized_size)
+        service_rows = pricing_breakdown["services"]
+        vehicle_total = int(pricing_breakdown["estimatedSubtotal"])
 
         grand_total += vehicle_total
         enriched.append(
@@ -86,6 +63,9 @@ def _build_vehicle_breakdown(vehicles: list[dict[str, Any]]) -> tuple[list[dict[
                 "color": vehicle.get("color", ""),
                 "size": normalized_size,
                 "services": service_rows,
+                "savingsLines": pricing_breakdown["savingsLines"],
+                "subtotalBeforeSavings": pricing_breakdown["subtotalBeforeSavings"],
+                "savingsTotal": pricing_breakdown["savingsTotal"],
                 "estimatedSubtotal": vehicle_total,
             }
         )
@@ -99,8 +79,15 @@ def _build_services_summary(vehicles: list[dict[str, Any]]) -> str:
     for vehicle in vehicles:
         services = vehicle.get("services", [])
         service_names = [str(service.get("name", "")).strip() for service in services if str(service.get("name", "")).strip()]
-        vehicle_label = str(vehicle.get("label", "Vehicle")).strip() or "Vehicle"
-        service_groups.append(f"{vehicle_label}: {', '.join(service_names) if service_names else 'No services selected'}")
+        vehicle_detail = " ".join(
+            str(vehicle.get(part, "")).strip()
+            for part in ["year", "make", "model"]
+            if str(vehicle.get(part, "")).strip()
+        ) or str(vehicle.get("label", "Vehicle")).strip() or "Vehicle"
+        savings_summary = f"; savings ${vehicle['savingsTotal']}" if int(vehicle.get("savingsTotal", 0)) > 0 else ""
+        service_groups.append(
+            f"{vehicle_detail}: {', '.join(service_names) if service_names else 'No services selected'}; total ${vehicle['estimatedSubtotal']}{savings_summary}"
+        )
 
     return " | ".join(service_groups) if service_groups else "No services selected"
 
@@ -110,6 +97,13 @@ def _build_template_variables(booking_record: dict[str, Any]) -> dict[str, Any]:
     customer = booking_record.get("customer", {})
     vehicles = booking_record.get("vehicles", [])
     enriched_vehicles, grand_total = _build_vehicle_breakdown(vehicles)
+    subtotal_before_savings = sum(int(vehicle.get("subtotalBeforeSavings", 0)) for vehicle in enriched_vehicles)
+    savings_total = sum(int(vehicle.get("savingsTotal", 0)) for vehicle in enriched_vehicles)
+    savings_summary = " | ".join(
+        f"{line['label']}: -${line['amount']}"
+        for vehicle in enriched_vehicles
+        for line in vehicle.get("savingsLines", [])
+    )
     booking_id = str(booking_record.get("bookingId", "unknown"))
     customer_name = str(customer.get("fullName", "")).strip()
     services_summary = _build_services_summary(enriched_vehicles)
@@ -119,6 +113,9 @@ def _build_template_variables(booking_record: dict[str, Any]) -> dict[str, Any]:
         "CUSTOMER_NAME": customer_name or "Customer",
         "BOOKING_ID": booking_id,
         "ESTIMATE_TOTAL": grand_total,
+        "SUBTOTAL_BEFORE_SAVINGS": subtotal_before_savings,
+        "SAVINGS_TOTAL": savings_total,
+        "SAVINGS_SUMMARY": savings_summary,
         "VEHICLE_COUNT": len(enriched_vehicles),
         "SERVICES_SUMMARY": services_summary,
         "SITE_URL": site_url,
@@ -143,6 +140,9 @@ def _build_template_variables(booking_record: dict[str, Any]) -> dict[str, Any]:
         "vehicles": enriched_vehicles,
         "estimate": {
             "grandTotal": grand_total,
+            "subtotalBeforeSavings": subtotal_before_savings,
+            "savingsTotal": savings_total,
+            "savingsSummary": savings_summary,
             "vehicleCount": len(enriched_vehicles),
         },
     }
@@ -218,10 +218,24 @@ def _build_owner_fallback_content(template_variables: dict[str, Any]) -> dict[st
         vehicle_name = f"{vehicle['year']} {vehicle['make']} {vehicle['model']} ({vehicle['color']})".strip()
         for service in vehicle["services"]:
             services_flat.append(service)
+            original_price = int(service.get("originalPrice", service["price"]))
+            discount_amount = int(service.get("discountAmount", 0))
+            price_note = (
+                f"<br/><span style='color:#6b7280;font-size:11px;'>Original ${_format_currency(original_price)}, saved ${_format_currency(discount_amount)}</span>"
+                if discount_amount > 0
+                else ""
+            )
             receipt_rows.append(
                 "<tr>"
                 f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;'>{escape(vehicle['label'])} - {escape(vehicle_name)} - {escape(service['name'])}</td>"
-                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;text-align:right;'>${_format_currency(int(service['price']))}</td>"
+                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;text-align:right;'>${_format_currency(int(service['price']))}{price_note}</td>"
+                "</tr>"
+            )
+        for savings_line in vehicle.get("savingsLines", []):
+            receipt_rows.append(
+                "<tr>"
+                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;font-weight:700;'>{escape(str(savings_line['label']))}</td>"
+                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;text-align:right;font-weight:700;'>-${_format_currency(int(savings_line['amount']))}</td>"
                 "</tr>"
             )
 
@@ -344,10 +358,17 @@ def _build_customer_fallback_content(template_variables: dict[str, Any]) -> dict
         vehicle_name = f"{vehicle['year']} {vehicle['make']} {vehicle['model']} ({vehicle['color']})".strip()
         for service in vehicle["services"]:
             price = int(service["price"])
+            original_price = int(service.get("originalPrice", price))
+            discount_amount = int(service.get("discountAmount", 0))
+            price_note = (
+                f"<br/><span style='color:#6b7280;font-size:11px;'>Original ${_format_currency(original_price)}, saved ${_format_currency(discount_amount)}</span>"
+                if discount_amount > 0
+                else ""
+            )
             receipt_rows.append(
                 "<tr>"
                 f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;'>{escape(vehicle['label'])} - {escape(vehicle_name)} - {escape(service['name'])}</td>"
-                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;text-align:right;'>${_format_currency(price)}</td>"
+                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;text-align:right;'>${_format_currency(price)}{price_note}</td>"
                 "</tr>"
             )
             if str(service["id"]).startswith("pkg-"):
@@ -355,6 +376,13 @@ def _build_customer_fallback_content(template_variables: dict[str, Any]) -> dict
             else:
                 other_services_total += price
                 other_services.append(service["name"])
+        for savings_line in vehicle.get("savingsLines", []):
+            receipt_rows.append(
+                "<tr>"
+                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;font-weight:700;'>{escape(str(savings_line['label']))}</td>"
+                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;text-align:right;font-weight:700;'>-${_format_currency(int(savings_line['amount']))}</td>"
+                "</tr>"
+            )
 
     if not receipt_rows:
         receipt_rows.append(

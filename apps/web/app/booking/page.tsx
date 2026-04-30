@@ -23,8 +23,10 @@ import { BOOKING_LIMIT_DISCLAIMER, MAX_BOOKED_VEHICLES_PER_DAY, countSelectedVeh
 import type { CustomerBookingForm, ServiceOption, VehicleProfile, VehicleSize } from '@/lib/booking-types';
 import { createStripeCheckoutSession, getCalendarBookingLink, getCalendarBookingUrl, submitBookingIntake } from '@/lib/api-client';
 import { getServiceAreaZipSummary, isZipInServiceArea, normalizeZipCode } from '@/lib/service-area';
+import { findServiceById } from '@/lib/services-catalog';
 import { usePersistentState } from '@/lib/use-persistent-state';
 import { getVehicleDisplayName } from '@/lib/vehicle-utils';
+import type { VehiclePricingBreakdown } from '@/lib/pricing';
 
 interface StepItem {
   id: number;
@@ -265,13 +267,14 @@ function getVehicleHint(vehicle: VehicleProfile): string {
  */
 function getSelectedServicesSummary(
   selectedVehicles: VehicleProfile[],
-  getVehicleServices: (vehicleId: string) => ServiceOption[],
+  getVehiclePricingBreakdown: (vehicleId: string) => VehiclePricingBreakdown,
 ): string {
   return selectedVehicles
     .map((vehicle) => {
-      const services = getVehicleServices(vehicle.id);
-      const serviceNames = services.map((service) => service.name).join(', ');
-      return `${getBookedVehicleDetail(vehicle)}: ${serviceNames || 'No services selected'}`;
+      const breakdown = getVehiclePricingBreakdown(vehicle.id);
+      const serviceNames = breakdown.serviceLines.map((line) => line.service.name).join(', ');
+      const savingsSummary = breakdown.savingsTotal > 0 ? `; savings $${breakdown.savingsTotal}` : '';
+      return `${getBookedVehicleDetail(vehicle)}: ${serviceNames || 'No services selected'}; total $${breakdown.total}${savingsSummary}`;
     })
     .join(' | ');
 }
@@ -295,7 +298,10 @@ export default function BookingPage(): JSX.Element {
     addVehicle,
     removeVehicle,
     updateVehicle,
+    toggleServiceForVehicle,
     getVehicleServices,
+    getVehiclePricingBreakdown,
+    getGrandPricingBreakdown,
     getVehicleTotal,
     getGrandTotal,
   } = useBooking();
@@ -323,8 +329,10 @@ export default function BookingPage(): JSX.Element {
   );
 
   const selectedServiceRecords = activeVehicle ? getVehicleServices(activeVehicle.id) : [];
-  const selectedPackage = selectedServiceRecords.find((service) => service.id.startsWith('pkg-'));
-  const selectedPremiumServices = selectedServiceRecords.filter((service) => service.category !== 'package');
+  const activePricingBreakdown = activeVehicle ? getVehiclePricingBreakdown(activeVehicle.id) : null;
+  const selectedPackageLine = activePricingBreakdown?.serviceLines.find((line) => line.service.id.startsWith('pkg-'));
+  const selectedPremiumLines = activePricingBreakdown?.serviceLines.filter((line) => line.service.category !== 'package') ?? [];
+  const grandPricingBreakdown = getGrandPricingBreakdown();
   const selectedVehicles = useMemo(
     () => vehicles.filter((vehicle) => getVehicleServices(vehicle.id).length > 0),
     [getVehicleServices, vehicles],
@@ -455,7 +463,7 @@ export default function BookingPage(): JSX.Element {
           phone: form.phone,
         },
         estimatedTotal: getGrandTotal(),
-        servicesSummary: getSelectedServicesSummary(selectedVehicles, getVehicleServices),
+        servicesSummary: getSelectedServicesSummary(selectedVehicles, getVehiclePricingBreakdown),
         vehicleCount: selectedVehicles.length,
       };
       setBookingConfirmed(true);
@@ -467,6 +475,22 @@ export default function BookingPage(): JSX.Element {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  /**
+   * Adds the missing services suggested by the active vehicle savings helper.
+   */
+  function applyActiveSavingsSuggestion(serviceIds: string[]): void {
+    if (!activeVehicle) {
+      return;
+    }
+
+    serviceIds.forEach((serviceId) => {
+      const service = findServiceById(serviceId);
+      if (service && !activeVehicle.serviceIds.includes(service.id)) {
+        toggleServiceForVehicle(activeVehicle.id, service);
+      }
+    });
   }
 
   /**
@@ -681,9 +705,15 @@ export default function BookingPage(): JSX.Element {
                 </div>
                 {selectedServiceRecords.length > 0 ? (
                   <ul className="mt-3 grid gap-2 text-sm text-ink/75 sm:grid-cols-2">
-                    {selectedServiceRecords.map((service) => (
-                      <li key={service.id} className="rounded-lg border border-line bg-[#141414] px-3 py-2">
-                        {service.name}
+                    {activePricingBreakdown?.serviceLines.map((line) => (
+                      <li key={line.service.id} className="flex items-center justify-between gap-3 rounded-lg border border-line bg-[#141414] px-3 py-2">
+                        <span>{line.service.name}</span>
+                        <span className="font-semibold text-white">
+                          {line.discountAmount > 0 ? (
+                            <span className="mr-2 text-xs text-ink/45 line-through">{formatCurrency(line.originalPrice)}</span>
+                          ) : null}
+                          {formatCurrency(line.finalPrice)}
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -692,6 +722,24 @@ export default function BookingPage(): JSX.Element {
                     Choose a package or add-on on the Services page before scheduling so the estimate and Cal.com metadata stay accurate.
                   </p>
                 )}
+                {activePricingBreakdown?.savingsLines.map((line) => (
+                  <p key={line.id} className="mt-3 rounded-lg border border-burgundy/35 bg-burgundy/10 px-3 py-2 text-sm font-semibold text-white">
+                    {line.label} -{formatCurrency(line.amount)}
+                  </p>
+                ))}
+                {activePricingBreakdown?.suggestion ? (
+                  <div className="mt-3 rounded-lg border border-burgundy/35 bg-burgundy/10 px-3 py-3">
+                    <p className="text-sm font-semibold text-ink">{activePricingBreakdown.suggestion.title}</p>
+                    <p className="mt-1 text-xs text-ink/70">{activePricingBreakdown.suggestion.detail}</p>
+                    <button
+                      type="button"
+                      onClick={() => applyActiveSavingsSuggestion(activePricingBreakdown.suggestion?.serviceIds ?? [])}
+                      className="mt-2 rounded-full bg-burgundy px-4 py-2 text-xs font-bold text-white transition hover:bg-burgundyAccent"
+                    >
+                      {activePricingBreakdown.suggestion.actionLabel}
+                    </button>
+                  </div>
+                ) : null}
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
@@ -1072,11 +1120,11 @@ export default function BookingPage(): JSX.Element {
               </article>
             ) : null}
 
-            {selectedPackage ? (
+            {selectedPackageLine ? (
               <article className="rounded-xl border border-black/10 p-3">
                 <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/55">Package</p>
-                <p className="mt-1 font-heading text-lg font-semibold text-ink">{selectedPackage.name}</p>
-                <p className="mt-1 text-sm font-semibold text-charcoal">{formatCurrency(selectedPackage.price)}</p>
+                <p className="mt-1 font-heading text-lg font-semibold text-ink">{selectedPackageLine.service.name}</p>
+                <p className="mt-1 text-sm font-semibold text-charcoal">{formatCurrency(selectedPackageLine.finalPrice)}</p>
               </article>
             ) : (
               <p className="rounded-xl bg-canvas p-3 text-sm text-ink/70">Package selection is optional if you only need coating or correction work.</p>
@@ -1084,18 +1132,42 @@ export default function BookingPage(): JSX.Element {
 
             <article className="rounded-xl border border-black/10 p-3">
               <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/55">Add-Ons</p>
-              {selectedPremiumServices.length > 0 ? (
+              {selectedPremiumLines.length > 0 ? (
                 <ul className="mt-2 space-y-1">
-                  {selectedPremiumServices.map((service) => (
-                    <li key={service.id} className="flex items-center justify-between text-xs">
-                      <span className="text-ink/75">{service.name}</span>
-                      <span className="font-semibold text-ink">{formatCurrency(service.price)}</span>
+                  {selectedPremiumLines.map((line) => (
+                    <li key={line.service.id} className="flex items-center justify-between gap-2 text-xs">
+                      <span className="text-ink/75">{line.service.name}</span>
+                      <span className="font-semibold text-ink">
+                        {line.discountAmount > 0 ? (
+                          <span className="mr-1 text-[10px] text-ink/45 line-through">{formatCurrency(line.originalPrice)}</span>
+                        ) : null}
+                        {formatCurrency(line.finalPrice)}
+                      </span>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="mt-2 text-xs text-ink/60">No add-ons selected yet.</p>
+              <p className="mt-2 text-xs text-ink/60">No add-ons selected yet.</p>
               )}
+              {activePricingBreakdown?.savingsLines.map((line) => (
+                <div key={line.id} className="mt-3 flex items-center justify-between rounded-lg border border-burgundy/35 bg-burgundy/10 px-3 py-2 text-xs font-semibold text-white">
+                  <span>{line.label}</span>
+                  <span>-{formatCurrency(line.amount)}</span>
+                </div>
+              ))}
+              {activePricingBreakdown?.suggestion ? (
+                <div className="mt-3 rounded-lg border border-burgundy/35 bg-burgundy/10 px-3 py-2">
+                  <p className="text-xs font-semibold text-white">{activePricingBreakdown.suggestion.title}</p>
+                  <p className="mt-1 text-xs text-ink/65">{activePricingBreakdown.suggestion.detail}</p>
+                  <button
+                    type="button"
+                    onClick={() => applyActiveSavingsSuggestion(activePricingBreakdown.suggestion?.serviceIds ?? [])}
+                    className="mt-2 rounded-full bg-burgundy px-3 py-1.5 text-[11px] font-bold text-white transition hover:bg-burgundyAccent"
+                  >
+                    {activePricingBreakdown.suggestion.actionLabel}
+                  </button>
+                </div>
+              ) : null}
             </article>
 
             <div className="rounded-xl bg-canvas p-3">
@@ -1119,6 +1191,16 @@ export default function BookingPage(): JSX.Element {
             </div>
 
             <div className="border-t border-black/10 pt-3 text-right">
+              {grandPricingBreakdown.savingsTotal > 0 ? (
+                <div className="mb-3 space-y-1 rounded-xl border border-burgundy/35 bg-burgundy/10 p-3 text-left">
+                  {grandPricingBreakdown.savingsLines.map((line, index) => (
+                    <div key={`${line.id}-${index}`} className="flex items-center justify-between text-xs font-semibold text-white">
+                      <span>{line.label}</span>
+                      <span>-{formatCurrency(line.amount)}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
               <p className="text-xs text-ink/60">All vehicles total</p>
               <p className="font-heading text-2xl font-extrabold text-charcoal">{formatCurrency(getGrandTotal())}</p>
             </div>

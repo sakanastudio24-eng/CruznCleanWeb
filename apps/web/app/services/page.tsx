@@ -8,7 +8,7 @@ import { SiteShell } from '@/components/layout/site-shell';
 import { useBooking } from '@/components/providers/booking-provider';
 import { VehicleSizeGuideLookup } from '@/components/vehicle/vehicle-size-guide-lookup';
 import type { ServiceCategory, ServiceOption, VehicleProfile, VehicleSize } from '@/lib/booking-types';
-import { formatSizeAdjustmentLabel, getAdjustedServicePrice } from '@/lib/pricing';
+import { formatSizeAdjustmentLabel, getAdjustedServicePrice, getServiceSavingsTags } from '@/lib/pricing';
 import { getCorrectionServices, getPackageServices, getProtectionServices } from '@/lib/services-catalog';
 import { getVehicleDisplayName } from '@/lib/vehicle-utils';
 
@@ -122,6 +122,7 @@ function ServiceGrid({
           const selected = selectedIds.includes(service.id);
           const adjustedPrice = activeVehicle ? getAdjustedServicePrice(service.price, activeVehicle.size) : service.price;
           const isBestValue = service.id === 'pkg-maintenance';
+          const savingsTags = getServiceSavingsTags(service.id);
 
           return (
             <button
@@ -146,6 +147,15 @@ function ServiceGrid({
                 ) : null}
               </div>
               <h3 className="mt-1 font-heading text-xl font-bold text-ink">{service.name}</h3>
+              {savingsTags.length > 0 ? (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {savingsTags.map((tag) => (
+                    <span key={tag} className="rounded-full border border-burgundy/45 bg-burgundy/15 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-white">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
               <p className="mt-2 text-sm text-ink/70">{service.description}</p>
 
               <ul className="mt-3 space-y-1 text-xs text-ink/70">

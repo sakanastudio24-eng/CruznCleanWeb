@@ -6,7 +6,7 @@ import stripe
 from fastapi import HTTPException
 
 from app.models.payment import CheckoutSessionRequest
-from app.services.pricing import get_adjusted_service_price
+from app.services.discounts import build_vehicle_pricing_breakdown
 from app.services.runtime_config import (
     get_stripe_cancel_url,
     get_stripe_deposit_max_cents,
@@ -22,9 +22,9 @@ def calculate_checkout_totals(payload: CheckoutSessionRequest) -> tuple[int, int
     """Calculates estimated total and clamped deposit amount in cents."""
     estimated_total_dollars = 0
     for vehicle in payload.vehicles:
-        for service_id in vehicle.serviceIds:
-            service = SERVICE_CATALOG[service_id]
-            estimated_total_dollars += get_adjusted_service_price(service["price"], vehicle.size)
+        # Frontend totals are previews only; Stripe uses backend pricing rules as the trusted source.
+        breakdown = build_vehicle_pricing_breakdown(vehicle.serviceIds, vehicle.size)
+        estimated_total_dollars += int(breakdown["estimatedSubtotal"])
 
     estimated_total_cents = int(estimated_total_dollars * 100)
     raw_deposit_cents = round(estimated_total_cents * (get_stripe_deposit_percent() / 100))
@@ -52,12 +52,14 @@ def build_services_summary(payload: CheckoutSessionRequest) -> str:
     """Builds Stripe metadata that preserves each vehicle and selected service names."""
     vehicle_summaries = []
     for vehicle in payload.vehicles:
+        breakdown = build_vehicle_pricing_breakdown(vehicle.serviceIds, vehicle.size)
         service_names = [
             SERVICE_CATALOG[service_id]["name"]
             for service_id in vehicle.serviceIds
         ]
+        savings = f"; savings ${breakdown['savingsTotal']}" if breakdown["savingsTotal"] else ""
         vehicle_summaries.append(
-            f"{format_vehicle_detail(vehicle)}: {', '.join(service_names)}"
+            f"{format_vehicle_detail(vehicle)}: {', '.join(service_names)}; total ${breakdown['estimatedSubtotal']}{savings}"
         )
 
     return " | ".join(vehicle_summaries)
@@ -75,6 +77,10 @@ def create_checkout_session(payload: CheckoutSessionRequest) -> dict[str, Any]:
 
     stripe.api_key = stripe_secret_key
     services_summary = build_services_summary(payload)
+    savings_total_cents = sum(
+        int(build_vehicle_pricing_breakdown(vehicle.serviceIds, vehicle.size)["savingsTotal"]) * 100
+        for vehicle in payload.vehicles
+    )
 
     try:
         session = stripe.checkout.Session.create(
@@ -101,6 +107,7 @@ def create_checkout_session(payload: CheckoutSessionRequest) -> dict[str, Any]:
                 "customerName": payload.customer.fullName,
                 "vehicleCount": str(len(payload.vehicles)),
                 "estimatedTotalCents": str(estimated_total_cents),
+                "savingsTotalCents": str(savings_total_cents),
                 "depositCents": str(deposit_cents),
                 "servicesSummary": services_summary[:500],
             },

@@ -6,6 +6,7 @@ import { Car, ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react';
 
 import { useBooking } from '@/components/providers/booking-provider';
 import { BOOKING_LIMIT_DISCLAIMER, MAX_BOOKED_VEHICLES_PER_DAY } from '@/lib/booking-policy';
+import { findServiceById } from '@/lib/services-catalog';
 import { getVehicleDisplayName } from '@/lib/vehicle-utils';
 
 /**
@@ -18,13 +19,31 @@ export function VehicleDock(): JSX.Element {
     setActiveVehicleId,
     addVehicle,
     removeVehicle,
+    toggleServiceForVehicle,
     getGrandTotal,
+    getGrandPricingBreakdown,
+    getVehiclePricingBreakdown,
     getVehicleTotal,
     getVehicleServices,
   } = useBooking();
   const [mobileExpanded, setMobileExpanded] = useState(false);
 
   const canAddVehicle = vehicles.length < MAX_BOOKED_VEHICLES_PER_DAY;
+  const grandBreakdown = getGrandPricingBreakdown();
+  const activeBreakdown = getVehiclePricingBreakdown(activeVehicleId);
+
+  /**
+   * Applies missing services from a savings suggestion to the active vehicle.
+   */
+  function applySuggestion(serviceIds: string[]): void {
+    serviceIds.forEach((serviceId) => {
+      const service = findServiceById(serviceId);
+      const activeVehicle = vehicles.find((vehicle) => vehicle.id === activeVehicleId);
+      if (service && activeVehicle && !activeVehicle.serviceIds.includes(service.id)) {
+        toggleServiceForVehicle(activeVehicleId, service);
+      }
+    });
+  }
 
   return (
     <aside className="dock-shell gray-card overflow-hidden">
@@ -108,9 +127,33 @@ export function VehicleDock(): JSX.Element {
             Switch cars here, then manage sizing and service selections in the main planner so pricing always updates from one active source of truth.
           </p>
         </section>
+
+        {activeBreakdown.suggestion ? (
+          <section className="rounded-xl border border-burgundy/35 bg-burgundy/10 p-4">
+            <p className="text-sm font-semibold text-ink">{activeBreakdown.suggestion.title}</p>
+            <p className="mt-1 text-xs text-ink/70">{activeBreakdown.suggestion.detail}</p>
+            <button
+              type="button"
+              onClick={() => applySuggestion(activeBreakdown.suggestion?.serviceIds ?? [])}
+              className="mt-3 rounded-full bg-burgundy px-4 py-2 text-xs font-bold text-white transition hover:bg-burgundyAccent"
+            >
+              {activeBreakdown.suggestion.actionLabel}
+            </button>
+          </section>
+        ) : null}
       </div>
 
       <div className="space-y-3 border-t border-white/10 bg-white/[0.04] px-4 py-4 sm:px-5">
+        {grandBreakdown.savingsTotal > 0 ? (
+          <div className="space-y-1 rounded-xl border border-burgundy/35 bg-burgundy/10 p-3">
+            {grandBreakdown.savingsLines.map((line, index) => (
+              <div key={`${line.id}-${index}`} className="flex items-center justify-between text-xs font-semibold text-white">
+                <span>{line.label}</span>
+                <span>-${line.amount}</span>
+              </div>
+            ))}
+          </div>
+        ) : null}
         <div className="flex items-center justify-between">
           <p className="text-sm font-semibold text-ink">Total</p>
           <p className="font-heading text-2xl font-extrabold text-charcoal">${getGrandTotal()}</p>

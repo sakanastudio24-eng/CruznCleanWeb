@@ -15,6 +15,7 @@ import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
 
 import { QuickHelpModal } from '@/components/help/quick-help-modal';
 import { useBooking } from '@/components/providers/booking-provider';
+import { findServiceById } from '@/lib/services-catalog';
 import { SITE_PROFILE } from '@/lib/site-profile';
 import { getVehicleDisplayName } from '@/lib/vehicle-utils';
 
@@ -74,9 +75,12 @@ export function SiteHeader(): JSX.Element {
   const {
     vehicles,
     getVehicleServices,
+    getVehiclePricingBreakdown,
+    getGrandPricingBreakdown,
     getVehicleTotal,
     getGrandTotal,
     getSelectedServiceCount,
+    toggleServiceForVehicle,
   } = useBooking();
   const selectedServiceCount = getSelectedServiceCount();
   const [cartOpen, setCartOpen] = useState(false);
@@ -88,6 +92,24 @@ export function SiteHeader(): JSX.Element {
     () => vehicles.filter((vehicle) => getVehicleServices(vehicle.id).length > 0),
     [getVehicleServices, vehicles],
   );
+  const grandPricingBreakdown = getGrandPricingBreakdown();
+
+  /**
+   * Adds suggested missing services to a specific cart vehicle.
+   */
+  function applyCartSuggestion(vehicleId: string, serviceIds: string[]): void {
+    const vehicle = vehicles.find((item) => item.id === vehicleId);
+    if (!vehicle) {
+      return;
+    }
+
+    serviceIds.forEach((serviceId) => {
+      const service = findServiceById(serviceId);
+      if (service && !vehicle.serviceIds.includes(service.id)) {
+        toggleServiceForVehicle(vehicleId, service);
+      }
+    });
+  }
 
   useEffect(() => {
     /**
@@ -202,18 +224,42 @@ export function SiteHeader(): JSX.Element {
                 ) : (
                   <div className="mt-3 space-y-3">
                     {vehiclesWithSelections.map((vehicle) => {
-                      const items = getVehicleServices(vehicle.id);
+                      const breakdown = getVehiclePricingBreakdown(vehicle.id);
+                      const items = breakdown.serviceLines;
                       return (
                         <article key={vehicle.id} className="rounded-xl border border-white/10 bg-white/5 p-3">
                           <p className="font-semibold text-white">{getVehicleDisplayName(vehicle)}</p>
                           <ul className="mt-2 space-y-1">
                             {items.map((item) => (
-                              <li key={item.id} className="flex items-center justify-between text-xs">
-                                <span className="text-white/70">{item.name}</span>
-                                <span className="font-semibold text-white">${item.price}</span>
+                              <li key={item.service.id} className="flex items-center justify-between gap-2 text-xs">
+                                <span className="text-white/70">{item.service.name}</span>
+                                <span className="font-semibold text-white">
+                                  {item.discountAmount > 0 ? (
+                                    <span className="mr-1 text-[10px] text-white/35 line-through">${item.originalPrice}</span>
+                                  ) : null}
+                                  ${item.finalPrice}
+                                </span>
                               </li>
                             ))}
                           </ul>
+                          {breakdown.savingsLines.map((line) => (
+                            <div key={line.id} className="mt-2 flex items-center justify-between rounded-lg border border-burgundy/35 bg-burgundy/10 px-2 py-1 text-[11px] font-semibold text-white">
+                              <span>{line.label}</span>
+                              <span>-${line.amount}</span>
+                            </div>
+                          ))}
+                          {breakdown.suggestion ? (
+                            <div className="mt-2 rounded-lg border border-burgundy/35 bg-burgundy/10 px-2 py-2">
+                              <p className="text-[11px] font-semibold text-white">{breakdown.suggestion.title}</p>
+                              <button
+                                type="button"
+                                onClick={() => applyCartSuggestion(vehicle.id, breakdown.suggestion?.serviceIds ?? [])}
+                                className="mt-1 rounded-full bg-burgundy px-3 py-1 text-[10px] font-bold text-white transition hover:bg-burgundyAccent"
+                              >
+                                {breakdown.suggestion.actionLabel}
+                              </button>
+                            </div>
+                          ) : null}
                           <p className="mt-2 text-right text-sm font-semibold text-fog">${getVehicleTotal(vehicle.id)}</p>
                         </article>
                       );
@@ -222,6 +268,16 @@ export function SiteHeader(): JSX.Element {
                 )}
 
                 <div className="mt-3 border-t border-white/10 pt-3">
+                  {grandPricingBreakdown.savingsTotal > 0 ? (
+                    <div className="mb-3 space-y-1 rounded-xl border border-burgundy/35 bg-burgundy/10 p-3">
+                      {grandPricingBreakdown.savingsLines.map((line, index) => (
+                        <div key={`${line.id}-${index}`} className="flex items-center justify-between text-xs font-semibold text-white">
+                          <span>{line.label}</span>
+                          <span>-${line.amount}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
                   <div className="flex items-center justify-between text-sm font-semibold">
                     <span>Total</span>
                     <span className="text-fog">${getGrandTotal()}</span>
@@ -285,6 +341,11 @@ export function SiteHeader(): JSX.Element {
               >
                 <h3 className="font-heading text-lg font-semibold text-white">Cart Summary</h3>
                 <p className="mt-1 text-xs text-white/60">{vehiclesWithSelections.length} vehicles selected</p>
+                {grandPricingBreakdown.savingsTotal > 0 ? (
+                  <div className="mt-2 rounded-xl border border-burgundy/35 bg-burgundy/10 p-2 text-xs font-semibold text-white">
+                    Savings applied -${grandPricingBreakdown.savingsTotal}
+                  </div>
+                ) : null}
                 <div className="mt-2 border-t border-white/10 pt-2 text-right text-sm font-semibold text-fog">${getGrandTotal()}</div>
                 <div className="mt-2 grid grid-cols-2 gap-2">
                   <Link href="/services" onClick={() => setCartOpen(false)} className="rounded-full border border-white/20 px-3 py-2 text-center text-xs font-semibold text-white">

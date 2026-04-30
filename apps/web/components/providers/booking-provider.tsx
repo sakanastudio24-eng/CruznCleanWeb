@@ -4,7 +4,13 @@ import { createContext, useContext, useEffect, useState } from 'react';
 
 import { MAX_BOOKED_VEHICLES_PER_DAY } from '@/lib/booking-policy';
 import type { ServiceOption, VehicleProfile, VehicleSize } from '@/lib/booking-types';
-import { getAdjustedServicePrice } from '@/lib/pricing';
+import {
+  getAdjustedServicePrice,
+  getGrandPricingBreakdown as buildGrandPricingBreakdown,
+  getVehiclePricingBreakdown as buildVehiclePricingBreakdown,
+  type GrandPricingBreakdown,
+  type VehiclePricingBreakdown,
+} from '@/lib/pricing';
 import { findServiceById } from '@/lib/services-catalog';
 
 interface BookingContextValue {
@@ -18,6 +24,8 @@ interface BookingContextValue {
   toggleServiceForVehicle: (vehicleId: string, service: ServiceOption) => void;
   getVehicleTotal: (vehicleId: string) => number;
   getGrandTotal: () => number;
+  getVehiclePricingBreakdown: (vehicleId: string) => VehiclePricingBreakdown;
+  getGrandPricingBreakdown: () => GrandPricingBreakdown;
   getVehicleServices: (vehicleId: string) => ServiceOption[];
   getSelectedServiceCount: () => number;
   clearAll: () => void;
@@ -240,17 +248,54 @@ export function BookingProvider({ children }: BookingProviderProps): JSX.Element
   }
 
   /**
-   * Calculates subtotal price for one vehicle by selected services.
+   * Resolves raw selected catalog rows before size and savings are applied.
    */
-  function getVehicleTotal(vehicleId: string): number {
-    return getVehicleServices(vehicleId).reduce((sum, service) => sum + service.price, 0);
+  function getVehicleBaseServices(vehicleId: string): ServiceOption[] {
+    const vehicle = vehicles.find((item) => item.id === vehicleId);
+    if (!vehicle) {
+      return [];
+    }
+
+    return vehicle.serviceIds
+      .map((serviceId) => findServiceById(serviceId))
+      .filter((service): service is ServiceOption => Boolean(service));
   }
 
   /**
-   * Calculates the grand total across all vehicles.
+   * Calculates list, savings, and final totals for one selected vehicle.
+   */
+  function getVehiclePricingBreakdown(vehicleId: string): VehiclePricingBreakdown {
+    const vehicle = vehicles.find((item) => item.id === vehicleId);
+    if (!vehicle) {
+      return buildVehiclePricingBreakdown([], 'sedan_coupe');
+    }
+
+    return buildVehiclePricingBreakdown(getVehicleBaseServices(vehicleId), vehicle.size);
+  }
+
+  /**
+   * Calculates list, savings, and final totals for every selected vehicle.
+   */
+  function getGrandPricingBreakdown(): GrandPricingBreakdown {
+    const vehicleBreakdowns = Object.fromEntries(
+      vehicles.map((vehicle) => [vehicle.id, getVehiclePricingBreakdown(vehicle.id)]),
+    );
+
+    return buildGrandPricingBreakdown(vehicleBreakdowns);
+  }
+
+  /**
+   * Calculates discounted subtotal price for one vehicle by selected services.
+   */
+  function getVehicleTotal(vehicleId: string): number {
+    return getVehiclePricingBreakdown(vehicleId).total;
+  }
+
+  /**
+   * Calculates the discounted grand total across all vehicles.
    */
   function getGrandTotal(): number {
-    return vehicles.reduce((sum, vehicle) => sum + getVehicleTotal(vehicle.id), 0);
+    return getGrandPricingBreakdown().total;
   }
 
   /**
@@ -282,6 +327,8 @@ export function BookingProvider({ children }: BookingProviderProps): JSX.Element
     toggleServiceForVehicle,
     getVehicleTotal,
     getGrandTotal,
+    getVehiclePricingBreakdown,
+    getGrandPricingBreakdown,
     getVehicleServices,
     getSelectedServiceCount,
     clearAll,
