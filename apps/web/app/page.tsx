@@ -5,6 +5,7 @@ import { HeroSection } from '@/components/sections/hero-section';
 import { ProcessSection } from '@/components/sections/process-section';
 import { ResultsSection } from '@/components/sections/results-section';
 import { ServicesSection } from '@/components/sections/services-section';
+import { SpringPromoBanner } from '@/components/sections/spring-promo-banner';
 import { TestimonialsSection } from '@/components/sections/testimonials-section';
 
 /**
@@ -13,6 +14,7 @@ import { TestimonialsSection } from '@/components/sections/testimonials-section'
 export default function HomePage(): JSX.Element {
   return (
     <SiteShell>
+      <SpringPromoBanner />
       <HeroSection />
       <div className="relative overflow-hidden bg-[linear-gradient(180deg,#0D0D0D_0%,#141414_100%)]">
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,transparent_28%,transparent_100%)]" />

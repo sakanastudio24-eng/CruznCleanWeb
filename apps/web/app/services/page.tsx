@@ -238,7 +238,7 @@ export default function ServicesPage(): JSX.Element {
       <section className="relative overflow-hidden bg-ink px-4 py-16 text-white sm:px-6">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#8c1c2c33,transparent_55%)]" />
         <div className="relative mx-auto max-w-6xl text-center">
-          <h1 className="font-heading text-4xl font-semibold sm:text-5xl">Cruzn Clean Services</h1>
+          <h1 className="font-heading text-4xl font-semibold sm:text-5xl">Cruizn Clean Services</h1>
           <p className="mx-auto mt-4 max-w-3xl text-base text-white/75 sm:text-xl">
             Review package and add-on options for Yorba Linda mobile detailing with live size-based pricing and clearer routing for specialty vehicles.
           </p>
@@ -264,8 +264,8 @@ export default function ServicesPage(): JSX.Element {
             </div>
 
             <div className="mt-5 space-y-5">
-              <ServiceGrid category="protection" title="Protection + Coatings" framed={false} />
               <ServiceGrid category="correction" title="Paint Correction" gridClassName="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" framed={false} />
+              <ServiceGrid category="protection" title="Protection + Coatings" framed={false} />
             </div>
           </section>
         </div>

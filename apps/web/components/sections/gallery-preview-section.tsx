@@ -22,11 +22,11 @@ export function GalleryPreviewSection(): JSX.Element {
           </Link>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {previewItems.map((item, index) => (
             <article
               key={item.id}
-              className="fade-in-up group relative aspect-[4/5] overflow-hidden rounded-2xl border border-black/10 bg-ink text-white transition duration-300 hover:-translate-y-1 hover:shadow-lg"
+              className="fade-in-up group relative aspect-[4/5] overflow-hidden rounded-xl border border-black/10 bg-ink text-white transition duration-300 hover:-translate-y-1 hover:shadow-lg sm:rounded-2xl"
               style={{ animationDelay: `${index * 120}ms` }}
             >
               <Image
@@ -34,11 +34,11 @@ export function GalleryPreviewSection(): JSX.Element {
                 alt={item.label}
                 className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                 fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-4">
-                <p className="text-sm font-semibold text-white">{item.label}</p>
+              <div className="absolute inset-x-0 bottom-0 p-2 sm:p-4">
+                <p className="text-xs font-semibold leading-tight text-white sm:text-sm">{item.label}</p>
               </div>
             </article>
           ))}
