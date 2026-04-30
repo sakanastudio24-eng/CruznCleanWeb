@@ -22,6 +22,7 @@ import { VehicleSizeGuideLookup } from '@/components/vehicle/vehicle-size-guide-
 import { BOOKING_LIMIT_DISCLAIMER, MAX_BOOKED_VEHICLES_PER_DAY, countSelectedVehicles } from '@/lib/booking-policy';
 import type { CustomerBookingForm, ServiceOption, VehicleProfile, VehicleSize } from '@/lib/booking-types';
 import { createStripeCheckoutSession, getCalendarBookingLink, getCalendarBookingUrl, submitBookingIntake } from '@/lib/api-client';
+import { getServiceAreaZipSummary, isZipInServiceArea, normalizeZipCode } from '@/lib/service-area';
 import { usePersistentState } from '@/lib/use-persistent-state';
 import { getVehicleDisplayName } from '@/lib/vehicle-utils';
 
@@ -77,7 +78,9 @@ const INITIAL_FORM: CustomerBookingForm = {
   acceptedConsent: false,
 };
 
-const BOOKING_FORM_STORAGE_KEY = 'cruzn-clean-booking-form-v1';
+const BOOKING_FORM_STORAGE_KEY = 'cruizn-clean-booking-form-v1';
+// Legacy pre-rename keys are intentionally retained for one-time draft migration after brand spelling updates.
+const LEGACY_BOOKING_FORM_STORAGE_KEYS = ['cruzin-clean-booking-form-v1', 'cruzn-clean-booking-form-v1'];
 
 /**
  * Returns the booking step sequence used by the progress header.
@@ -169,6 +172,8 @@ function appendCustomerValidationErrors(
 
   if (form.zipCode.trim().length < 5) {
     errors.zipCode = 'Enter a valid ZIP code.';
+  } else if (!isZipInServiceArea(form.zipCode)) {
+    errors.zipCode = 'This ZIP is outside the current online booking service area. Request a quote so we can review travel and availability.';
   }
 
   if (!hasValidConfirmationPreference(form)) {
@@ -296,7 +301,11 @@ export default function BookingPage(): JSX.Element {
   } = useBooking();
 
   const [step, setStep] = useState(1);
-  const [form, setForm, clearPersistedForm] = usePersistentState<CustomerBookingForm>(BOOKING_FORM_STORAGE_KEY, INITIAL_FORM);
+  const [form, setForm, clearPersistedForm] = usePersistentState<CustomerBookingForm>(
+    BOOKING_FORM_STORAGE_KEY,
+    INITIAL_FORM,
+    LEGACY_BOOKING_FORM_STORAGE_KEYS,
+  );
   const [honeypot, setHoneypot] = useState('');
   const [fieldErrors, setFieldErrors] = useState<BookingFieldErrors>({});
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
@@ -325,6 +334,8 @@ export default function BookingPage(): JSX.Element {
     [activeVehicle, form],
   );
   const stepOneValid = Object.keys(stepOneErrors).length === 0;
+  const normalizedZipCode = normalizeZipCode(form.zipCode);
+  const showServiceAreaQuoteHelp = normalizedZipCode.length === 5 && !isZipInServiceArea(normalizedZipCode);
 
   /**
    * Clears field-level errors and optimistic confirmation state before new edits.
@@ -735,17 +746,32 @@ export default function BookingPage(): JSX.Element {
                   ZIP Code *
                   <input
                     value={form.zipCode}
-                    onChange={(event) => updateCustomerField('zipCode', event.target.value)}
+                    onChange={(event) => updateCustomerField('zipCode', normalizeZipCode(event.target.value))}
                     autoComplete="postal-code"
                     inputMode="numeric"
                     aria-invalid={Boolean(fieldErrors.zipCode)}
-                    aria-describedby={fieldErrors.zipCode ? 'booking-zip-code-error' : undefined}
+                    aria-describedby={[
+                      fieldErrors.zipCode ? 'booking-zip-code-error' : '',
+                      showServiceAreaQuoteHelp ? 'booking-service-area-quote-help' : '',
+                    ].filter(Boolean).join(' ') || undefined}
                     className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
                       fieldErrors.zipCode ? 'border-charcoal focus:border-charcoal' : 'border-black/15 focus:border-fog'
                     }`}
                     placeholder="90210"
                   />
                   {fieldErrors.zipCode ? <span id="booking-zip-code-error" className="a11y-error mt-1 block text-xs font-medium">{fieldErrors.zipCode}</span> : null}
+                  {showServiceAreaQuoteHelp ? (
+                    <span
+                      id="booking-service-area-quote-help"
+                      className="mt-2 block rounded-lg border border-burgundy/50 bg-burgundy/10 p-3 text-xs font-medium text-ink"
+                    >
+                      This ZIP is not in the standard online booking area ({getServiceAreaZipSummary()}).{' '}
+                      <Link href="/quote" className="font-bold text-burgundyAccent underline underline-offset-4">
+                        Ask for a quote
+                      </Link>{' '}
+                      so travel and scheduling can be reviewed.
+                    </span>
+                  ) : null}
                 </label>
               </div>
 

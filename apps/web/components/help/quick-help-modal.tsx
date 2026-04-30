@@ -3,7 +3,9 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { CircleHelp, ChevronDown, ChevronUp, Clock3, Droplets, CreditCard, Car } from 'lucide-react';
+import { CircleHelp, ChevronDown, ChevronUp, Clock3, Droplets, CreditCard, Car, MapPin } from 'lucide-react';
+
+import { getServiceAreaCitySummary, getServiceAreaZipSummary } from '@/lib/service-area';
 
 interface FaqItem {
   question: string;
@@ -35,6 +37,11 @@ function getQuickFaqs(): FaqItem[] {
       question: 'Can I book multiple cars at once?',
       answer: 'Yes. Add vehicles in the dock, select services per vehicle, then book all in one flow.',
       icon: Car,
+    },
+    {
+      question: 'What areas can book online?',
+      answer: `Online booking is focused on these service-area cities: ${getServiceAreaCitySummary()}. Standard online ZIP coverage includes ${getServiceAreaZipSummary()}. If your ZIP is outside that area, request a quote so travel and availability can be reviewed.`,
+      icon: MapPin,
     },
   ];
 }
@@ -152,6 +159,27 @@ export function QuickHelpModal(): JSX.Element {
                 </div>
 
                 <div className="max-h-[70vh] space-y-2 overflow-y-auto px-5 py-4">
+                  <section className="rounded-xl border border-burgundy/35 bg-burgundy/10 p-4">
+                    <div className="flex items-start gap-3">
+                      <span className="rounded-full bg-burgundy/25 p-2 text-burgundyAccent">
+                        <MapPin className="h-4 w-4" />
+                      </span>
+                      <div>
+                        <p className="text-sm font-semibold text-ink">Service Area</p>
+                        <p className="mt-1 text-sm text-ink/75">
+                          Standard online booking covers selected North OC and nearby 926 ZIPs. Outside the listed area, use the quote form so travel can be reviewed.
+                        </p>
+                        <Link
+                          href="/quote"
+                          onClick={() => setOpen(false)}
+                          className="mt-3 inline-flex rounded-full bg-burgundy px-4 py-2 text-xs font-bold text-white transition hover:bg-burgundyAccent"
+                        >
+                          Ask for a Quote
+                        </Link>
+                      </div>
+                    </div>
+                  </section>
+
                   {faqs.map((faq, index) => {
                     const expanded = expandedIndex === index;
                     const Icon = faq.icon;

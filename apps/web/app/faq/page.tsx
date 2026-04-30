@@ -1,15 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { Calendar, Car, CircleDollarSign, Shield, Sparkles } from 'lucide-react';
+import { Calendar, Car, CircleDollarSign, MapPin, Shield, Sparkles } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { SiteShell } from '@/components/layout/site-shell';
+import { getServiceAreaCitySummary, getServiceAreaZipSummary } from '@/lib/service-area';
 
 interface FaqRecord {
   q: string;
   a: string;
-  category: 'booking' | 'services' | 'pricing' | 'preparation' | 'maintenance';
+  category: 'booking' | 'services' | 'pricing' | 'preparation' | 'maintenance' | 'service-area';
 }
 
 interface FaqCategoryChip {
@@ -27,9 +28,19 @@ function getFaqRecords(): FaqRecord[] {
     { q: 'What are your booking hours?', a: 'Standard booking hours are Monday through Friday from 8am to 6pm. Weekend requests are reviewed manually and may be reserved for business maintenance or advertising work.', category: 'booking' },
     { q: 'How long do the main services take?', a: 'Maintenance Detail is roughly 90 minutes. Full Interior or Full Exterior is about 3 hours. A Full Reset usually lands around 6 to 8 hours depending on condition.', category: 'services' },
     { q: 'Can I book coatings or paint correction without a detail package?', a: 'Yes. Protection and correction services can be booked on their own, though final prep requirements are confirmed after inspection.', category: 'services' },
+    {
+      q: 'What service areas can book online?',
+      a: `Online booking is focused on these service-area cities: ${getServiceAreaCitySummary()}. Standard online ZIP coverage includes ${getServiceAreaZipSummary()}. If your ZIP is outside that area, request a quote so travel and availability can be reviewed.`,
+      category: 'service-area',
+    },
+    {
+      q: 'What if my ZIP code is outside the service area?',
+      a: 'Use Request a Quote instead of standard booking. Outside-area appointments may still be possible, but they need a manual review for travel time, scheduling, and final approval.',
+      category: 'service-area',
+    },
     { q: 'How does pricing change by vehicle size?', a: 'Listed pricing starts with sedans and coupes. Small SUVs and trucks add 20%, large SUVs and trucks add 40%, and vans or very lifted vehicles add 50%.', category: 'pricing' },
     { q: 'How is final pricing confirmed?', a: 'Final pricing is confirmed after inspection and may increase for larger vehicles, excess dirt, pet hair, staining, ride height, or condition-related labor.', category: 'pricing' },
-    { q: 'Do you need water or power on-site?', a: 'Share site access notes during booking. If there are location constraints, gate details, or setup limits, include them in your notes so the appointment can be approved correctly.', category: 'preparation' },
+    { q: 'Do you need water or power on-site?', a: 'You do not need to provide water. Share access, parking, gate, or setup notes during booking so the appointment can be approved correctly.', category: 'preparation' },
     {
       q: 'How should I prepare my vehicle before appointment time?',
       a: 'Please remove personal belongings before arrival. Full compartments will not be cleaned, and handoff access should be ready when the appointment begins.',
@@ -61,6 +72,7 @@ export default function FaqPage(): JSX.Element {
     { id: 'all', label: 'All Questions', icon: Sparkles },
     { id: 'booking', label: 'Booking', icon: Calendar },
     { id: 'services', label: 'Services', icon: Sparkles },
+    { id: 'service-area', label: 'Service Area', icon: MapPin },
     { id: 'pricing', label: 'Pricing', icon: CircleDollarSign },
     { id: 'preparation', label: 'Preparation', icon: Car },
     { id: 'maintenance', label: 'Maintenance', icon: Shield },
@@ -87,6 +99,15 @@ export default function FaqPage(): JSX.Element {
           </p>
 
           <div className="mt-4 grid gap-3 md:grid-cols-2">
+            <article className="rounded-xl border border-burgundy/30 bg-burgundy/10 p-4 md:col-span-2">
+              <p className="text-sm font-semibold text-ink">Service Area</p>
+              <p className="mt-1 text-sm text-ink/75">
+                Online booking covers selected North OC and nearby 926 ZIPs. If your ZIP is outside the service area, request a quote so travel and availability can be reviewed.
+              </p>
+              <Link href="/quote" className="mt-3 inline-flex rounded-full bg-burgundy px-4 py-2 text-xs font-bold text-white transition hover:bg-burgundyAccent">
+                Ask for a Quote
+              </Link>
+            </article>
             <article className="rounded-xl border border-white/10 bg-[#111111] p-4">
               <p className="text-sm font-semibold text-ink">1. Access + Location</p>
               <p className="mt-1 text-sm text-ink/75">
