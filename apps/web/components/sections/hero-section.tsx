@@ -38,7 +38,7 @@ export function HeroSection(): JSX.Element {
     <section className="landing-hero relative overflow-hidden bg-ink text-white">
       <Image
         src={heroImage}
-        alt="Cruzn Clean exterior detail finish"
+        alt="Cruizn Clean exterior detail finish"
         fill
         priority
         className="object-cover object-center"
@@ -52,7 +52,7 @@ export function HeroSection(): JSX.Element {
           <div className="fade-in-up max-w-3xl">
             <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/90">
               <Sparkles className="h-3.5 w-3.5" />
-              Cruzn Clean
+              Cruizn Clean
             </p>
 
             <h1 className="mt-5 font-heading text-5xl font-extrabold leading-[0.92] sm:text-6xl lg:text-7xl">

@@ -39,7 +39,7 @@ def get_cors_origins() -> list[str]:
 
 def get_public_site_url() -> str:
     """Returns the public site URL used for generated customer-facing links."""
-    return os.getenv("PUBLIC_SITE_URL", "https://www.cruznclean.com").strip() or "https://www.cruznclean.com"
+    return os.getenv("PUBLIC_SITE_URL", "https://www.cruiznclean.com").strip() or "https://www.cruiznclean.com"
 
 
 def get_stripe_secret_key() -> str:

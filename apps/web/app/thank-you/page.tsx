@@ -19,7 +19,7 @@ export default function ThankYouPage(): JSX.Element {
           </p>
           <h1 className="mt-5 font-heading text-4xl font-semibold sm:text-5xl">Thanks. Your appointment is being confirmed.</h1>
           <p className="mx-auto mt-4 max-w-2xl text-base text-white/72 sm:text-lg">
-            Your intake, calendar selection, and Stripe deposit are complete. Cruzn Clean will use your saved details to
+            Your intake, calendar selection, and Stripe deposit are complete. Cruizn Clean will use your saved details to
             prepare the right service plan for your vehicle.
           </p>
 

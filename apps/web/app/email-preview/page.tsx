@@ -20,7 +20,7 @@ function getPreviewConfigs(): Record<PreviewTab, EmailPreviewConfig> {
   return {
     customer: {
       title: 'Customer Confirmation Preview',
-      subject: 'Cruzn Clean order confirmation',
+      subject: 'Cruizn Clean order confirmation',
       description: 'Sent when customer email confirmation preference is enabled.',
       htmlPreview:
         "<div style='margin:0;padding:0;background:#f3f4f6;font-family:Arial,sans-serif;color:#111111;'>" +
@@ -28,11 +28,11 @@ function getPreviewConfigs(): Record<PreviewTab, EmailPreviewConfig> {
         "<div style='background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;'>" +
         "<div style='background:#111111;padding:16px 20px;'>" +
         "<table role='presentation' width='100%' cellspacing='0' cellpadding='0' style='border-collapse:collapse;'><tr>" +
-        "<td style='color:#ffffff;font-size:22px;font-weight:700;'>Cruzn Clean</td>" +
+        "<td style='color:#ffffff;font-size:22px;font-weight:700;'>Cruizn Clean</td>" +
         "<td style='text-align:right;font-size:12px;'>" +
-        "<a href='https://www.cruznclean.com' style='color:#e5e7eb;text-decoration:none;margin-left:12px;'>Home</a>" +
-        "<a href='https://www.cruznclean.com/services' style='color:#e5e7eb;text-decoration:none;margin-left:12px;'>Services</a>" +
-        "<a href='https://www.cruznclean.com/booking' style='color:#e5e7eb;text-decoration:none;margin-left:12px;'>Book</a>" +
+        "<a href='https://www.cruiznclean.com' style='color:#e5e7eb;text-decoration:none;margin-left:12px;'>Home</a>" +
+        "<a href='https://www.cruiznclean.com/services' style='color:#e5e7eb;text-decoration:none;margin-left:12px;'>Services</a>" +
+        "<a href='https://www.cruiznclean.com/booking' style='color:#e5e7eb;text-decoration:none;margin-left:12px;'>Book</a>" +
         '</td></tr></table></div>' +
         "<div style='padding:20px;'>" +
         "<p style='margin:0;font-size:12px;color:#6b7280;'>Order Number</p>" +
@@ -62,9 +62,9 @@ function getPreviewConfigs(): Record<PreviewTab, EmailPreviewConfig> {
         "<p style='margin:6px 0 0 0;font-size:13px;color:#2f2f2f;'>A non-refundable deposit of $25-$100 may be required to secure your appointment and is applied toward the total service cost.</p>" +
         '</div>' +
         "<p style='margin:14px 0 0 0;font-size:13px;'>" +
-        "<a href='https://www.cruznclean.com/terms' style='color:#2f2f2f;font-weight:700;text-decoration:none;'>Terms & Conditions</a> | " +
-        "<a href='https://www.cruznclean.com/faq#service-readiness' style='color:#2f2f2f;font-weight:700;text-decoration:none;'>Service Readiness</a></p>" +
-        "<p style='margin:10px 0 0 0;font-size:13px;color:#374151;'>For any inquiries call/email: (555) 123-4567 | hello@cruznclean.com</p>" +
+        "<a href='https://www.cruiznclean.com/terms' style='color:#2f2f2f;font-weight:700;text-decoration:none;'>Terms & Conditions</a> | " +
+        "<a href='https://www.cruiznclean.com/faq#service-readiness' style='color:#2f2f2f;font-weight:700;text-decoration:none;'>Service Readiness</a></p>" +
+        "<p style='margin:10px 0 0 0;font-size:13px;color:#374151;'>For any inquiries call/email: (555) 123-4567 | hello@cruiznclean.com</p>" +
         '</div></div></div></div>',
     },
     owner: {
@@ -77,7 +77,7 @@ function getPreviewConfigs(): Record<PreviewTab, EmailPreviewConfig> {
         "<div style='background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;'>" +
         "<div style='background:#111111;padding:16px 20px;'>" +
         "<table role='presentation' width='100%' cellspacing='0' cellpadding='0' style='border-collapse:collapse;'><tr>" +
-        "<td style='color:#ffffff;font-size:22px;font-weight:700;'>Cruzn Clean</td>" +
+        "<td style='color:#ffffff;font-size:22px;font-weight:700;'>Cruizn Clean</td>" +
         "<td style='text-align:right;font-size:12px;color:#e5e7eb;'>Owner Alert</td>" +
         '</tr></table></div>' +
         "<div style='padding:20px;'>" +
@@ -99,7 +99,7 @@ function getPreviewConfigs(): Record<PreviewTab, EmailPreviewConfig> {
         "<tr><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;'>Vehicle 1 - 2022 Tesla Model 3 (White) - Maintenance Detail</td><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;text-align:right;'>$99</td></tr>" +
         "<tr><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;'>Vehicle 1 - 2022 Tesla Model 3 (White) - 3 Year Ceramic Coating</td><td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;text-align:right;'>$499</td></tr>" +
         '</table></div>' +
-        "<p style='margin:12px 0 0 0;font-size:13px;'><a href='https://www.cruznclean.com/admin/bookings/bk_ab12cd34ef56' style='color:#2f2f2f;font-weight:700;text-decoration:none;'>Manage Booking</a></p>" +
+        "<p style='margin:12px 0 0 0;font-size:13px;'><a href='https://www.cruiznclean.com/admin/bookings/bk_ab12cd34ef56' style='color:#2f2f2f;font-weight:700;text-decoration:none;'>Manage Booking</a></p>" +
         '</div></div></div></div>',
     },
   };

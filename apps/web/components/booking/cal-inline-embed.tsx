@@ -35,7 +35,7 @@ interface CalInlineEmbedProps {
  */
 function getCalNamespace(calLink: string): string {
   const segments = calLink.split('/').map((segment) => segment.trim()).filter(Boolean);
-  return segments.at(-1) || 'cruzn-clean-booking';
+  return segments.at(-1) || 'cruizn-clean-booking';
 }
 
 /**

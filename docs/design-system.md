@@ -26,5 +26,5 @@
 - `>=1024px`: desktop header/nav layout
 
 ## Current Client Rule
-- Keep the Cruzn Clean blueprint black, white, and grayscale only.
+- Keep the Cruizn Clean blueprint black, white, and grayscale only.
 - Keep `/email-preview` available by direct URL for QA, but hide it from desktop and mobile navigation.

@@ -1,7 +1,7 @@
 # Front-Facing Copy
 
 ## Home
-- Hero eyebrow: `Cruzn Clean`
+- Hero eyebrow: `Cruizn Clean`
 - Hero headline: `Plain, polished detailing.`
 - Hero support: `Mobile service for Yorba Linda homes, offices, and private garages.`
 - Hero detail: `Select services per vehicle, send your intake once, then lock in scheduling through Cal.com with a clean grayscale client flow.`

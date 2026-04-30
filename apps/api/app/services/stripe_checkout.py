@@ -88,7 +88,7 @@ def create_checkout_session(payload: CheckoutSessionRequest) -> dict[str, Any]:
                     "price_data": {
                         "currency": "usd",
                         "product_data": {
-                            "name": "Cruzn Clean booking deposit",
+                            "name": "Cruizn Clean booking deposit",
                             "description": "Deposit applied toward the final detailing service total.",
                         },
                         "unit_amount": deposit_cents,

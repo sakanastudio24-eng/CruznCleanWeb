@@ -44,7 +44,7 @@ const POLICY_SECTIONS: PolicySection[] = [
     title: '5. Vehicle Condition',
     points: [
       'Remove personal belongings before the appointment. Full compartments will not be cleaned.',
-      'Cruzn Clean is not responsible for lost or damaged personal items left in the vehicle.',
+      'Cruizn Clean is not responsible for lost or damaged personal items left in the vehicle.',
     ],
   },
   {
@@ -66,7 +66,7 @@ const POLICY_SECTIONS: PolicySection[] = [
     title: '8. Weather Policy (Mobile Services)',
     points: [
       'Appointments may be rescheduled due to rain, extreme heat, or unsafe conditions.',
-      'Cruzn Clean will contact you as early as possible if weather requires a change.',
+      'Cruizn Clean will contact you as early as possible if weather requires a change.',
     ],
   },
   {
@@ -81,7 +81,7 @@ const POLICY_SECTIONS: PolicySection[] = [
   {
     title: '10. Satisfaction Guarantee',
     points: [
-      'If you are not satisfied, notify Cruzn Clean before leaving or within 24 hours.',
+      'If you are not satisfied, notify Cruizn Clean before leaving or within 24 hours.',
       'Reasonable concerns are reviewed and addressed, though additional charges may apply for added scope.',
     ],
   },
@@ -89,7 +89,7 @@ const POLICY_SECTIONS: PolicySection[] = [
     title: '11. Liability',
     points: [
       'Pre-existing damage is documented before service when visible.',
-      'Cruzn Clean is not responsible for damage caused by faulty parts, aftermarket installs, or prior vehicle conditions.',
+      'Cruizn Clean is not responsible for damage caused by faulty parts, aftermarket installs, or prior vehicle conditions.',
     ],
   },
   {
@@ -112,7 +112,7 @@ export default function TermsPage(): JSX.Element {
       <section className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
         <h1 className="font-heading text-3xl font-extrabold text-white sm:text-4xl">Terms of Service</h1>
         <p className="mt-4 text-sm text-white/75">
-          These terms outline appointment approval, pricing, deposits, weather rescheduling, and service limits for Cruzn Clean mobile detailing.
+          These terms outline appointment approval, pricing, deposits, weather rescheduling, and service limits for Cruizn Clean mobile detailing.
         </p>
 
         <div className="mt-8 space-y-4">

@@ -88,7 +88,7 @@ export default function PrivacyPage(): JSX.Element {
               Rights request and privacy contact channels will be finalized before public launch:
             </p>
             <ul className="list-disc space-y-2 pl-5 text-sm text-ink/80">
-              <li>Privacy email placeholder: <code>privacy@cruznclean.com</code></li>
+              <li>Privacy email placeholder: <code>privacy@cruiznclean.com</code></li>
               <li>Business contact placeholder: <code>{SITE_PROFILE.supportEmail}</code></li>
             </ul>
             <p className="text-sm text-ink/80">

@@ -1,7 +1,7 @@
 # Project Structure
 
 ```text
-/Users/zech/Downloads/The-Big-One/CruznCLEANv2
+/Users/zech/Downloads/The-Big-One/CruiznCLEANv2
 ├── apps/
 │   ├── web/         # Next.js + TypeScript frontend
 │   └── api/         # FastAPI backend

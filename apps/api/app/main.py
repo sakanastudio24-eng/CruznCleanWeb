@@ -9,7 +9,7 @@ from app.routes.payments import router as payments_router
 from app.routes.template_admin import router as template_admin_router
 from app.services.runtime_config import get_cors_origins, is_template_admin_enabled
 
-app = FastAPI(title="Cruzn Clean API", version="0.1.0")
+app = FastAPI(title="Cruizn Clean API", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,

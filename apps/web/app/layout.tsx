@@ -6,8 +6,8 @@ import './globals.css';
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_PROFILE.siteUrl),
   title: {
-    default: 'Cruzn Clean | Yorba Linda Mobile Auto Detailing',
-    template: '%s | Cruzn Clean',
+    default: 'Cruizn Clean | Yorba Linda Mobile Auto Detailing',
+    template: '%s | Cruizn Clean',
   },
   description: 'Mobile auto detailing in Yorba Linda with service packages, add-ons, quote requests, and Cal.com booking.',
   applicationName: SITE_PROFILE.businessName,
@@ -22,12 +22,12 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: '/',
     siteName: SITE_PROFILE.businessName,
-    title: 'Cruzn Clean | Yorba Linda Mobile Auto Detailing',
+    title: 'Cruizn Clean | Yorba Linda Mobile Auto Detailing',
     description: 'Book mobile detailing, request custom quotes, and review service packages for Yorba Linda-area vehicles.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Cruzn Clean | Yorba Linda Mobile Auto Detailing',
+    title: 'Cruizn Clean | Yorba Linda Mobile Auto Detailing',
     description: 'Mobile auto detailing in Yorba Linda with clear booking, packages, add-ons, and quote requests.',
   },
   robots: {

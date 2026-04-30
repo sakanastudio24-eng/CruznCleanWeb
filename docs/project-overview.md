@@ -1,7 +1,7 @@
 # Project Overview
 
 ## Purpose
-Cruzn Clean is a production-oriented client blueprint for a Yorba Linda mobile car-detailing business. It pairs a conversion-focused frontend with a typed backend intake API, runtime-injected public config, and a Supabase-ready storage boundary.
+Cruizn Clean is a production-oriented client blueprint for a Yorba Linda mobile car-detailing business. It pairs a conversion-focused frontend with a typed backend intake API, runtime-injected public config, and a Supabase-ready storage boundary.
 
 ## High-Level Architecture
 - `apps/web`: Next.js 14 App Router site (TypeScript + Tailwind CSS).
