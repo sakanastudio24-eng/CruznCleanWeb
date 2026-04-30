@@ -25,7 +25,7 @@ interface FaqCategoryChip {
 function getFaqRecords(): FaqRecord[] {
   return [
     { q: 'How many vehicles can I submit in one day?', a: 'The booking flow supports up to 4 vehicles per customer per day, and actual capacity depends on the length of the selected services.', category: 'booking' },
-    { q: 'What are your booking hours?', a: 'Standard booking hours are Monday through Friday from 8am to 6pm. Weekend requests are reviewed manually and may be reserved for business maintenance or advertising work.', category: 'booking' },
+    { q: 'What are your booking hours?', a: 'Standard booking hours are Monday through Saturday from 8am to 6pm.', category: 'booking' },
     { q: 'How long do the main services take?', a: 'Maintenance Detail is roughly 90 minutes. Full Interior or Full Exterior is about 3 hours. A Full Reset usually lands around 6 to 8 hours depending on condition.', category: 'services' },
     { q: 'Can I book coatings or paint correction without a detail package?', a: 'Yes. Protection and correction services can be booked on their own, though final prep requirements are confirmed after inspection.', category: 'services' },
     {
@@ -43,8 +43,23 @@ function getFaqRecords(): FaqRecord[] {
     { q: 'Do you need water or power on-site?', a: 'You do not need to provide water. Share access, parking, gate, or setup notes during booking so the appointment can be approved correctly.', category: 'preparation' },
     {
       q: 'How should I prepare my vehicle before appointment time?',
-      a: 'Please remove personal belongings before arrival. Full compartments will not be cleaned, and handoff access should be ready when the appointment begins.',
+      a: 'Remove loose items and personal belongings before arrival. Full compartments will not be cleaned, and the vehicle should be parked in an accessible location with at least 8 feet of clearance from other vehicles.',
       category: 'preparation',
+    },
+    {
+      q: 'What should I do while the service is being completed?',
+      a: 'Please stay clear of the vehicle during active service to help prevent accidents or injury. Be ready for key handoff at the scheduled time and available for any needed approval.',
+      category: 'preparation',
+    },
+    {
+      q: 'Can my quote change after booking?',
+      a: 'Yes. The service quote is subject to change if the vehicle was booked incorrectly, condition is different than described, or the job needs extended attention after inspection.',
+      category: 'pricing',
+    },
+    {
+      q: 'Does my deposit need to be confirmed?',
+      a: 'Yes. Deposit confirmation is required before the appointment is treated as locked in.',
+      category: 'booking',
     },
     {
       q: 'What should I know about coatings and correction results?',
@@ -111,25 +126,25 @@ export default function FaqPage(): JSX.Element {
             <article className="rounded-xl border border-white/10 bg-[#111111] p-4">
               <p className="text-sm font-semibold text-ink">1. Access + Location</p>
               <p className="mt-1 text-sm text-ink/75">
-                Keep the vehicle in an accessible area and share gate, parking, or arrival notes in booking details if needed.
+                Keep the vehicle in an accessible area with at least 8 feet of clearance from nearby vehicles. Share gate, parking, or arrival notes if needed.
               </p>
             </article>
             <article className="rounded-xl border border-white/10 bg-[#111111] p-4">
               <p className="text-sm font-semibold text-ink">2. Vehicle Prep</p>
               <p className="mt-1 text-sm text-ink/75">
-                Remove valuables and personal items so interior areas are reachable for cleaning and inspection.
+                Remove loose items, valuables, and personal belongings so interior areas are reachable for cleaning and inspection.
               </p>
             </article>
             <article className="rounded-xl border border-white/10 bg-[#111111] p-4">
               <p className="text-sm font-semibold text-ink">3. Handoff</p>
               <p className="mt-1 text-sm text-ink/75">
-                Be available for start-time handoff and final walk-through so results, pricing, and payment can be confirmed.
+                Be ready for key handoff at the scheduled time and stay clear of the vehicle during service to prevent accidents or injury.
               </p>
             </article>
             <article className="rounded-xl border border-white/10 bg-[#111111] p-4">
               <p className="text-sm font-semibold text-ink">4. Final Scope</p>
               <p className="mt-1 text-sm text-ink/75">
-                Final pricing is confirmed on-site from actual condition, vehicle size, and selected service scope.
+                Deposit must be confirmed. Final pricing is subject to inspection and can change for incorrect booking details or extended attention.
               </p>
             </article>
           </div>

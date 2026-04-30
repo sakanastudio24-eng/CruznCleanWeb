@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, CalendarCheck, MailCheck, ShieldCheck } from 'lucide-react';
+import { ArrowRight, CalendarCheck, CarFront, MailCheck, ShieldCheck } from 'lucide-react';
 
 import { SiteShell } from '@/components/layout/site-shell';
 import { SITE_PROFILE } from '@/lib/site-profile';
@@ -38,6 +38,26 @@ export default function ThankYouPage(): JSX.Element {
                 Remove personal items before arrival. Final pricing is confirmed after the vehicle condition and size are reviewed.
               </p>
             </article>
+          </div>
+
+          <div className="gray-card mt-6 p-5 text-left">
+            <div className="flex items-center gap-3">
+              <span className="rounded-full bg-burgundy/20 p-2 text-burgundyAccent">
+                <CarFront className="h-5 w-5" />
+              </span>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/55">Service Requirements</p>
+                <h2 className="font-heading text-xl font-semibold text-white">Before your appointment</h2>
+              </div>
+            </div>
+            <ul className="mt-4 grid gap-3 text-sm text-white/72 sm:grid-cols-2">
+              <li className="rounded-xl border border-line bg-[#141414] p-3">Loose items and personal belongings must be removed from the vehicle.</li>
+              <li className="rounded-xl border border-line bg-[#141414] p-3">Park in an accessible location with at least 8 feet of clearance from other vehicles.</li>
+              <li className="rounded-xl border border-line bg-[#141414] p-3">Please stay clear of the vehicle during service to help prevent accidents or injury.</li>
+              <li className="rounded-xl border border-line bg-[#141414] p-3">Be ready for key handoff and service at the scheduled time.</li>
+              <li className="rounded-xl border border-line bg-[#141414] p-3">Deposit confirmation is required before the appointment is locked in.</li>
+              <li className="rounded-xl border border-burgundy/35 bg-burgundy/10 p-3">Final quote may change after inspection for incorrect booking details or extended attention.</li>
+            </ul>
           </div>
 
           <div className="mt-8 flex flex-wrap justify-center gap-3">

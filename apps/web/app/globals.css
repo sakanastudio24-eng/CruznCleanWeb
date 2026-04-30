@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Racing+Sans+One&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -74,6 +76,11 @@ textarea:focus-visible {
 
 .mobile-footer-fullscreen {
   display: block;
+}
+
+.promo-racing-sans {
+  font-family: 'Racing Sans One', var(--font-heading), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0.04em;
 }
 
 @keyframes fadeUp {

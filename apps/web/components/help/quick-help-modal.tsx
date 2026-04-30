@@ -25,8 +25,18 @@ function getQuickFaqs(): FaqItem[] {
     },
     {
       question: 'Do I need to provide water or power?',
-      answer: 'No. Mobile jobs are planned to run with our own water and power setup where available.',
+      answer: 'No water is required on-site. Share gate, parking, or setup notes during booking so access can be approved correctly.',
       icon: Droplets,
+    },
+    {
+      question: 'How should I prepare before service?',
+      answer: 'Remove loose items, park with at least 8 feet of clearance from other vehicles, be ready for key handoff, and stay clear of the vehicle while work is active.',
+      icon: Car,
+    },
+    {
+      question: 'Can my quote change?',
+      answer: 'Yes. The quote can change after inspection if booking details are incorrect or the vehicle needs extended attention.',
+      icon: CreditCard,
     },
     {
       question: 'What forms of payment do you accept?',
@@ -178,6 +188,17 @@ export function QuickHelpModal(): JSX.Element {
                         </Link>
                       </div>
                     </div>
+                  </section>
+
+                  <section className="rounded-xl border border-white/10 bg-[#111111] p-4">
+                    <p className="text-sm font-semibold text-ink">Service Requirements</p>
+                    <ul className="mt-2 space-y-1 text-sm text-ink/75">
+                      <li>• Loose items removed before arrival</li>
+                      <li>• Accessible parking with 8 feet of clearance</li>
+                      <li>• Stay clear of the vehicle during active service</li>
+                      <li>• Key handoff ready at scheduled time</li>
+                      <li>• Deposit confirmed before service is locked in</li>
+                    </ul>
                   </section>
 
                   {faqs.map((faq, index) => {
