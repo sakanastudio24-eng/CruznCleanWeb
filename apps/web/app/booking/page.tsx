@@ -7,7 +7,6 @@ import {
   Calendar,
   CarFront,
   CheckCircle2,
-  CreditCard,
   Plus,
   ShieldCheck,
   Trash2,
@@ -21,7 +20,7 @@ import { useBooking } from '@/components/providers/booking-provider';
 import { VehicleSizeGuideLookup } from '@/components/vehicle/vehicle-size-guide-lookup';
 import { BOOKING_LIMIT_DISCLAIMER, MAX_BOOKED_VEHICLES_PER_DAY, countSelectedVehicles } from '@/lib/booking-policy';
 import type { CustomerBookingForm, ServiceOption, VehicleProfile, VehicleSize } from '@/lib/booking-types';
-import { createStripeCheckoutSession, getCalendarBookingLink, getCalendarBookingUrl, submitBookingIntake } from '@/lib/api-client';
+import { getCalendarBookingLink, getCalendarBookingUrl } from '@/lib/api-client';
 import { getServiceAreaZipSummary, isZipInServiceArea, normalizeZipCode } from '@/lib/service-area';
 import { findServiceById } from '@/lib/services-catalog';
 import { usePersistentState } from '@/lib/use-persistent-state';
@@ -91,7 +90,6 @@ function getBookingSteps(): StepItem[] {
   return [
     { id: 1, title: 'Your Details', icon: User },
     { id: 2, title: 'Schedule', icon: Calendar },
-    { id: 3, title: 'Payment', icon: CreditCard },
   ];
 }
 
@@ -307,17 +305,14 @@ export default function BookingPage(): JSX.Element {
   } = useBooking();
 
   const [step, setStep] = useState(1);
-  const [form, setForm, clearPersistedForm] = usePersistentState<CustomerBookingForm>(
+  const [form, setForm] = usePersistentState<CustomerBookingForm>(
     BOOKING_FORM_STORAGE_KEY,
     INITIAL_FORM,
     LEGACY_BOOKING_FORM_STORAGE_KEYS,
   );
   const [honeypot, setHoneypot] = useState('');
   const [fieldErrors, setFieldErrors] = useState<BookingFieldErrors>({});
-  const [bookingConfirmed, setBookingConfirmed] = useState(false);
   const [submittedBookingContext, setSubmittedBookingContext] = useState<SubmittedBookingCalendarContext | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [paymentSubmitting, setPaymentSubmitting] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   const plannerTopRef = useRef<HTMLDivElement>(null);
 
@@ -350,9 +345,7 @@ export default function BookingPage(): JSX.Element {
    */
   function resetInteractionState(): void {
     setFieldErrors({});
-    setBookingConfirmed(false);
     setSubmittedBookingContext(null);
-    setPaymentSubmitting(false);
   }
 
   /**
@@ -414,22 +407,6 @@ export default function BookingPage(): JSX.Element {
   }
 
   /**
-   * Advances to the next step when current-step validation passes.
-   */
-  function goNext(): void {
-    if (step === 1 && !stepOneValid) {
-      setFieldErrors(stepOneErrors);
-      setStatusMessage('Complete required details and confirm email/SMS preferences to continue');
-      return;
-    }
-
-    setFieldErrors({});
-    setStatusMessage('');
-    setStep((current) => Math.min(current + 1, steps.length));
-    scrollPlannerToTop();
-  }
-
-  /**
    * Moves back to the previous booking step.
    */
   function goBack(): void {
@@ -439,42 +416,35 @@ export default function BookingPage(): JSX.Element {
   }
 
   /**
-   * Submits booking intake and shows confirmation before calendar scheduling.
+   * Builds Cal.com prefill metadata locally so scheduling does not depend on the optional API service.
    */
-  async function handleSubmitBooking(): Promise<void> {
+  function handleOpenCalendar(): void {
     const submissionErrors = validateSubmission(form, vehicles);
     if (Object.keys(submissionErrors).length > 0) {
       setFieldErrors(submissionErrors);
-      setStatusMessage('Select at least one service on the Services page before scheduling');
+      setStatusMessage(
+        submissionErrors.serviceSelection
+          ? 'Select at least one service on the Services page before scheduling'
+          : 'Complete required booking details before scheduling',
+      );
       return;
     }
 
-    resetInteractionState();
-    setSubmitting(true);
-    setStatusMessage('Submitting your booking intake');
-
-    try {
-      const response = await submitBookingIntake({ customer: form, vehicles, honeypot });
-      const nextSubmittedBookingContext: SubmittedBookingCalendarContext = {
-        bookingId: response.bookingId || 'pending-cal-booking',
-        customer: {
-          email: form.email,
-          fullName: form.fullName,
-          phone: form.phone,
-        },
-        estimatedTotal: getGrandTotal(),
-        servicesSummary: getSelectedServicesSummary(selectedVehicles, getVehiclePricingBreakdown),
-        vehicleCount: selectedVehicles.length,
-      };
-      setBookingConfirmed(true);
-      setSubmittedBookingContext(nextSubmittedBookingContext);
-      setStatusMessage(response.message?.replace(/\.$/, '') ?? 'Booking intake saved Choose your appointment time below');
-      clearPersistedForm();
-    } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message.replace(/\.$/, '') : 'Submission failed Please try again');
-    } finally {
-      setSubmitting(false);
-    }
+    setFieldErrors({});
+    setSubmittedBookingContext({
+      bookingId: `cal-${Date.now()}`,
+      customer: {
+        email: form.email,
+        fullName: form.fullName,
+        phone: form.phone,
+      },
+      estimatedTotal: getGrandTotal(),
+      servicesSummary: getSelectedServicesSummary(selectedVehicles, getVehiclePricingBreakdown),
+      vehicleCount: selectedVehicles.length,
+    });
+    setStatusMessage('');
+    setStep(2);
+    scrollPlannerToTop();
   }
 
   /**
@@ -493,34 +463,6 @@ export default function BookingPage(): JSX.Element {
     });
   }
 
-  /**
-   * Creates a hosted Stripe Checkout Session and redirects the customer for deposit payment.
-   */
-  async function handleCreateCheckoutSession(): Promise<void> {
-    if (!submittedBookingContext) {
-      setStatusMessage('Save the intake and choose a calendar time before payment');
-      return;
-    }
-
-    setPaymentSubmitting(true);
-    setStatusMessage('Opening secure deposit checkout');
-
-    try {
-      const checkoutSession = await createStripeCheckoutSession({
-        bookingId: submittedBookingContext.bookingId,
-        customer: {
-          email: submittedBookingContext.customer.email,
-          fullName: submittedBookingContext.customer.fullName,
-        },
-        vehicles,
-      });
-      window.location.href = checkoutSession.checkoutUrl;
-    } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message.replace(/\.$/, '') : 'Unable to open Stripe checkout');
-      setPaymentSubmitting(false);
-    }
-  }
-
   return (
     <SiteShell>
       <section className="relative overflow-hidden bg-ink px-4 py-10 text-white sm:px-6 sm:py-12 md:py-14">
@@ -536,7 +478,7 @@ export default function BookingPage(): JSX.Element {
                 style={{ width: `${(step / steps.length) * 100}%` }}
               />
             </div>
-            <div className="mt-5 grid grid-cols-3 gap-3">
+            <div className="mt-5 grid grid-cols-2 gap-3">
               {steps.map((item) => {
                 const Icon = item.icon;
                 const active = item.id === step;
@@ -951,7 +893,7 @@ export default function BookingPage(): JSX.Element {
 
           {step === 2 ? (
             <section className="min-h-[520px] transition-all duration-300">
-              {bookingConfirmed && submittedBookingContext ? (
+              {submittedBookingContext ? (
                 <CalInlineEmbed
                   bookingId={submittedBookingContext.bookingId}
                   calLink={getCalendarBookingLink()}
@@ -964,22 +906,6 @@ export default function BookingPage(): JSX.Element {
                   fallbackUrl={getCalendarBookingUrl()}
                 />
               ) : null}
-            </section>
-          ) : null}
-
-          {step === 3 ? (
-            <section className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition-all duration-300">
-              <div>
-                <h2 className="font-heading text-2xl font-semibold text-ink">Payment</h2>
-                <p className="mt-1 text-sm text-ink/65">
-                  Open secure Stripe Checkout to pay the deposit The deposit is applied toward the final service total
-                </p>
-              </div>
-              <div className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
-                <p className="text-sm text-ink/75">
-                  Deposit due now: 10% of the estimate, with a $25 minimum and $100 maximum
-                </p>
-              </div>
             </section>
           ) : null}
           </div>
@@ -1013,14 +939,6 @@ export default function BookingPage(): JSX.Element {
             ) : <span />}
 
             {step === 1 ? (
-              <button
-                type="button"
-                onClick={goNext}
-                className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent"
-              >
-                Continue <ArrowRight className="h-4 w-4" />
-              </button>
-            ) : step === 2 ? (
               selectedVehicles.length === 0 ? (
                 <Link href="/services" className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent">
                   Select Services First
@@ -1028,29 +946,14 @@ export default function BookingPage(): JSX.Element {
               ) : (
                 <button
                   type="button"
-                  onClick={() => {
-                    if (bookingConfirmed) {
-                      goNext();
-                      return;
-                    }
-
-                    void handleSubmitBooking();
-                  }}
-                  disabled={submitting}
-                  className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:opacity-65"
+                  onClick={handleOpenCalendar}
+                  className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent"
                 >
-                  {submitting ? 'Saving' : 'Continue'}
+                  Continue <ArrowRight className="h-4 w-4" />
                 </button>
               )
-            ) : step === 3 ? (
-              <button
-                type="button"
-                onClick={() => void handleCreateCheckoutSession()}
-                disabled={paymentSubmitting}
-                className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent"
-              >
-                {paymentSubmitting ? 'Opening Checkout' : 'Pay Deposit'} <ArrowRight className="h-4 w-4" />
-              </button>
+            ) : step === 2 ? (
+              <span className="text-right text-xs font-semibold text-ink/55">Finish scheduling and deposit in Cal.com</span>
             ) : (
               <span />
             )}
