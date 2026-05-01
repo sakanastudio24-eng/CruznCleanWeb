@@ -7,6 +7,7 @@ import {
   Calendar,
   CarFront,
   CheckCircle2,
+  CreditCard,
   Plus,
   ShieldCheck,
   Trash2,
@@ -20,7 +21,7 @@ import { useBooking } from '@/components/providers/booking-provider';
 import { VehicleSizeGuideLookup } from '@/components/vehicle/vehicle-size-guide-lookup';
 import { BOOKING_LIMIT_DISCLAIMER, MAX_BOOKED_VEHICLES_PER_DAY, countSelectedVehicles } from '@/lib/booking-policy';
 import type { CustomerBookingForm, ServiceOption, VehicleProfile, VehicleSize } from '@/lib/booking-types';
-import { getCalendarBookingLink, getCalendarBookingUrl } from '@/lib/api-client';
+import { createStripeCheckoutSession, getCalendarBookingLink, getCalendarBookingUrl } from '@/lib/api-client';
 import { getServiceAreaZipSummary, isZipInServiceArea, normalizeZipCode } from '@/lib/service-area';
 import { findServiceById } from '@/lib/services-catalog';
 import { usePersistentState } from '@/lib/use-persistent-state';
@@ -90,6 +91,7 @@ function getBookingSteps(): StepItem[] {
   return [
     { id: 1, title: 'Your Details', icon: User },
     { id: 2, title: 'Schedule', icon: Calendar },
+    { id: 3, title: 'Payment', icon: CreditCard },
   ];
 }
 
@@ -314,6 +316,7 @@ export default function BookingPage(): JSX.Element {
   const [fieldErrors, setFieldErrors] = useState<BookingFieldErrors>({});
   const [submittedBookingContext, setSubmittedBookingContext] = useState<SubmittedBookingCalendarContext | null>(null);
   const [statusMessage, setStatusMessage] = useState('');
+  const [paymentSubmitting, setPaymentSubmitting] = useState(false);
   const plannerTopRef = useRef<HTMLDivElement>(null);
 
   const steps = getBookingSteps();
@@ -346,6 +349,7 @@ export default function BookingPage(): JSX.Element {
   function resetInteractionState(): void {
     setFieldErrors({});
     setSubmittedBookingContext(null);
+    setPaymentSubmitting(false);
   }
 
   /**
@@ -416,6 +420,49 @@ export default function BookingPage(): JSX.Element {
   }
 
   /**
+   * Advances from Cal.com scheduling to site-side Stripe deposit billing.
+   */
+  function continueToPayment(): void {
+    if (!submittedBookingContext) {
+      setStatusMessage('Open the scheduler before continuing to deposit billing');
+      return;
+    }
+
+    setStatusMessage('');
+    setStep(3);
+    scrollPlannerToTop();
+  }
+
+  /**
+   * Creates a hosted Stripe Checkout Session for the deposit step.
+   */
+  async function handleCreateCheckoutSession(): Promise<void> {
+    if (!submittedBookingContext) {
+      setStatusMessage('Open the scheduler before deposit billing');
+      return;
+    }
+
+    setPaymentSubmitting(true);
+    setStatusMessage('Opening secure Stripe checkout');
+
+    try {
+      const checkoutSession = await createStripeCheckoutSession({
+        bookingId: submittedBookingContext.bookingId,
+        customer: {
+          email: submittedBookingContext.customer.email,
+          fullName: submittedBookingContext.customer.fullName,
+        },
+        vehicles,
+      });
+
+      window.location.href = checkoutSession.checkoutUrl;
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message.replace(/\.$/, '') : 'Unable to open Stripe checkout');
+      setPaymentSubmitting(false);
+    }
+  }
+
+  /**
    * Builds Cal.com prefill metadata locally so scheduling does not depend on the optional API service.
    */
   function handleOpenCalendar(): void {
@@ -478,7 +525,7 @@ export default function BookingPage(): JSX.Element {
                 style={{ width: `${(step / steps.length) * 100}%` }}
               />
             </div>
-            <div className="mt-5 grid grid-cols-2 gap-3">
+            <div className="mt-5 grid grid-cols-3 gap-3">
               {steps.map((item) => {
                 const Icon = item.icon;
                 const active = item.id === step;
@@ -908,6 +955,25 @@ export default function BookingPage(): JSX.Element {
               ) : null}
             </section>
           ) : null}
+
+          {step === 3 ? (
+            <section className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition-all duration-300">
+              <div>
+                <h2 className="font-heading text-2xl font-semibold text-ink">Deposit Billing</h2>
+                <p className="mt-1 text-sm text-ink/65">
+                  Open secure Stripe Checkout to pay the deposit after selecting your appointment time
+                </p>
+              </div>
+              <div className="rounded-xl border border-burgundy/35 bg-burgundy/10 px-4 py-3">
+                <p className="text-sm font-semibold text-ink">
+                  Deposit due now: 10% of the estimate, with a $25 minimum and $100 maximum
+                </p>
+                <p className="mt-1 text-xs text-ink/65">
+                  Final pricing is confirmed after vehicle inspection and condition review
+                </p>
+              </div>
+            </section>
+          ) : null}
           </div>
 
           {step === 1 ? (
@@ -953,7 +1019,22 @@ export default function BookingPage(): JSX.Element {
                 </button>
               )
             ) : step === 2 ? (
-              <span className="text-right text-xs font-semibold text-ink/55">Finish scheduling and deposit in Cal.com</span>
+              <button
+                type="button"
+                onClick={continueToPayment}
+                className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent"
+              >
+                Continue <ArrowRight className="h-4 w-4" />
+              </button>
+            ) : step === 3 ? (
+              <button
+                type="button"
+                onClick={() => void handleCreateCheckoutSession()}
+                disabled={paymentSubmitting}
+                className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {paymentSubmitting ? 'Opening Checkout' : 'Pay Deposit'} <ArrowRight className="h-4 w-4" />
+              </button>
             ) : (
               <span />
             )}
