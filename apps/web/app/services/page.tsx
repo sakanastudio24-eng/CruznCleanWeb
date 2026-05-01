@@ -130,7 +130,7 @@ function ServiceGrid({
               type="button"
               onClick={() => handleSelect(service)}
               aria-pressed={selected}
-              className={`rounded-xl border p-4 text-left transition duration-300 ${
+              className={`flex min-h-full flex-col rounded-xl border p-4 text-left transition duration-300 ${
                 selected
                   ? 'border-burgundyAccent bg-burgundy/20 shadow-md'
                   : isBestValue
@@ -164,8 +164,7 @@ function ServiceGrid({
                 ))}
               </ul>
 
-              <div className="mt-4 flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/55">Tap to select</span>
+              <div className="mt-auto flex justify-end pt-4">
                 <span className="font-heading text-2xl font-extrabold text-charcoal">{formatCurrency(adjustedPrice)}</span>
               </div>
             </button>
@@ -198,7 +197,7 @@ function VehicleSelectSection(): JSX.Element {
     <section className="gray-card gray-card-hover p-5">
       <h2 className="font-heading text-2xl font-semibold text-ink">Select Your Vehicle</h2>
       <p className="mt-2 text-sm text-ink/60">
-        Pick the active vehicle from the dock, then match it to the closest standard category before selecting services.
+        Pick the active vehicle from the dock, then match it to the closest standard category before selecting services
       </p>
 
       <VehicleSizeGuideLookup
@@ -250,9 +249,9 @@ export default function ServicesPage(): JSX.Element {
         <div className="relative mx-auto max-w-6xl text-center">
           <h1 className="font-heading text-4xl font-semibold sm:text-5xl">Cruizn Clean Services</h1>
           <p className="mx-auto mt-4 max-w-3xl text-base text-white/75 sm:text-xl">
-            Review package and add-on options for Yorba Linda mobile detailing with live size-based pricing and clearer routing for specialty vehicles.
+            Review package and add-on options for Yorba Linda mobile detailing with live size-based pricing and clearer routing for specialty vehicles
           </p>
-          <p className="mt-3 text-sm font-semibold text-fog">Maintenance Detail is the most balanced option for regularly cared-for vehicles.</p>
+          <p className="mt-3 text-sm font-semibold text-fog">Maintenance Detail is the most balanced option for regularly cared-for vehicles</p>
         </div>
       </section>
 
@@ -265,7 +264,7 @@ export default function ServicesPage(): JSX.Element {
               <div>
                 <h2 className="font-heading text-2xl font-semibold text-ink">Add-Ons</h2>
                 <p className="mt-2 max-w-2xl text-sm text-ink/65">
-                  Standalone premium work for vehicles that need coating, correction, or more specialized protection without forcing a package.
+                  Standalone premium work for vehicles that need coating, correction, or more specialized protection without forcing a package
                 </p>
               </div>
               <Link href="/quote" className="text-sm font-semibold text-white transition hover:text-burgundyAccent">

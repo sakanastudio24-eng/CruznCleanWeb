@@ -167,7 +167,7 @@ export function getVehiclePricingBreakdown(services: ServiceOption[], size: Vehi
     suggestion = {
       id: 'add-paint-coating',
       title: 'Unlock paint coating savings',
-      detail: 'Add a 3 Year or 6 Year Ceramic Coating to optimize this correction package.',
+      detail: 'Add a 3 Year or 6 Year Ceramic Coating to optimize this correction package',
       actionLabel: 'Add Ceramic Coating',
       serviceIds: ['coat-ceramic-3y'],
     };

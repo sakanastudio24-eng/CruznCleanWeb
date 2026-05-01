@@ -124,7 +124,7 @@ export function VehicleDock(): JSX.Element {
         <section className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/55">Pricing Reliability</p>
           <p className="mt-2 text-sm text-ink/70">
-            Switch cars here, then manage sizing and service selections in the main planner so pricing always updates from one active source of truth.
+            Switch cars here, then manage sizing and service selections in the main planner so pricing always updates from one active source of truth
           </p>
         </section>
 

@@ -160,30 +160,30 @@ function appendCustomerValidationErrors(
   consentMessage: string,
 ): void {
   if (!hasFirstAndLastName(form.fullName)) {
-    errors.fullName = 'Enter first and last name.';
+    errors.fullName = 'Enter first and last name';
   }
 
   if (!EMAIL_PATTERN.test(form.email.trim())) {
-    errors.email = 'Enter a valid email like name@provider.com.';
+    errors.email = 'Enter a valid email like name@provider.com';
   }
 
   const phoneDigits = form.phone.replace(/\D/g, '');
   if (phoneDigits.length < 10) {
-    errors.phone = 'Enter a valid phone number.';
+    errors.phone = 'Enter a valid phone number';
   }
 
   if (form.zipCode.trim().length < 5) {
-    errors.zipCode = 'Enter a valid ZIP code.';
+    errors.zipCode = 'Enter a valid ZIP code';
   } else if (!isZipInServiceArea(form.zipCode)) {
-    errors.zipCode = 'This ZIP is outside the current online booking service area. Request a quote so we can review travel and availability.';
+    errors.zipCode = 'This ZIP is outside the current online booking service area Request a quote so we can review travel and availability';
   }
 
   if (!hasValidConfirmationPreference(form)) {
-    errors.confirmationChannel = 'Select at least one confirmation channel.';
+    errors.confirmationChannel = 'Select at least one confirmation channel';
   }
 
   if (form.sendSmsConfirmation && !form.acceptedSmsConsent) {
-    errors.smsConsent = 'SMS confirmation requires consent.';
+    errors.smsConsent = 'SMS confirmation requires consent';
   }
 
   if (!form.acceptedConsent) {
@@ -197,22 +197,22 @@ function appendCustomerValidationErrors(
 function validateStepOne(form: CustomerBookingForm, activeVehicle: VehicleProfile | undefined): BookingFieldErrors {
   const errors: BookingFieldErrors = {};
 
-  appendCustomerValidationErrors(form, errors, 'You must accept booking consent to continue.');
+  appendCustomerValidationErrors(form, errors, 'You must accept booking consent to continue');
 
   if (!activeVehicle?.year.trim()) {
-    errors.year = 'Year is required.';
+    errors.year = 'Year is required';
   }
 
   if (!activeVehicle?.make.trim()) {
-    errors.make = 'Make is required.';
+    errors.make = 'Make is required';
   }
 
   if (!activeVehicle?.model.trim()) {
-    errors.model = 'Model is required.';
+    errors.model = 'Model is required';
   }
 
   if (!activeVehicle?.color.trim()) {
-    errors.color = 'Color is required.';
+    errors.color = 'Color is required';
   }
 
   return errors;
@@ -226,10 +226,10 @@ function validateSubmission(form: CustomerBookingForm, vehicles: VehicleProfile[
   const selectedVehicles = vehicles.filter((vehicle) => vehicle.serviceIds.length > 0);
   const selectedVehicleCount = countSelectedVehicles(vehicles);
 
-  appendCustomerValidationErrors(form, errors, 'You must accept booking consent before submitting.');
+  appendCustomerValidationErrors(form, errors, 'You must accept booking consent before submitting');
 
   if (selectedVehicles.length === 0) {
-    errors.serviceSelection = 'Select at least one service before submitting.';
+    errors.serviceSelection = 'Select at least one service before submitting';
   }
 
   if (selectedVehicleCount > MAX_BOOKED_VEHICLES_PER_DAY) {
@@ -419,7 +419,7 @@ export default function BookingPage(): JSX.Element {
   function goNext(): void {
     if (step === 1 && !stepOneValid) {
       setFieldErrors(stepOneErrors);
-      setStatusMessage('Complete required details and confirm email/SMS preferences to continue.');
+      setStatusMessage('Complete required details and confirm email/SMS preferences to continue');
       return;
     }
 
@@ -445,13 +445,13 @@ export default function BookingPage(): JSX.Element {
     const submissionErrors = validateSubmission(form, vehicles);
     if (Object.keys(submissionErrors).length > 0) {
       setFieldErrors(submissionErrors);
-      setStatusMessage('Select at least one service on the Services page before scheduling.');
+      setStatusMessage('Select at least one service on the Services page before scheduling');
       return;
     }
 
     resetInteractionState();
     setSubmitting(true);
-    setStatusMessage('Submitting your booking intake...');
+    setStatusMessage('Submitting your booking intake');
 
     try {
       const response = await submitBookingIntake({ customer: form, vehicles, honeypot });
@@ -468,10 +468,10 @@ export default function BookingPage(): JSX.Element {
       };
       setBookingConfirmed(true);
       setSubmittedBookingContext(nextSubmittedBookingContext);
-      setStatusMessage(response.message ?? 'Booking intake saved. Choose your appointment time below.');
+      setStatusMessage(response.message?.replace(/\.$/, '') ?? 'Booking intake saved Choose your appointment time below');
       clearPersistedForm();
     } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : 'Submission failed. Please try again.');
+      setStatusMessage(error instanceof Error ? error.message.replace(/\.$/, '') : 'Submission failed Please try again');
     } finally {
       setSubmitting(false);
     }
@@ -498,12 +498,12 @@ export default function BookingPage(): JSX.Element {
    */
   async function handleCreateCheckoutSession(): Promise<void> {
     if (!submittedBookingContext) {
-      setStatusMessage('Save the intake and choose a calendar time before payment.');
+      setStatusMessage('Save the intake and choose a calendar time before payment');
       return;
     }
 
     setPaymentSubmitting(true);
-    setStatusMessage('Opening secure deposit checkout...');
+    setStatusMessage('Opening secure deposit checkout');
 
     try {
       const checkoutSession = await createStripeCheckoutSession({
@@ -516,7 +516,7 @@ export default function BookingPage(): JSX.Element {
       });
       window.location.href = checkoutSession.checkoutUrl;
     } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : 'Unable to open Stripe checkout.');
+      setStatusMessage(error instanceof Error ? error.message.replace(/\.$/, '') : 'Unable to open Stripe checkout');
       setPaymentSubmitting(false);
     }
   }
@@ -527,7 +527,7 @@ export default function BookingPage(): JSX.Element {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#8c1c2c44,transparent_65%)]" />
         <div className="relative mx-auto max-w-6xl rounded-[28px] border border-line bg-[#141414]/80 px-4 py-6 backdrop-blur-md sm:rounded-[30px] sm:px-8 sm:py-8 md:px-10 md:py-9">
           <h1 className="text-center font-heading text-2xl font-semibold sm:text-4xl md:text-5xl">Book Your Appointment</h1>
-          <p className="mt-2 text-center text-sm text-white/75 sm:text-base">Details, schedule, deposit, and confirmation.</p>
+          <p className="mt-2 text-center text-sm text-white/75 sm:text-base">Details, schedule, deposit, and confirmation</p>
 
           <div className="mx-auto mt-6 max-w-4xl">
             <div className="h-2 rounded-full bg-black/30">
@@ -570,7 +570,7 @@ export default function BookingPage(): JSX.Element {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/60">Vehicle Deck</p>
-                <p className="text-sm text-ink/70">Manage multiple cars in one booking.</p>
+                <p className="text-sm text-ink/70">Manage multiple cars in one booking</p>
               </div>
               <button
                 type="button"
@@ -629,14 +629,14 @@ export default function BookingPage(): JSX.Element {
               <div>
                 <h2 className="font-heading text-2xl font-semibold text-ink">Your Details</h2>
                 <p className="mt-1 text-sm text-ink/65">
-                  Review the active vehicle, complete contact details, and keep your selected services attached before calendar handoff.
+                  Review the active vehicle, complete contact details, and keep your selected services attached before calendar handoff
                 </p>
               </div>
 
               <div className="space-y-4">
                 <h3 className="font-heading text-xl font-semibold text-ink">Select Your Vehicle</h3>
                 <p className="mt-1 text-sm text-ink/60">
-                  Match the active vehicle to the closest standard category.
+                  Match the active vehicle to the closest standard category
                 </p>
                 {activeVehicle ? (
                   <VehicleSizeGuideLookup
@@ -683,7 +683,7 @@ export default function BookingPage(): JSX.Element {
                 </div>
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-[#141414] px-4 py-3">
                   <p className="text-sm text-ink/70">
-                    Oversized, lifted, modified, specialty, or unlisted vehicles should get a custom quote before scheduling.
+                    Oversized, lifted, modified, specialty, or unlisted vehicles should get a custom quote before scheduling
                   </p>
                   <Link href="/quote" className="rounded-full bg-burgundy px-4 py-2 text-xs font-bold text-white transition hover:bg-burgundyAccent">
                     Request a Quote
@@ -719,7 +719,7 @@ export default function BookingPage(): JSX.Element {
                   </ul>
                 ) : (
                   <p className="mt-3 text-sm text-ink/65">
-                    Choose a package or add-on on the Services page before scheduling so the estimate and Cal.com metadata stay accurate.
+                    Choose a package or add-on on the Services page before scheduling so the estimate and Cal.com metadata stay accurate
                   </p>
                 )}
                 {activePricingBreakdown?.savingsLines.map((line) => (
@@ -813,11 +813,11 @@ export default function BookingPage(): JSX.Element {
                       id="booking-service-area-quote-help"
                       className="mt-2 block rounded-lg border border-burgundy/50 bg-burgundy/10 p-3 text-xs font-medium text-ink"
                     >
-                      This ZIP is not in the standard online booking area ({getServiceAreaZipSummary()}).{' '}
+                      This ZIP is not in the standard online booking area ({getServiceAreaZipSummary()}){' '}
                       <Link href="/quote" className="font-bold text-burgundyAccent underline underline-offset-4">
                         Ask for a quote
                       </Link>{' '}
-                      so travel and scheduling can be reviewed.
+                      so travel and scheduling can be reviewed
                     </span>
                   ) : null}
                 </label>
@@ -896,7 +896,7 @@ export default function BookingPage(): JSX.Element {
                       onChange={(event) => updateCustomerField('acceptedConsent', event.target.checked)}
                       className="mt-1"
                     />
-                    <span>I reviewed the booking terms and policies and agree to be contacted for scheduling updates.</span>
+                    <span>I reviewed the booking terms and policies and agree to be contacted for scheduling updates</span>
                   </label>
                   {fieldErrors.acceptedConsent ? <p className="a11y-error text-xs font-medium">{fieldErrors.acceptedConsent}</p> : null}
 
@@ -907,7 +907,7 @@ export default function BookingPage(): JSX.Element {
                       onChange={(event) => updateCustomerField('sendEmailConfirmation', event.target.checked)}
                       className="mt-1"
                     />
-                    <span>I agree to receive booking confirmations and service-related emails.</span>
+                    <span>I agree to receive booking confirmations and service-related emails</span>
                   </label>
 
                   <label className="flex items-start gap-2 rounded-lg border border-line bg-[#141414] px-3 py-2 text-sm text-ink/80">
@@ -937,7 +937,7 @@ export default function BookingPage(): JSX.Element {
                       onChange={(event) => updateCustomerField('acceptedSmsConsent', event.target.checked)}
                       className="mt-0.5"
                     />
-                    I agree to receive booking-related SMS confirmations. Message/data rates may apply.
+                    I agree to receive booking-related SMS confirmations Message/data rates may apply
                   </label>
                 ) : null}
                 {fieldErrors.confirmationChannel ? (
@@ -972,12 +972,12 @@ export default function BookingPage(): JSX.Element {
               <div>
                 <h2 className="font-heading text-2xl font-semibold text-ink">Payment</h2>
                 <p className="mt-1 text-sm text-ink/65">
-                  Open secure Stripe Checkout to pay the deposit. The deposit is applied toward the final service total.
+                  Open secure Stripe Checkout to pay the deposit The deposit is applied toward the final service total
                 </p>
               </div>
               <div className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
                 <p className="text-sm text-ink/75">
-                  Deposit due now: 10% of the estimate, with a $25 minimum and $100 maximum.
+                  Deposit due now: 10% of the estimate, with a $25 minimum and $100 maximum
                 </p>
               </div>
             </section>
@@ -1039,7 +1039,7 @@ export default function BookingPage(): JSX.Element {
                   disabled={submitting}
                   className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:opacity-65"
                 >
-                  {submitting ? 'Saving...' : 'Continue'}
+                  {submitting ? 'Saving' : 'Continue'}
                 </button>
               )
             ) : step === 3 ? (
@@ -1049,7 +1049,7 @@ export default function BookingPage(): JSX.Element {
                 disabled={paymentSubmitting}
                 className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent"
               >
-                {paymentSubmitting ? 'Opening Checkout...' : 'Pay Deposit'} <ArrowRight className="h-4 w-4" />
+                {paymentSubmitting ? 'Opening Checkout' : 'Pay Deposit'} <ArrowRight className="h-4 w-4" />
               </button>
             ) : (
               <span />
@@ -1074,7 +1074,7 @@ export default function BookingPage(): JSX.Element {
           {fieldErrors.selectedVehicleDetails ? <p className="a11y-error text-xs font-medium">{fieldErrors.selectedVehicleDetails}</p> : null}
           {fieldErrors.selectedVehicleLimit ? <p className="a11y-error text-xs font-medium">{fieldErrors.selectedVehicleLimit}</p> : null}
           <p className="text-xs font-medium text-ink/60">
-            {BOOKING_LIMIT_DISCLAIMER} Booking window: Monday-Saturday 8am - 6pm.
+            {BOOKING_LIMIT_DISCLAIMER.replace(/\.$/, '')} Booking window: Monday-Saturday 8am - 6pm
           </p>
 
           {statusMessage ? (
@@ -1127,7 +1127,7 @@ export default function BookingPage(): JSX.Element {
                 <p className="mt-1 text-sm font-semibold text-charcoal">{formatCurrency(selectedPackageLine.finalPrice)}</p>
               </article>
             ) : (
-              <p className="rounded-xl bg-canvas p-3 text-sm text-ink/70">Package selection is optional if you only need coating or correction work.</p>
+              <p className="rounded-xl bg-canvas p-3 text-sm text-ink/70">Package selection is optional if you only need coating or correction work</p>
             )}
 
             <article className="rounded-xl border border-black/10 p-3">
@@ -1147,7 +1147,7 @@ export default function BookingPage(): JSX.Element {
                   ))}
                 </ul>
               ) : (
-              <p className="mt-2 text-xs text-ink/60">No add-ons selected yet.</p>
+              <p className="mt-2 text-xs text-ink/60">No add-ons selected yet</p>
               )}
               {activePricingBreakdown?.savingsLines.map((line) => (
                 <div key={line.id} className="mt-3 flex items-center justify-between rounded-lg border border-burgundy/35 bg-burgundy/10 px-3 py-2 text-xs font-semibold text-white">

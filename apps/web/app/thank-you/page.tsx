@@ -17,10 +17,10 @@ export default function ThankYouPage(): JSX.Element {
             <CalendarCheck className="h-4 w-4" />
             Booking Flow Complete
           </p>
-          <h1 className="mt-5 font-heading text-4xl font-semibold sm:text-5xl">Thanks. Your appointment is being confirmed.</h1>
+          <h1 className="mt-5 font-heading text-4xl font-semibold sm:text-5xl">Thanks Your appointment is being confirmed</h1>
           <p className="mx-auto mt-4 max-w-2xl text-base text-white/72 sm:text-lg">
-            Your intake, calendar selection, and Stripe deposit are complete. Cruizn Clean will use your saved details to
-            prepare the right service plan for your vehicle.
+            Your intake, calendar selection, and Stripe deposit are complete Cruizn Clean will use your saved details to
+            prepare the right service plan for your vehicle
           </p>
 
           <div className="mt-8 grid gap-4 text-left sm:grid-cols-2">
@@ -28,14 +28,14 @@ export default function ThankYouPage(): JSX.Element {
               <MailCheck className="h-6 w-6 text-white/80" />
               <h2 className="mt-4 font-heading text-xl font-semibold text-white">Watch your inbox</h2>
               <p className="mt-2 text-sm text-white/70">
-                Your confirmation email includes the appointment details. Stripe will provide the deposit receipt separately.
+                Your confirmation email includes the appointment details Stripe will provide the deposit receipt separately
               </p>
             </article>
             <article className="gray-card p-5">
               <ShieldCheck className="h-6 w-6 text-white/80" />
               <h2 className="mt-4 font-heading text-xl font-semibold text-white">Prepare the vehicle</h2>
               <p className="mt-2 text-sm text-white/70">
-                Remove personal items before arrival. Final pricing is confirmed after the vehicle condition and size are reviewed.
+                Remove personal items before arrival Final pricing is confirmed after the vehicle condition and size are reviewed
               </p>
             </article>
           </div>
@@ -51,12 +51,12 @@ export default function ThankYouPage(): JSX.Element {
               </div>
             </div>
             <ul className="mt-4 grid gap-3 text-sm text-white/72 sm:grid-cols-2">
-              <li className="rounded-xl border border-line bg-[#141414] p-3">Loose items and personal belongings must be removed from the vehicle.</li>
-              <li className="rounded-xl border border-line bg-[#141414] p-3">Park in an accessible location with at least 8 feet of clearance from other vehicles.</li>
-              <li className="rounded-xl border border-line bg-[#141414] p-3">Please stay clear of the vehicle during service to help prevent accidents or injury.</li>
-              <li className="rounded-xl border border-line bg-[#141414] p-3">Be ready for key handoff and service at the scheduled time.</li>
-              <li className="rounded-xl border border-line bg-[#141414] p-3">Deposit confirmation is required before the appointment is locked in.</li>
-              <li className="rounded-xl border border-burgundy/35 bg-burgundy/10 p-3">Final quote may change after inspection for incorrect booking details or extended attention.</li>
+              <li className="rounded-xl border border-line bg-[#141414] p-3">Loose items and personal belongings must be removed from the vehicle</li>
+              <li className="rounded-xl border border-line bg-[#141414] p-3">Park in an accessible location with at least 8 feet of clearance from other vehicles</li>
+              <li className="rounded-xl border border-line bg-[#141414] p-3">Please stay clear of the vehicle during service to help prevent accidents or injury</li>
+              <li className="rounded-xl border border-line bg-[#141414] p-3">Be ready for key handoff and service at the scheduled time</li>
+              <li className="rounded-xl border border-line bg-[#141414] p-3">Deposit confirmation is required before the appointment is locked in</li>
+              <li className="rounded-xl border border-burgundy/35 bg-burgundy/10 p-3">Final quote may change after inspection for incorrect booking details or extended attention</li>
             </ul>
           </div>
 

@@ -140,13 +140,13 @@ export function CalInlineEmbed({
 
   useEffect(() => {
     if (!calLink.trim()) {
-      setEmbedError('Calendar link is not configured.');
+      setEmbedError('Calendar link is not configured');
       return;
     }
 
     const mountElement = document.getElementById(mountId);
     if (!mountElement) {
-      setEmbedError('Calendar mount point is not ready.');
+      setEmbedError('Calendar mount point is not ready');
       return;
     }
 
@@ -157,7 +157,7 @@ export function CalInlineEmbed({
     Cal('init', namespace, { origin: CAL_EMBED_ORIGIN });
     const namespacedCal = window.Cal?.ns?.[namespace];
     if (!namespacedCal) {
-      setEmbedError('Calendar embed failed to initialize.');
+      setEmbedError('Calendar embed failed to initialize');
       return;
     }
 
@@ -220,9 +220,9 @@ export function CalInlineEmbed({
 
       {embedError ? <p className="a11y-error mt-3 text-sm font-medium">{embedError}</p> : null}
       {showFallback && !embedError ? (
-        <p className="mt-3 text-sm text-white/65">Calendar is taking longer than expected. Use the fallback link if it does not load.</p>
+        <p className="mt-3 text-sm text-white/65">Calendar is taking longer than expected Use the fallback link if it does not load</p>
       ) : null}
-      {!embedReady && !embedError ? <p className="mt-3 text-sm text-white/65">Loading calendar...</p> : null}
+      {!embedReady && !embedError ? <p className="mt-3 text-sm text-white/65">Loading calendar</p> : null}
 
       <div
         id={mountId}

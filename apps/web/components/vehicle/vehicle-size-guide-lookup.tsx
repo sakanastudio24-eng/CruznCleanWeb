@@ -177,7 +177,7 @@ export function VehicleSizeGuideLookup({
               ))}
             </div>
           ) : (
-            <p className="text-xs text-ink/65">No catalog match yet. Select the closest standard vehicle type, or request a custom quote for specialty vehicles.</p>
+            <p className="text-xs text-ink/65">No catalog match yet Select the closest standard vehicle type, or request a custom quote for specialty vehicles</p>
           )}
         </div>
       ) : null}
@@ -191,16 +191,16 @@ export function VehicleSizeGuideLookup({
       }`}>
         {ambiguousVehicleMatch ? (
           <>
-            Multiple guide matches were found for this make/model.
-            Select the closest exact match from the dropdown or type finder before you continue.
+            Multiple guide matches were found for this make/model
+            Select the closest exact match from the dropdown or type finder before you continue
           </>
         ) : matchedByVehicleFields ? (
           <>
             Matched <span className="font-semibold">{matchedByVehicleFields.make} {matchedByVehicleFields.model}</span> and applied
-            <span className="font-semibold"> {SIZE_LABELS[matchedByVehicleFields.size]}</span> sizing guidance.
+            <span className="font-semibold"> {SIZE_LABELS[matchedByVehicleFields.size]}</span> sizing guidance
           </>
         ) : (
-          'This vehicle is not in our standard sizing guide yet. Select the closest standard vehicle type, or request a custom quote if the vehicle is modified, lifted, or specialty fitment.'
+          'This vehicle is not in our standard sizing guide yet Select the closest standard vehicle type, or request a custom quote if the vehicle is modified, lifted, or specialty fitment'
         )}
       </div>
 
@@ -208,7 +208,7 @@ export function VehicleSizeGuideLookup({
         <div className="mt-3 rounded-lg border border-line bg-[#141414] px-3 py-3 text-xs text-ink/75">
           <p className="font-semibold text-ink">Mismatch check</p>
           <p className="mt-1">
-            If this vehicle has modifications, lift kits, oversized wheels, accessories, or anything else that changes service time, request a custom quote before booking.
+            If this vehicle has modifications, lift kits, oversized wheels, accessories, or anything else that changes service time, request a custom quote before booking
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <Link href="/quote" className="rounded-full bg-burgundy px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-burgundyAccent">
@@ -222,7 +222,7 @@ export function VehicleSizeGuideLookup({
       ) : null}
 
       <p className="mt-2 text-[11px] text-ink/55">
-        Model-level matching only in v1. When your exact vehicle is not listed, confirm fitment through Quote or FAQ before submitting.
+        Model-level matching only in v1; when your exact vehicle is not listed, confirm fitment through Quote or FAQ before submitting
       </p>
     </div>
   );
