@@ -20,5 +20,5 @@ export const SITE_PROFILE: SiteProfile = {
   supportEmail: 'hello@cruiznclean.com',
   siteUrl: 'https://www.cruiznclean.com',
   hoursLabel: 'Mon-Sat 8:00AM - 6:00PM',
-  serviceAreaLabel: 'Yorba Linda, Anaheim Hills, Placentia, and nearby Orange County neighborhoods.',
+  serviceAreaLabel: 'Yorba Linda, Anaheim Hills, Placentia, and nearby Orange County neighborhoods',
 };

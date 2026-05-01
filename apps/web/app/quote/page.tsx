@@ -54,10 +54,10 @@ export default function QuotePage(): JSX.Element {
         message: `[QUOTE REQUEST] Address: ${form.address}\n${form.message}`,
       };
       await submitContactMessage(payload);
-      setStatusMessage('Quote request sent. We will reply within 24 hours.');
+      setStatusMessage('Quote request sent We will reply within 24 hours');
       clearForm();
     } catch {
-      setStatusMessage('Quote request failed. Please retry.');
+      setStatusMessage('Quote request failed Please retry');
     }
   }
 
@@ -68,7 +68,7 @@ export default function QuotePage(): JSX.Element {
         <div className="relative mx-auto max-w-6xl text-center">
           <h1 className="font-heading text-4xl font-semibold sm:text-5xl">Request a Custom Quote</h1>
           <p className="mx-auto mt-4 max-w-3xl text-base text-white/75 sm:text-xl">
-            Tell us about the vehicle, the condition, and the result you want. We will respond with a tailored estimate for Yorba Linda-area service.
+            Tell us about the vehicle, the condition, and the result you want We will respond with a tailored estimate for Yorba Linda-area service
           </p>
           <Link href="/faq" className="mt-5 inline-flex rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10">
             Need sizing or booking help first?

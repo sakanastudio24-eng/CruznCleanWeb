@@ -219,7 +219,7 @@ export function SiteHeader(): JSX.Element {
 
                 {vehiclesWithSelections.length === 0 ? (
                   <p className="mt-2 rounded-xl bg-white/5 p-3 text-sm text-white/70">
-                    No services selected yet. Add services from the Services page.
+                    No services selected yet Add services from the Services page
                   </p>
                 ) : (
                   <div className="mt-3 space-y-3">

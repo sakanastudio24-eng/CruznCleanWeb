@@ -28,9 +28,9 @@ export interface TestimonialItem {
  */
 export function getHomeServices(): ServiceItem[] {
   const descriptionById: Record<string, string> = {
-    'pkg-mini': 'Quick exterior wash, vacuum, and light reset for vehicles that just need to look presentable again.',
-    'pkg-maintenance': 'Our most balanced upkeep detail for maintained vehicles that need consistent care.',
-    'pkg-full-reset': 'Full interior and exterior coverage when the vehicle needs the full day reset.',
+    'pkg-mini': 'Quick exterior wash, vacuum, and light reset for vehicles that just need to look presentable again',
+    'pkg-maintenance': 'Our most balanced upkeep detail for maintained vehicles that need consistent care',
+    'pkg-full-reset': 'Full interior and exterior coverage when the vehicle needs the full day reset',
   };
 
   return getPackageServices().map((service) => ({
@@ -48,15 +48,15 @@ export function getHomeResults(): ResultItem[] {
   return [
     {
       title: 'Paint Clarity Restored',
-      detail: 'Daily-driven paint corrected into a cleaner, sharper finish with stronger gloss and reflection.',
+      detail: 'Daily-driven paint corrected into a cleaner, sharper finish with stronger gloss and reflection',
     },
     {
       title: 'Interior Reset',
-      detail: 'Cabins reset for cleaner touchpoints, fresher fabric, and a calmer in-car feel.',
+      detail: 'Cabins reset for cleaner touchpoints, fresher fabric, and a calmer in-car feel',
     },
     {
       title: 'Protection Layered',
-      detail: 'Sealants and coatings added to help defend against road film, dust, and Southern California sun exposure.',
+      detail: 'Sealants and coatings added to help defend against road film, dust, and Southern California sun exposure',
     },
   ];
 }
@@ -68,15 +68,15 @@ export function getHomeProcess(): ProcessItem[] {
   return [
     {
       title: 'Choose Service Plan',
-      detail: 'Review packages, correction work, and coatings for each vehicle using the service planner.',
+      detail: 'Review packages, correction work, and coatings for each vehicle using the service planner',
     },
     {
       title: 'Submit Booking',
-      detail: 'Send vehicle details, contact info, and service notes in one intake flow.',
+      detail: 'Send vehicle details, contact info, and service notes in one intake flow',
     },
     {
       title: 'Make Your Downpayment',
-      detail: 'Choose the final appointment time and pay the deposit inside Cal.com after the intake is saved.',
+      detail: 'Choose the final appointment time and pay the deposit inside Cal.com after the intake is saved',
     },
   ];
 }

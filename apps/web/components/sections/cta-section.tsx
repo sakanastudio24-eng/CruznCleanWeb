@@ -18,7 +18,7 @@ export function CtaSection(): JSX.Element {
               Ready to lock in your detail?
             </h2>
             <p className="mt-3 max-w-2xl text-sm text-white/85 sm:text-base">
-              Submit your vehicle and service details first, then finish appointment scheduling in Cal.com with a clean handoff.
+              Submit your vehicle and service details first, then finish appointment scheduling in Cal.com with a clean handoff
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
@@ -42,21 +42,21 @@ export function CtaSection(): JSX.Element {
                 <CalendarClock className="h-4 w-4 text-burgundyAccent" />
                 Intake submitted before scheduling
               </p>
-              <p className="mt-1 text-xs text-white/70">Your service selections stay attached to your booking request.</p>
+              <p className="mt-1 text-xs text-white/70">Your service selections stay attached to your booking request</p>
             </article>
             <article className="rounded-2xl border border-burgundy/25 bg-black/30 px-4 py-3">
               <p className="inline-flex items-center gap-2 text-sm font-semibold text-white">
                 <ShieldCheck className="h-4 w-4 text-burgundyAccent" />
                 Multi-vehicle workflow ready
               </p>
-              <p className="mt-1 text-xs text-white/70">Build and submit multiple cars in one appointment request.</p>
+              <p className="mt-1 text-xs text-white/70">Build and submit multiple cars in one appointment request</p>
             </article>
             <article className="rounded-2xl border border-burgundy/25 bg-black/30 px-4 py-3">
               <p className="inline-flex items-center gap-2 text-sm font-semibold text-white">
                 <Sparkles className="h-4 w-4 text-burgundyAccent" />
                 Professional finish, clear pricing
               </p>
-              <p className="mt-1 text-xs text-white/70">Package + add-on totals stay visible throughout checkout.</p>
+              <p className="mt-1 text-xs text-white/70">Package + add-on totals stay visible throughout checkout</p>
             </article>
           </div>
         </div>

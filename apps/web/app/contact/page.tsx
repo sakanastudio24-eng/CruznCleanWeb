@@ -43,14 +43,14 @@ export default function ContactPage(): JSX.Element {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     setSubmitting(true);
-    setStatusMessage('Sending your message...');
+    setStatusMessage('Sending your message');
 
     try {
       await submitContactMessage(form);
       clearForm();
-      setStatusMessage('Message sent. We will respond as soon as possible.');
+      setStatusMessage('Message sent We will respond as soon as possible');
     } catch {
-      setStatusMessage('Message failed to send. Please try again shortly.');
+      setStatusMessage('Message failed to send Please try again shortly');
     } finally {
       setSubmitting(false);
     }
@@ -63,7 +63,7 @@ export default function ContactPage(): JSX.Element {
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-fog">Contact</p>
           <h1 className="mt-3 font-heading text-3xl font-extrabold sm:text-4xl">Questions before booking?</h1>
           <p className="mt-4 text-sm text-white/80 sm:text-base">
-            Use this form for general questions about service areas, timing, or prep. For appointments, use Book Now.
+            Use this form for general questions about service areas, timing, or prep; for appointments, use Book Now
           </p>
           <p className="mt-2 text-xs uppercase tracking-[0.16em] text-white/50">{SITE_PROFILE.locationLabel}</p>
         </div>
@@ -122,7 +122,7 @@ export default function ContactPage(): JSX.Element {
             disabled={submitting}
             className="w-full rounded-full bg-white px-4 py-3 text-sm font-semibold text-black transition hover:bg-fog disabled:opacity-60"
           >
-            {submitting ? 'Sending...' : 'Send Question'}
+            {submitting ? 'Sending' : 'Send Question'}
           </button>
 
           {statusMessage ? <p className="text-sm text-ink/75">{statusMessage}</p> : null}
