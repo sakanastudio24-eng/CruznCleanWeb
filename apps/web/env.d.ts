@@ -120,13 +120,49 @@ export type CoercedEnvSchema = {
    */
   SENTRY_AUTH_TOKEN?: string;
   
+  /**
+   * **STRIPE_SECRET_KEY** 🔐 _sensitive_  
+   * ![icon](data:image/svg+xml;utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20fill%3D%22%23808080%22%20d%3D%22M29%2022h-5a2.003%202.003%200%200%201-2-2v-6a2%202%200%200%201%202-2h5v2h-5v6h5ZM18%2012h-4V8h-2v14h6a2.003%202.003%200%200%200%202-2v-6a2%202%200%200%200-2-2m-4%208v-6h4v6Zm-6-8H3v2h5v2H4a2%202%200%200%200-2%202v2a2%202%200%200%200%202%202h6v-8a2%202%200%200%200-2-2m0%208H4v-2h4Z%22%2F%3E%3C%2Fsvg%3E)   
+   */
+  STRIPE_SECRET_KEY?: string;
+  
+  /**
+   * **STRIPE_DEPOSIT_PERCENT**  
+   * ![icon](data:image/svg+xml;utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20fill%3D%22%23808080%22%20d%3D%22M26%2012h-4v2h4v2h-3v2h3v2h-4v2h4a2.003%202.003%200%200%200%202-2v-6a2%202%200%200%200-2-2m-7%2010h-6v-4a2%202%200%200%201%202-2h2v-2h-4v-2h4a2%202%200%200%201%202%202v2a2%202%200%200%201-2%202h-2v2h4ZM8%2020v-8H6v1H4v2h2v5H4v2h6v-2z%22%2F%3E%3C%2Fsvg%3E)   
+   */
+  STRIPE_DEPOSIT_PERCENT: number;
+  
+  /**
+   * **STRIPE_DEPOSIT_MIN_CENTS**  
+   * ![icon](data:image/svg+xml;utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20fill%3D%22%23808080%22%20d%3D%22M26%2012h-4v2h4v2h-3v2h3v2h-4v2h4a2.003%202.003%200%200%200%202-2v-6a2%202%200%200%200-2-2m-7%2010h-6v-4a2%202%200%200%201%202-2h2v-2h-4v-2h4a2%202%200%200%201%202%202v2a2%202%200%200%201-2%202h-2v2h4ZM8%2020v-8H6v1H4v2h2v5H4v2h6v-2z%22%2F%3E%3C%2Fsvg%3E)   
+   */
+  STRIPE_DEPOSIT_MIN_CENTS: number;
+  
+  /**
+   * **STRIPE_DEPOSIT_MAX_CENTS**  
+   * ![icon](data:image/svg+xml;utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20fill%3D%22%23808080%22%20d%3D%22M26%2012h-4v2h4v2h-3v2h3v2h-4v2h4a2.003%202.003%200%200%200%202-2v-6a2%202%200%200%200-2-2m-7%2010h-6v-4a2%202%200%200%201%202-2h2v-2h-4v-2h4a2%202%200%200%201%202%202v2a2%202%200%200%201-2%202h-2v2h4ZM8%2020v-8H6v1H4v2h2v5H4v2h6v-2z%22%2F%3E%3C%2Fsvg%3E)   
+   */
+  STRIPE_DEPOSIT_MAX_CENTS: number;
+  
+  /**
+   * **STRIPE_SUCCESS_URL**  
+   * ![icon](data:image/svg+xml;utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20fill%3D%22%23808080%22%20d%3D%22M29%2022h-5a2.003%202.003%200%200%201-2-2v-6a2%202%200%200%201%202-2h5v2h-5v6h5ZM18%2012h-4V8h-2v14h6a2.003%202.003%200%200%200%202-2v-6a2%202%200%200%200-2-2m-4%208v-6h4v6Zm-6-8H3v2h5v2H4a2%202%200%200%200-2%202v2a2%202%200%200%200%202%202h6v-8a2%202%200%200%200-2-2m0%208H4v-2h4Z%22%2F%3E%3C%2Fsvg%3E)   
+   */
+  STRIPE_SUCCESS_URL: string;
+  
+  /**
+   * **STRIPE_CANCEL_URL**  
+   * ![icon](data:image/svg+xml;utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20fill%3D%22%23808080%22%20d%3D%22M29%2022h-5a2.003%202.003%200%200%201-2-2v-6a2%202%200%200%201%202-2h5v2h-5v6h5ZM18%2012h-4V8h-2v14h6a2.003%202.003%200%200%200%202-2v-6a2%202%200%200%200-2-2m-4%208v-6h4v6Zm-6-8H3v2h5v2H4a2%202%200%200%200-2%202v2a2%202%200%200%200%202%202h6v-8a2%202%200%200%200-2-2m0%208H4v-2h4Z%22%2F%3E%3C%2Fsvg%3E)   
+   */
+  STRIPE_CANCEL_URL: string;
+  
 };
 
-type _CoercedEnvSchema_aa14cb93 = CoercedEnvSchema;
+type _CoercedEnvSchema_a1c72b40 = CoercedEnvSchema;
 
 declare module 'varlock/env' {
-  export interface TypedEnvSchema extends Readonly<_CoercedEnvSchema_aa14cb93> {}
-  export interface PublicTypedEnvSchema extends Readonly<Pick<_CoercedEnvSchema_aa14cb93, 'APP_ENV' | 'NEXT_PUBLIC_API_BASE_URL' | 'NEXT_PUBLIC_CAL_COM_URL' | 'NEXT_PUBLIC_CAL_COM_LINK' | 'NEXT_PUBLIC_SITE_URL' | 'NEXT_PUBLIC_BUSINESS_NAME' | 'NEXT_PUBLIC_LOCATION_LABEL' | 'NEXT_PUBLIC_SUPPORT_EMAIL' | 'NEXT_PUBLIC_PHONE_DISPLAY' | 'NEXT_PUBLIC_MARKETING_MENU_ENABLED' | 'NEXT_PUBLIC_STORAGE_BACKEND' | 'NEXT_PUBLIC_SUPABASE_URL' | 'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY' | 'NEXT_PUBLIC_SENTRY_DSN' | 'NEXT_PUBLIC_SENTRY_TEST_PAGE_ENABLED' | 'SENTRY_ORG' | 'SENTRY_PROJECT' | 'SENTRY_UPLOAD_SOURCE_MAPS'>> {}
+  export interface TypedEnvSchema extends Readonly<_CoercedEnvSchema_a1c72b40> {}
+  export interface PublicTypedEnvSchema extends Readonly<Pick<_CoercedEnvSchema_a1c72b40, 'APP_ENV' | 'NEXT_PUBLIC_API_BASE_URL' | 'NEXT_PUBLIC_CAL_COM_URL' | 'NEXT_PUBLIC_CAL_COM_LINK' | 'NEXT_PUBLIC_SITE_URL' | 'NEXT_PUBLIC_BUSINESS_NAME' | 'NEXT_PUBLIC_LOCATION_LABEL' | 'NEXT_PUBLIC_SUPPORT_EMAIL' | 'NEXT_PUBLIC_PHONE_DISPLAY' | 'NEXT_PUBLIC_MARKETING_MENU_ENABLED' | 'NEXT_PUBLIC_STORAGE_BACKEND' | 'NEXT_PUBLIC_SUPABASE_URL' | 'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY' | 'NEXT_PUBLIC_SENTRY_DSN' | 'NEXT_PUBLIC_SENTRY_TEST_PAGE_ENABLED' | 'SENTRY_ORG' | 'SENTRY_PROJECT' | 'SENTRY_UPLOAD_SOURCE_MAPS' | 'STRIPE_DEPOSIT_PERCENT' | 'STRIPE_DEPOSIT_MIN_CENTS' | 'STRIPE_DEPOSIT_MAX_CENTS' | 'STRIPE_SUCCESS_URL' | 'STRIPE_CANCEL_URL'>> {}
 }
 
 
@@ -136,17 +172,17 @@ export type EnvSchemaAsStrings = {
       : (CoercedEnvSchema[Property] extends boolean ? ('true' | 'false') : string)
 };
 
-type _EnvSchemaAsStrings_aa14cb93 = EnvSchemaAsStrings;
+type _EnvSchemaAsStrings_a1c72b40 = EnvSchemaAsStrings;
 declare global {
 
   // add types for global import.meta.env
-  interface ImportMetaEnv extends _EnvSchemaAsStrings_aa14cb93 {}
+  interface ImportMetaEnv extends _EnvSchemaAsStrings_a1c72b40 {}
   interface ImportMeta {
     readonly env: ImportMetaEnv;
   }
 
   // add types for global process.env
   namespace NodeJS {
-    interface ProcessEnv extends _EnvSchemaAsStrings_aa14cb93 {}
+    interface ProcessEnv extends _EnvSchemaAsStrings_a1c72b40 {}
   }
 }

@@ -121,7 +121,7 @@ export async function createStripeCheckoutSession(payload: {
       serviceIds: vehicle.serviceIds,
     }));
 
-  const response = await fetch(`${getApiBaseUrl()}/payments/checkout-session`, {
+  const response = await fetch('/api/payments/checkout-session', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
