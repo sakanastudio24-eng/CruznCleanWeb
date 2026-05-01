@@ -4,6 +4,7 @@
 !.env.schema
 !**/.env.schema
 node_modules/
+.pnpm-store/
 .next/
 .next*/
 out/
@@ -18,3 +19,4 @@ venv/
 data/email_failures.json
 DetailFlow App/
 Car Detailing Homepage Design.zip
+.vercel

@@ -6,9 +6,7 @@ settings:
 
 importers:
 
-  .: {}
-
-  apps/web:
+  .:
     dependencies:
       '@sentry/nextjs':
         specifier: ^10.51.0

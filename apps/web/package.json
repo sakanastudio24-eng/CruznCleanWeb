@@ -2,6 +2,7 @@
   "name": "cruizn-clean-web",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.30.3",
   "scripts": {
     "dev": "varlock run -- next dev",
     "dev:raw": "next dev",
@@ -15,6 +16,7 @@
     "quality": "pnpm run env:check && pnpm run lint && pnpm run typecheck && pnpm run build"
   },
   "dependencies": {
+    "@sentry/nextjs": "^10.51.0",
     "clsx": "2.1.1",
     "lucide-react": "^1.11.0",
     "next": "14.2.35",
