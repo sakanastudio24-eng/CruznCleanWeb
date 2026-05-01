@@ -1,6 +1,6 @@
 # Cruizn Clean Front-Facing Copy
 
-This is the customer-visible copy register for Cruizn Clean. It is organized by page/surface so wording can be reviewed in one place before launch.
+This is the customer-visible copy register for Cruizn Clean It is organized by page/surface so wording can be reviewed in one place before launch
 
 ## Home
 
@@ -10,8 +10,8 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 ### Hero
 - Image alt: Cruizn Clean exterior detail finish
 - Cruizn Clean
-- Memorable detailing without the guesswork.
-- A darker, cleaner booking experience for Yorba Linda clients who want sharp pricing, polished results, and less friction between quote, booking, and calendar handoff.
+- Memorable detailing without the guesswork
+- A darker, cleaner booking experience for Yorba Linda clients who want sharp pricing, polished results, and less friction between quote, booking, and calendar handoff
 - Book an Appointment
 - (555) 123-4567
 
@@ -40,7 +40,7 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 ### Quick Detail Finder
 - Quick Detail Finder
 - Build a cleaner first pass
-- Choose a vehicle type, line up the right package, then refine everything else on Services or Booking.
+- Choose a vehicle type, line up the right package, then refine everything else on Services or Booking
 - Step 1 • Vehicle Type
 - Sedan / Coupe
 - Small SUV / Truck
@@ -57,7 +57,7 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 - $279
 - The Full Reset
 - $399
-- Pick a vehicle type first, then choose the package that fits the job.
+- Pick a vehicle type first, then choose the package that fits the job
 - Build Service Plan
 - Need Help First?
 
@@ -67,32 +67,32 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 - Full service menu
 - from $60
 - Mini Detail
-- Quick exterior wash, vacuum, and light reset for vehicles that just need to look presentable again.
+- Quick exterior wash, vacuum, and light reset for vehicles that just need to look presentable again
 - from $99
 - Maintenance Detail
-- Our most balanced upkeep detail for maintained vehicles that need consistent care.
+- Our most balanced upkeep detail for maintained vehicles that need consistent care
 - from $179
 - Full Interior
-- Deep interior service for fabric, leather, odor, and full touchpoint reset.
+- Deep interior service for fabric, leather, odor, and full touchpoint reset
 - from $279
 - Full Exterior
-- Exterior decontamination, gloss enhancement, and durable protection.
+- Exterior decontamination, gloss enhancement, and durable protection
 - from $399
 - The Full Reset
-- Full interior and exterior coverage when the vehicle needs the full day reset.
+- Full interior and exterior coverage when the vehicle needs the full day reset
 
 ### How It Works
 - How It Works
 - Simple flow, clear results
 - Step 1
 - Choose Service Plan
-- Review packages, correction work, and coatings for each vehicle using the service planner.
+- Review packages, correction work, and coatings for each vehicle using the service planner
 - Step 2
 - Submit Booking
-- Send vehicle details, contact info, and service notes in one intake flow.
+- Send vehicle details, contact info, and service notes in one intake flow
 - Step 3
 - Make Your Downpayment
-- Choose the final appointment time and pay the deposit inside Cal.com after the intake is saved.
+- Choose the final appointment time and pay the deposit inside Cal.com after the intake is saved
 
 ### Our Work
 - Our Work
@@ -107,11 +107,11 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 - Outcome Highlights
 - Results clients can actually see
 - Paint Clarity Restored
-- Daily-driven paint corrected into a cleaner, sharper finish with stronger gloss and reflection.
+- Daily-driven paint corrected into a cleaner, sharper finish with stronger gloss and reflection
 - Interior Reset
-- Cabins reset for cleaner touchpoints, fresher fabric, and a calmer in-car feel.
+- Cabins reset for cleaner touchpoints, fresher fabric, and a calmer in-car feel
 - Protection Layered
-- Sealants and coatings added to help defend against road film, dust, and Southern California sun exposure.
+- Sealants and coatings added to help defend against road film, dust, and Southern California sun exposure
 
 ### Client Feedback
 - Client Feedback
@@ -132,51 +132,51 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 ### Final Step
 - Final Step
 - Ready to lock in your detail?
-- Submit your vehicle and service details first, then finish appointment scheduling in Cal.com with a clean handoff.
+- Submit your vehicle and service details first, then finish appointment scheduling in Cal.com with a clean handoff
 - Continue to Booking
 - Request a Quote
 - Intake submitted before scheduling
-- Your service selections stay attached to your booking request.
+- Your service selections stay attached to your booking request
 - Multi-vehicle workflow ready
-- Build and submit multiple cars in one appointment request.
+- Build and submit multiple cars in one appointment request
 - Professional finish, clear pricing
-- Package + add-on totals stay visible throughout checkout.
+- Package + add-on totals stay visible throughout checkout
 
 ## Services
 
 ### Page Hero
 - Cruizn Clean Services
-- Review package and add-on options for Yorba Linda mobile detailing with live size-based pricing and clearer routing for specialty vehicles.
-- Maintenance Detail is the most balanced option for regularly cared-for vehicles.
+- Review package and add-on options for Yorba Linda mobile detailing with live size-based pricing and clearer routing for specialty vehicles
+- Maintenance Detail is the most balanced option for regularly cared-for vehicles
 
 ### Select Your Vehicle
 - Select Your Vehicle
-- Pick the active vehicle from the dock, then match it to the closest standard category before selecting services.
+- Pick the active vehicle from the dock, then match it to the closest standard category before selecting services
 - Vehicle Lookup
 - Quick Pick (Dropdown)
 - Select from top 50 vehicles
 - Type Finder
 - Type make or model (e.g. Camry, Model Y)
-- This vehicle is not in our standard sizing guide yet. Select the closest standard vehicle type, or request a custom quote if the vehicle is modified, lifted, or specialty fitment.
+- This vehicle is not in our standard sizing guide yet Select the closest standard vehicle type, or request a custom quote if the vehicle is modified, lifted, or specialty fitment
 - Mismatch check
-- If this vehicle has modifications, lift kits, oversized wheels, accessories, or anything else that changes service time, request a custom quote before booking.
+- If this vehicle has modifications, lift kits, oversized wheels, accessories, or anything else that changes service time, request a custom quote before booking
 - Request a Quote
 - Review Help + FAQ
-- Model-level matching only in v1. When your exact vehicle is not listed, confirm fitment through Quote or FAQ before submitting.
+- Model-level matching only in v1; when your exact vehicle is not listed, confirm fitment through Quote or FAQ before submitting
 - Sedan / Coupe
 - Base listed pricing
 - Small SUV / Truck
 - +20% pricing adjustment
 - Large SUV / Truck
 - +40% pricing adjustment
-- Oversized, lifted, modified, specialty, or unlisted vehicles should get a custom quote before scheduling.
+- Oversized, lifted, modified, specialty, or unlisted vehicles should get a custom quote before scheduling
 
 ### Detail Packages
 - Detail Packages
 - Mini Detail
 - Starts at $60
 - About 60-90 mins
-- Friendly reset for vehicles that do not need a perfection-level detail.
+- Friendly reset for vehicles that do not need a perfection-level detail
 - Foam Bath + Hand Wash
 - Wheels + Tires Clean
 - Tire shine
@@ -185,7 +185,7 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 - Maintenance Detail
 - Starts at $99
 - About 90 mins
-- Built for maintained cars that need a dependable inside-out reset.
+- Built for maintained cars that need a dependable inside-out reset
 - Designed for maintained cars
 - Foam Bath + Hand Wash
 - Wheels + Tires Clean
@@ -195,7 +195,7 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 - Full Interior
 - Starts at $179
 - About 3 hrs
-- Deep interior service for fabric, leather, odor, and full touchpoint reset.
+- Deep interior service for fabric, leather, odor, and full touchpoint reset
 - Vacuum
 - Upholstery + Carpet Shampoo/Extraction
 - Thorough scrub/wipe down of full interior
@@ -206,7 +206,7 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 - Full Exterior
 - Starts at $279
 - About 3 hrs
-- Exterior decontamination, gloss enhancement, and durable protection.
+- Exterior decontamination, gloss enhancement, and durable protection
 - Foam Bath + Hand Wash
 - Wheels + Tires Clean
 - Clay Bar + Iron Decon
@@ -217,13 +217,13 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 - The Full Reset
 - Starts at $399
 - About 6-8 hrs
-- Full interior and exterior coverage for a complete vehicle reset.
+- Full interior and exterior coverage for a complete vehicle reset
 - Full Interior
 - Full Exterior
 
 ### Add-Ons
 - Add-Ons
-- Standalone premium work for vehicles that need coating, correction, or more specialized protection without forcing a package.
+- Standalone premium work for vehicles that need coating, correction, or more specialized protection without forcing a package
 - Need a custom setup?
 
 ### Paint Correction
@@ -231,19 +231,19 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 - 1 Step Paint Correction
 - Starts at $449
 - Correction service
-- Single-step gloss enhancement for defect reduction after prep.
+- Single-step gloss enhancement for defect reduction after prep
 - Deep Polish
 - Removes 70-80% of Defects
 - 2 Step Paint Correction
 - Starts at $649
 - Correction service
-- Cut and polish service for heavier defect reduction after prep.
+- Cut and polish service for heavier defect reduction after prep
 - Cut + Polish
 - Removes 80-95% of Defects
 - 3 Step Paint Correction
 - Starts at $799
 - Correction service
-- Deep cut, polish, and refining pass for the highest correction tier.
+- Deep cut, polish, and refining pass for the highest correction tier
 - Deep Cut + Polish + Refining Polish
 - Removes 95-99% of Defects
 
@@ -252,41 +252,41 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 - 3 Year Ceramic Coating
 - Starts at $499
 - Requires prep
-- Longer-term coating for painted surfaces after required prep.
+- Longer-term coating for painted surfaces after required prep
 - Covers painted surfaces
 - 20% with Paint Correction
 - Bundle Savings
 - 6 Year Ceramic Coating
 - Starts at $799
 - Requires prep
-- Extended coating package for painted surfaces after prep and inspection.
+- Extended coating package for painted surfaces after prep and inspection
 - Covers painted surfaces
 - 20% with Paint Correction
 - Bundle Savings
 - Wheel Face Ceramic Coating
 - Starts at $249
 - Adds specialty time
-- Focused wheel-face protection for the visible outer surface.
+- Focused wheel-face protection for the visible outer surface
 - Covers visible face of wheel
 - Bundle Savings
 - Wheel Face + Barrel + Caliper Ceramic Coating
 - Starts at $499
 - Wheel-off service
-- Wheel-off coating service for the full visible wheel and caliper area.
+- Wheel-off coating service for the full visible wheel and caliper area
 - Wheels off car on jack stands
 - Covers Visible Face of wheel + Barrel of wheel + Calipers
 - Bundle Savings
 - Glass Ceramic Coating
 - Starts at $200
 - No polish needed
-- Exterior glass coating when no corrective polish is needed.
+- Exterior glass coating when no corrective polish is needed
 - Coats Exterior of windows
 - Long lasting "invisible" windows
 - Bundle Savings
 - Glass Ceramic Coating + Polish
 - Starts at $279
 - Includes polish
-- Exterior glass coating with prep polish when the glass needs correction.
+- Exterior glass coating with prep polish when the glass needs correction
 - Coats Exterior of windows
 - Long lasting "invisible" windows
 - Includes polish when needed
@@ -296,18 +296,18 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 - Vehicle Dock
 - Select Vehicle
 - Add Another Car
-- Maximum 4 vehicles per customer per day.
+- Maximum 4 vehicles per customer per day
 - Pricing Reliability
-- Switch cars here, then manage sizing and service selections in the main planner so pricing always updates from one active source of truth.
+- Switch cars here, then manage sizing and service selections in the main planner so pricing always updates from one active source of truth
 - Cart Summary
 - Edit Services
 - Book Now
 - Book All Vehicles
 - Unlock paint coating savings
-- Add a paint coating to use the 20% correction savings on paint coating lines.
+- Add a paint coating to use the 20% correction savings on paint coating lines
 - Add Ceramic Coating
 - Complete coating bundle
-- Add paint, glass, and wheel coating coverage to apply 20% bundle savings across selected coating lines.
+- Add paint, glass, and wheel coating coverage to apply 20% bundle savings across selected coating lines
 - Complete Bundle
 - Bundle Savings Applied
 
@@ -321,30 +321,30 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 
 ### Header
 - Book Your Appointment
-- Details, schedule, deposit, and confirmation.
+- Details, schedule, deposit, and confirmation
 - Your Details
 - Schedule
 - Payment
 
 ### Vehicle Deck
 - Vehicle Deck
-- Manage multiple cars in one booking.
+- Manage multiple cars in one booking
 - Add Vehicle
-- Maximum 4 vehicles per customer per day.
+- Maximum 4 vehicles per customer per day
 
 ### Your Details
 - Your Details
-- Review the active vehicle, complete contact details, and keep your selected services attached before calendar handoff.
+- Review the active vehicle, complete contact details, and keep your selected services attached before calendar handoff
 - Select Your Vehicle
-- Match the active vehicle to the closest standard category before selecting services.
+- Match the active vehicle to the closest standard category before selecting services
 - Vehicle Lookup
 - Quick Pick (Dropdown)
 - Select from top 50 vehicles
 - Type Finder
 - Type make or model (e.g. Camry, Model Y)
-- This vehicle is not in our standard sizing guide yet. Select the closest standard vehicle type, or request a custom quote if the vehicle is modified, lifted, or specialty fitment.
+- This vehicle is not in our standard sizing guide yet Select the closest standard vehicle type, or request a custom quote if the vehicle is modified, lifted, or specialty fitment
 - Mismatch check
-- If this vehicle has modifications, lift kits, oversized wheels, accessories, or anything else that changes service time, request a custom quote before booking.
+- If this vehicle has modifications, lift kits, oversized wheels, accessories, or anything else that changes service time, request a custom quote before booking
 - Request a Quote
 - Review Help + FAQ
 - Sedan / Coupe
@@ -353,12 +353,12 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 - +20%
 - Large SUV / Truck
 - +40%
-- Oversized, lifted, modified, specialty, or unlisted vehicles should get a custom quote before scheduling.
+- Oversized, lifted, modified, specialty, or unlisted vehicles should get a custom quote before scheduling
 - Selected Services
 - No services selected yet
-- Choose a package or add-on on the Services page before scheduling so the estimate and Cal.com metadata stay accurate.
+- Choose a package or add-on on the Services page before scheduling so the estimate and Cal.com metadata stay accurate
 - Edit Services
-- Booking window: Monday-Saturday 8am - 6pm.
+- Booking window: Monday-Saturday 8am - 6pm
 - Full Name
 - Email
 - Phone
@@ -367,10 +367,10 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 - Make
 - Model
 - Color
-- I reviewed the booking terms and policies and agree to be contacted for scheduling updates.
-- I agree to receive booking confirmations and service-related emails.
+- I reviewed the booking terms and policies and agree to be contacted for scheduling updates
+- I agree to receive booking confirmations and service-related emails
 - SMS confirmations to your phone number
-- I agree to receive booking-related SMS confirmations. Message/data rates may apply.
+- I agree to receive booking-related SMS confirmations Message/data rates may apply
 - Terms
 - Privacy
 - Help
@@ -378,20 +378,20 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 - Continue
 
 ### Booking ZIP Validation
-- This ZIP is outside the current online booking service area. Request a quote so we can review travel and availability.
-- This ZIP is outside our standard online booking area. Request a Quote so travel and availability can be reviewed before scheduling.
+- This ZIP is outside the current online booking service area Request a quote so we can review travel and availability
+- This ZIP is outside our standard online booking area Request a Quote so travel and availability can be reviewed before scheduling
 - Request a Quote
 
 ### Schedule
 - Schedule
-- After intake is saved, the visible schedule content is the inline Cal.com calendar.
+- After intake is saved, the visible schedule content is the inline Cal.com calendar
 - Fallback Cal.com link
 - Back
 - Continue
 
 ### Payment
 - Payment
-- Open secure Stripe Checkout to pay the deposit. The deposit is applied toward the final service total.
+- Open secure Stripe Checkout to pay the deposit The deposit is applied toward the final service total
 - Estimated total
 - Deposit due today
 - Secure Stripe Checkout
@@ -417,7 +417,7 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 
 ### Hero
 - Our Work
-- Real work from Cruizn Clean service categories, grouped by exterior, interior, wheels, and specialty results.
+- Real work from Cruizn Clean service categories, grouped by exterior, interior, wheels, and specialty results
 
 ### Filters
 - All Work
@@ -451,7 +451,7 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 
 ### Hero
 - Request a Custom Quote
-- Tell us about the vehicle, the condition, and the result you want. We will respond with a tailored estimate for Yorba Linda-area service.
+- Tell us about the vehicle, the condition, and the result you want We will respond with a tailored estimate for Yorba Linda-area service
 - Need sizing or booking help first?
 
 ### Form
@@ -467,9 +467,9 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 - Vehicle + Service Request
 - Vehicle year, make, model, color, service goals, and any condition notes
 - Submit Quote Request
-- Sending...
-- Quote request sent. We will reply within 24 hours.
-- Quote request failed. Please retry.
+- Sending
+- Quote request sent We will reply within 24 hours
+- Quote request failed Please retry
 
 ### Contact Cards
 - Call us
@@ -484,7 +484,7 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 ### Hero
 - Contact
 - Questions before booking?
-- Use this form for general questions about service areas, timing, or prep. For appointments, use Book Now.
+- Use this form for general questions about service areas, timing, or prep For appointments, use Book Now
 - Yorba Linda, California
 
 ### Form
@@ -494,9 +494,9 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 - Optional
 - Question
 - Send Question
-- Sending your message...
-- Message sent. We will respond as soon as possible.
-- Message failed to send. Please try again shortly.
+- Sending your message
+- Message sent We will respond as soon as possible
+- Message failed to send Please try again shortly
 
 ## FAQ
 
@@ -710,22 +710,22 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 
 ### Confirmation
 - Booking Flow Complete
-- Thanks. Your appointment is being confirmed.
-- Your intake, calendar selection, and Stripe deposit are complete. Cruizn Clean will use your saved details to prepare the right service plan for your vehicle.
+- Thanks Your appointment is being confirmed
+- Your intake, calendar selection, and Stripe deposit are complete Cruizn Clean will use your saved details to prepare the right service plan for your vehicle
 - Watch your inbox
-- Cal.com and Cruizn Clean will send booking details and any follow-up instructions.
+- Cal.com and Cruizn Clean will send booking details and any follow-up instructions
 - Prepare the vehicle
-- Remove personal items before arrival. Final pricing is confirmed after the vehicle condition and size are reviewed.
+- Remove personal items before arrival Final pricing is confirmed after the vehicle condition and size are reviewed
 
 ### Service Requirements
 - Service Requirements
 - Before your appointment
-- Loose items and personal belongings must be removed from the vehicle.
-- Park in an accessible location with at least 8 feet of clearance from other vehicles.
-- Please stay clear of the vehicle during service to help prevent accidents or injury.
-- Be ready for key handoff and service at the scheduled time.
-- Deposit must be confirmed before the appointment is treated as locked in.
-- The final quote is subject to inspection and may change for incorrect booking details or extended attention.
+- Loose items and personal belongings must be removed from the vehicle
+- Park in an accessible location with at least 8 feet of clearance from other vehicles
+- Please stay clear of the vehicle during service to help prevent accidents or injury
+- Be ready for key handoff and service at the scheduled time
+- Deposit must be confirmed before the appointment is treated as locked in
+- The final quote is subject to inspection and may change for incorrect booking details or extended attention
 - Review Services
 - Call (555) 123-4567
 
@@ -751,23 +751,25 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 
 ### Footer
 - Cruizn Clean
-- Mobile detailing for Yorba Linda drivers who want clearer booking, cleaner service menus, and polished results.
+- Mobile detailing for Yorba Linda drivers who want clearer booking, cleaner service menus, and polished results
 - Yorba Linda, California
 - (555) 123-4567
 - Navigate
 - Home
 - Services
+- Privacy Policy
 - Gallery
+- Terms of Service
 - Quote
 - Book Now
 - Contact
 - FAQ
-- Privacy Policy
-- Terms of Service
+- Service Area
+- Yorba Linda, Placentia, Fullerton, Anaheim, Brea, Orange, La Habra, Buena Park, Cypress, Irvine, Huntington Beach, Costa Mesa, Tustin, Garden Grove, Santa Ana
 - Business Hours
 - Mon-Sat 8:00AM - 6:00PM
-- © 2026 Cruizn Clean. All rights reserved.
-- Monday-Saturday booking hours: 8am - 6pm.
+- © 2026 Cruizn Clean All rights reserved
+- Monday-Saturday booking hours: 8am - 6pm
 
 ## Internal Direct-Only Surfaces
 
@@ -783,4 +785,4 @@ This is the customer-visible copy register for Cruizn Clean. It is organized by 
 
 ### Style Guide
 - Style Guide
-- Grayscale + burgundy tokens, gray-card surfaces, fields, buttons, and internal QA states.
+- Grayscale + burgundy tokens, gray-card surfaces, fields, buttons, and internal QA states
