@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { ArrowRight, Clock3, MapPin, PhoneCall, Sparkles } from 'lucide-react';
 import { getPackageServices } from '@/lib/services-catalog';
 import { SITE_PROFILE } from '@/lib/site-profile';
-import heroImage from '../../../../attachments/Exter12.jpg';
+import heroImage from '../../assets/attachments/Exter12.jpg';
 
 const SERVICE_AREA_FRAMES = [
   ['Yorba Linda', 'Placentia', 'Fullerton'],
@@ -56,10 +56,10 @@ export function HeroSection(): JSX.Element {
             </p>
 
             <h1 className="mt-5 font-heading text-5xl font-extrabold leading-[0.92] sm:text-6xl lg:text-7xl">
-              Memorable detailing without the guesswork.
+              Memorable detailing without the guesswork
             </h1>
             <p className="mt-4 max-w-2xl text-lg text-white/82 sm:text-xl">
-              A darker, cleaner booking experience for Yorba Linda clients who want sharp pricing, polished results, and less friction between quote, booking, and calendar handoff.
+              A darker, cleaner booking experience for Yorba Linda clients who want sharp pricing, polished results, and less friction between quote, booking, and calendar handoff
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
@@ -84,7 +84,7 @@ export function HeroSection(): JSX.Element {
                 <p className="text-[11px] uppercase tracking-[0.14em] text-white/60">Location</p>
                 <div
                   className="mt-1 flex items-start gap-2 text-sm font-semibold text-white"
-                  aria-label="Available service areas include Yorba Linda, Placentia, Fullerton, Anaheim, Brea, Orange, La Habra, Buena Park, Cypress, Irvine, Huntington Beach, Costa Mesa, Tustin, Garden Grove, and Santa Ana."
+                  aria-label="Available service areas include Yorba Linda, Placentia, Fullerton, Anaheim, Brea, Orange, La Habra, Buena Park, Cypress, Irvine, Huntington Beach, Costa Mesa, Tustin, Garden Grove, and Santa Ana"
                 >
                   <MapPin className="h-4 w-4 text-fog" />
                   <span aria-hidden="true" className="service-area-cycle relative inline-grid min-h-[4.45rem] min-w-0 flex-1 overflow-hidden align-top">
@@ -125,7 +125,7 @@ export function HeroSection(): JSX.Element {
             </p>
             <h2 className="mt-3 font-heading text-3xl font-bold leading-tight text-white">Build a cleaner first pass</h2>
             <p className="mt-2 text-sm text-white/68">
-              Choose a vehicle type, line up the right package, then refine everything else on Services or Booking.
+              Choose a vehicle type, line up the right package, then refine everything else on Services or Booking
             </p>
 
             <div className="mt-4">
@@ -182,7 +182,7 @@ export function HeroSection(): JSX.Element {
                   ) : null}
                 </>
               ) : (
-                'Pick a vehicle type first, then choose the package that fits the job.'
+                'Pick a vehicle type first, then choose the package that fits the job'
               )}
             </div>
 

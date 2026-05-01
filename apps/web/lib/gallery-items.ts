@@ -1,24 +1,24 @@
 import type { StaticImageData } from 'next/image';
 
-import enter1 from '../../../attachments/Enter1.jpg';
-import entera from '../../../attachments/Entera.jpg';
-import exter1 from '../../../attachments/Exter1.jpeg';
-import exter10Rear from '../../../attachments/Exter10:Rear.jpg';
-import exter12 from '../../../attachments/Exter12.jpg';
-import exter13Rear from '../../../attachments/Exter13:Rear.jpg';
-import exter14Headlights from '../../../attachments/Exter14:Headlights.jpg';
-import exter2 from '../../../attachments/Exter2.jpg';
-import exter3Tire from '../../../attachments/Exter3:Tire.jpg';
-import exter4 from '../../../attachments/Exter4.jpg';
-import exter5 from '../../../attachments/Exter5.jpg';
-import exter6Headlights from '../../../attachments/Exter6:Headlights.jpg';
-import exter7Tire from '../../../attachments/Exter7.:Tirejpg.jpg';
-import exter8Rear from '../../../attachments/Exter8:Rear.jpg';
-import inter8 from '../../../attachments/Inter8.jpg';
-import leatherSeats from '../../../attachments/Leather-seats.jpg';
-import tire1 from '../../../attachments/Tire.jpg';
-import tire2 from '../../../attachments/Tire2.jpg';
-import windowShot from '../../../attachments/Window.jpg';
+import enter1 from '../assets/attachments/Enter1.jpg';
+import entera from '../assets/attachments/Entera.jpg';
+import exter1 from '../assets/attachments/Exter1.jpeg';
+import exter10Rear from '../assets/attachments/Exter10:Rear.jpg';
+import exter12 from '../assets/attachments/Exter12.jpg';
+import exter13Rear from '../assets/attachments/Exter13:Rear.jpg';
+import exter14Headlights from '../assets/attachments/Exter14:Headlights.jpg';
+import exter2 from '../assets/attachments/Exter2.jpg';
+import exter3Tire from '../assets/attachments/Exter3:Tire.jpg';
+import exter4 from '../assets/attachments/Exter4.jpg';
+import exter5 from '../assets/attachments/Exter5.jpg';
+import exter6Headlights from '../assets/attachments/Exter6:Headlights.jpg';
+import exter7Tire from '../assets/attachments/Exter7.:Tirejpg.jpg';
+import exter8Rear from '../assets/attachments/Exter8:Rear.jpg';
+import inter8 from '../assets/attachments/Inter8.jpg';
+import leatherSeats from '../assets/attachments/Leather-seats.jpg';
+import tire1 from '../assets/attachments/Tire.jpg';
+import tire2 from '../assets/attachments/Tire2.jpg';
+import windowShot from '../assets/attachments/Window.jpg';
 
 export type GalleryCategory = 'exterior' | 'interior' | 'wheels-tires' | 'specialty';
 
