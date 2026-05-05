@@ -21,7 +21,7 @@ import { useBooking } from '@/components/providers/booking-provider';
 import { VehicleSizeGuideLookup } from '@/components/vehicle/vehicle-size-guide-lookup';
 import { BOOKING_LIMIT_DISCLAIMER, MAX_BOOKED_VEHICLES_PER_DAY, countSelectedVehicles } from '@/lib/booking-policy';
 import type { CustomerBookingForm, ServiceOption, VehicleProfile, VehicleSize } from '@/lib/booking-types';
-import { createStripeCheckoutSession, getCalendarBookingLink, getCalendarBookingUrl, submitBookingIntake } from '@/lib/api-client';
+import { createStripeCheckoutSession, getCalendarBookingLink, getCalendarBookingUrl } from '@/lib/api-client';
 import { getServiceAreaZipSummary, isZipInServiceArea, normalizeZipCode } from '@/lib/service-area';
 import { findServiceById } from '@/lib/services-catalog';
 import { usePersistentState } from '@/lib/use-persistent-state';
@@ -335,7 +335,6 @@ export default function BookingPage(): JSX.Element {
   const [fieldErrors, setFieldErrors] = useState<BookingFieldErrors>({});
   const [submittedBookingContext, setSubmittedBookingContext] = useState<SubmittedBookingCalendarContext | null>(null);
   const [statusMessage, setStatusMessage] = useState('');
-  const [scheduleSubmitting, setScheduleSubmitting] = useState(false);
   const [paymentSubmitting, setPaymentSubmitting] = useState(false);
   const plannerTopRef = useRef<HTMLDivElement>(null);
 
@@ -372,7 +371,6 @@ export default function BookingPage(): JSX.Element {
   function resetInteractionState(): void {
     setFieldErrors({});
     setSubmittedBookingContext(null);
-    setScheduleSubmitting(false);
     setPaymentSubmitting(false);
   }
 
@@ -488,9 +486,9 @@ export default function BookingPage(): JSX.Element {
   }
 
   /**
-   * Saves the booking intake before rendering Cal.com with the persisted booking reference.
+   * Opens scheduling with a local booking reference so payment can proceed without external intake services.
    */
-  async function handleOpenCalendar(): Promise<void> {
+  function handleOpenCalendar(): void {
     const submissionErrors = validateSubmission(form, vehicles);
     if (Object.keys(submissionErrors).length > 0) {
       setFieldErrors(submissionErrors);
@@ -503,39 +501,20 @@ export default function BookingPage(): JSX.Element {
     }
 
     setFieldErrors({});
-    setScheduleSubmitting(true);
-    setStatusMessage('Saving booking intake');
-
-    try {
-      const intakeResponse = await submitBookingIntake({
-        customer: form,
-        vehicles,
-        honeypot,
-      });
-      const bookingId = intakeResponse.bookingId?.trim();
-      if (!bookingId) {
-        throw new Error('Booking intake saved without a booking reference');
-      }
-
-      setSubmittedBookingContext({
-        bookingId,
-        customer: {
-          email: form.email,
-          fullName: form.fullName,
-          phone: form.phone,
-        },
-        estimatedTotal: getGrandTotal(),
-        servicesSummary: getSelectedServicesSummary(selectedVehicles, getVehiclePricingBreakdown),
-        vehicleCount: selectedVehicles.length,
-      });
-      setStatusMessage('Booking intake saved. Choose an appointment time below.');
-      setStep(2);
-      scrollPlannerToTop();
-    } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message.replace(/\.$/, '') : 'Unable to save booking intake');
-    } finally {
-      setScheduleSubmitting(false);
-    }
+    setSubmittedBookingContext({
+      bookingId: `web-${Date.now()}`,
+      customer: {
+        email: form.email,
+        fullName: form.fullName,
+        phone: form.phone,
+      },
+      estimatedTotal: getGrandTotal(),
+      servicesSummary: getSelectedServicesSummary(selectedVehicles, getVehiclePricingBreakdown),
+      vehicleCount: selectedVehicles.length,
+    });
+    setStatusMessage('Your booking details will be included with your payment request.');
+    setStep(2);
+    scrollPlannerToTop();
   }
 
   /**
@@ -1071,11 +1050,10 @@ export default function BookingPage(): JSX.Element {
               ) : (
                 <button
                   type="button"
-                  onClick={() => void handleOpenCalendar()}
-                  disabled={scheduleSubmitting}
-                  className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:cursor-not-allowed disabled:opacity-60"
+                  onClick={handleOpenCalendar}
+                  className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent"
                 >
-                  {scheduleSubmitting ? 'Saving Intake' : 'Save Intake & Schedule'} <ArrowRight className="h-4 w-4" />
+                  Continue to scheduling <ArrowRight className="h-4 w-4" />
                 </button>
               )
             ) : step === 2 ? (
