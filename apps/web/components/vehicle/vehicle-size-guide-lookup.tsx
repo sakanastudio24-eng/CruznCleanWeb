@@ -16,6 +16,7 @@ import {
 interface VehicleSizeGuideLookupProps {
   activeVehicle: VehicleProfile;
   onApplyLookupMatch: (match: { make: string; model: string; size: VehicleSize }) => void;
+  onApplyTypedVehicle?: (details: { year?: string; make?: string; model?: string }) => void;
   className?: string;
   includeOversized?: boolean;
 }
@@ -35,11 +36,37 @@ function getEntryValue(entry: VehicleGuideEntry): string {
 }
 
 /**
+ * Converts free-form typed vehicle text into the existing year/make/model fields.
+ */
+function parseTypedVehicleDetails(value: string): { year?: string; make?: string; model?: string } | null {
+  const cleanedValue = value.replace(/[^a-zA-Z0-9\s.'+-]/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!cleanedValue) {
+    return null;
+  }
+
+  const parts = cleanedValue.split(' ');
+  const yearIndex = parts.findIndex((part) => /^(19|20)\d{2}$/.test(part));
+  const year = yearIndex >= 0 ? parts[yearIndex] : undefined;
+  const vehicleParts = yearIndex >= 0 ? parts.filter((_, index) => index !== yearIndex) : parts;
+
+  if (vehicleParts.length === 0) {
+    return null;
+  }
+
+  return {
+    year,
+    make: vehicleParts[0],
+    model: vehicleParts.slice(1).join(' ') || undefined,
+  };
+}
+
+/**
  * Renders dual-format vehicle lookup with match status and mismatch support links.
  */
 export function VehicleSizeGuideLookup({
   activeVehicle,
   onApplyLookupMatch,
+  onApplyTypedVehicle,
   className = '',
   includeOversized = true,
 }: VehicleSizeGuideLookupProps): JSX.Element {
@@ -75,6 +102,7 @@ export function VehicleSizeGuideLookup({
       .filter((entry) => includeOversized || entry.size !== 'oversized')
       .slice(0, 8);
   }, [includeOversized, searchQuery]);
+  const typedVehicleDetails = useMemo(() => parseTypedVehicleDetails(searchQuery), [searchQuery]);
 
   const needsSupportRouting = ambiguousVehicleMatch || !matchedByVehicleFields || activeVehicle.size === 'oversized';
 
@@ -100,6 +128,17 @@ export function VehicleSizeGuideLookup({
     }
 
     applyLookupEntry(foundEntry);
+  }
+
+  /**
+   * Applies the typed finder text to the active vehicle when it is not in the guide.
+   */
+  function handleApplyTypedVehicle(): void {
+    if (!typedVehicleDetails || !onApplyTypedVehicle) {
+      return;
+    }
+
+    onApplyTypedVehicle(typedVehicleDetails);
   }
 
   return (
@@ -179,6 +218,15 @@ export function VehicleSizeGuideLookup({
           ) : (
             <p className="text-xs text-ink/65">No catalog match yet Select the closest standard vehicle type, or request a custom quote for specialty vehicles</p>
           )}
+          {onApplyTypedVehicle && typedVehicleDetails ? (
+            <button
+              type="button"
+              onClick={handleApplyTypedVehicle}
+              className="mt-2 w-full rounded-full border border-burgundy/60 bg-burgundy/15 px-3 py-2 text-xs font-semibold text-white transition hover:bg-burgundy/25"
+            >
+              Use typed vehicle details
+            </button>
+          ) : null}
         </div>
       ) : null}
 

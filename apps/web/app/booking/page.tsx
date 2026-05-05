@@ -236,12 +236,10 @@ function validateSubmission(form: CustomerBookingForm, vehicles: VehicleProfile[
     errors.selectedVehicleLimit = BOOKING_LIMIT_DISCLAIMER;
   }
 
-  const missingVehicleDetails = selectedVehicles.find(
-    (vehicle) => !vehicle.year.trim() || !vehicle.make.trim() || !vehicle.model.trim() || !vehicle.color.trim(),
-  );
+  const missingVehicleDetails = getIncompleteSelectedVehicle(selectedVehicles);
 
   if (missingVehicleDetails) {
-    errors.selectedVehicleDetails = `Complete year, make, model, and color for ${getVehicleDisplayName(missingVehicleDetails)}.`;
+    errors.selectedVehicleDetails = getVehicleDetailGuardMessage(missingVehicleDetails);
   }
 
   return errors;
@@ -307,6 +305,31 @@ function getBookedVehicleDetail(vehicle: VehicleProfile): string {
 }
 
 /**
+ * Confirms the selected vehicle has the smallest required customer-visible details.
+ */
+function hasRequiredVehicleDetails(vehicle: VehicleProfile): boolean {
+  return Boolean(vehicle.year.trim() && vehicle.make.trim() && vehicle.model.trim() && vehicle.color.trim() && vehicle.size);
+}
+
+/**
+ * Finds the first selected vehicle that still needs details before scheduling or payment.
+ */
+function getIncompleteSelectedVehicle(selectedVehicles: VehicleProfile[]): VehicleProfile | undefined {
+  return selectedVehicles.find((vehicle) => !hasRequiredVehicleDetails(vehicle));
+}
+
+/**
+ * Builds calm vehicle guard copy for inline prompts and blocked actions.
+ */
+function getVehicleDetailGuardMessage(vehicle: VehicleProfile): string {
+  if (!vehicle.year.trim() && !vehicle.make.trim() && !vehicle.model.trim()) {
+    return 'Select or type your vehicle before booking.';
+  }
+
+  return `Add your vehicle details to continue for ${getVehicleDisplayName(vehicle)}.`;
+}
+
+/**
  * Renders the booking workflow with improved visual hierarchy and flow.
  */
 export default function BookingPage(): JSX.Element {
@@ -357,6 +380,13 @@ export default function BookingPage(): JSX.Element {
     () => vehicles.filter((vehicle) => getVehicleServices(vehicle.id).length > 0),
     [getVehicleServices, vehicles],
   );
+  const incompleteSelectedVehicle = useMemo(
+    () => getIncompleteSelectedVehicle(selectedVehicles),
+    [selectedVehicles],
+  );
+  const vehicleGuardMessage = incompleteSelectedVehicle
+    ? getVehicleDetailGuardMessage(incompleteSelectedVehicle)
+    : '';
   const stepOneErrors = useMemo(
     () => validateStepOne(form, activeVehicle),
     [activeVehicle, form],
@@ -398,6 +428,36 @@ export default function BookingPage(): JSX.Element {
           ? sanitizeVehicleTextInput(value)
           : value;
     updateVehicle(activeVehicle.id, { [field]: sanitizedValue });
+  }
+
+  /**
+   * Applies a typed finder value to the active vehicle while preserving existing color and size.
+   */
+  function applyTypedVehicleDetails(details: { year?: string; make?: string; model?: string }): void {
+    if (!activeVehicle) {
+      return;
+    }
+
+    resetInteractionState();
+    updateVehicle(activeVehicle.id, {
+      year: details.year ? sanitizeVehicleYearInput(details.year) : activeVehicle.year,
+      make: details.make ? sanitizeVehicleTextInput(details.make) : activeVehicle.make,
+      model: details.model ?? activeVehicle.model,
+    });
+  }
+
+  /**
+   * Sends the customer back to the first selected vehicle that needs details.
+   */
+  function focusIncompleteSelectedVehicle(vehicle: VehicleProfile): void {
+    setActiveVehicleId(vehicle.id);
+    setFieldErrors((current) => ({
+      ...current,
+      selectedVehicleDetails: getVehicleDetailGuardMessage(vehicle),
+    }));
+    setStatusMessage('Vehicle details help us prepare the correct service estimate.');
+    setStep(1);
+    scrollPlannerToTop();
   }
 
   /**
@@ -450,6 +510,21 @@ export default function BookingPage(): JSX.Element {
       return;
     }
 
+    const submissionErrors = validateSubmission(form, vehicles);
+    const missingVehicleDetails = getIncompleteSelectedVehicle(selectedVehicles);
+    if (missingVehicleDetails || Object.keys(submissionErrors).length > 0) {
+      if (missingVehicleDetails) {
+        focusIncompleteSelectedVehicle(missingVehicleDetails);
+        return;
+      }
+
+      setFieldErrors(submissionErrors);
+      setStatusMessage('Complete required booking details before continuing to payment.');
+      setStep(1);
+      scrollPlannerToTop();
+      return;
+    }
+
     setStatusMessage('');
     setStep(3);
     scrollPlannerToTop();
@@ -461,6 +536,21 @@ export default function BookingPage(): JSX.Element {
   async function handleCreateCheckoutSession(): Promise<void> {
     if (!submittedBookingContext) {
       setStatusMessage('Open the scheduler before deposit billing');
+      return;
+    }
+
+    const submissionErrors = validateSubmission(form, vehicles);
+    const missingVehicleDetails = getIncompleteSelectedVehicle(selectedVehicles);
+    if (missingVehicleDetails || Object.keys(submissionErrors).length > 0) {
+      if (missingVehicleDetails) {
+        focusIncompleteSelectedVehicle(missingVehicleDetails);
+        return;
+      }
+
+      setFieldErrors(submissionErrors);
+      setStatusMessage('Complete required booking details before payment.');
+      setStep(1);
+      scrollPlannerToTop();
       return;
     }
 
@@ -491,10 +581,17 @@ export default function BookingPage(): JSX.Element {
   function handleOpenCalendar(): void {
     const submissionErrors = validateSubmission(form, vehicles);
     if (Object.keys(submissionErrors).length > 0) {
+      const missingVehicleDetails = getIncompleteSelectedVehicle(selectedVehicles);
+      if (missingVehicleDetails) {
+        setActiveVehicleId(missingVehicleDetails.id);
+      }
+
       setFieldErrors(submissionErrors);
       setStatusMessage(
         submissionErrors.serviceSelection
           ? 'Select at least one service on the Services page before scheduling'
+          : submissionErrors.selectedVehicleDetails
+            ? 'Vehicle details help us prepare the correct service estimate.'
           : 'Complete required booking details before scheduling',
       );
       return;
@@ -662,6 +759,7 @@ export default function BookingPage(): JSX.Element {
                         size: match.size,
                       });
                     }}
+                    onApplyTypedVehicle={applyTypedVehicleDetails}
                     className="mt-3"
                   />
                 ) : null}
@@ -897,6 +995,11 @@ export default function BookingPage(): JSX.Element {
                   {fieldErrors.color ? <span id="booking-vehicle-color-error" className="a11y-error mt-1 block text-xs font-medium">{fieldErrors.color}</span> : null}
                 </label>
               </div>
+              {vehicleGuardMessage ? (
+                <p className="rounded-xl border border-burgundy/35 bg-burgundy/10 px-4 py-3 text-sm font-semibold text-ink">
+                  {vehicleGuardMessage} Vehicle details help us prepare the correct service estimate.
+                </p>
+              ) : null}
 
               <div className="space-y-2">
                   <label className={`flex items-start gap-2 rounded-lg px-3 py-2 text-sm text-ink/80 ${
@@ -1014,6 +1117,12 @@ export default function BookingPage(): JSX.Element {
           ) : null}
           </div>
 
+          {step > 1 && vehicleGuardMessage ? (
+            <p className="rounded-xl border border-burgundy/35 bg-burgundy/10 px-4 py-3 text-sm font-semibold text-ink">
+              {vehicleGuardMessage} Vehicle details help us prepare the correct service estimate.
+            </p>
+          ) : null}
+
           {step === 1 ? (
             <nav aria-label="Booking policy links" className="flex flex-wrap justify-end gap-2 text-xs font-semibold">
               <Link href="/terms" className="rounded-full border border-line bg-[#141414] px-3 py-1.5 text-white transition hover:border-burgundyAccent hover:bg-burgundy/10">
@@ -1051,7 +1160,8 @@ export default function BookingPage(): JSX.Element {
                 <button
                   type="button"
                   onClick={handleOpenCalendar}
-                  className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent"
+                  disabled={Boolean(incompleteSelectedVehicle)}
+                  className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   Continue to scheduling <ArrowRight className="h-4 w-4" />
                 </button>
@@ -1060,7 +1170,8 @@ export default function BookingPage(): JSX.Element {
               <button
                 type="button"
                 onClick={continueToPayment}
-                className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent"
+                disabled={Boolean(incompleteSelectedVehicle)}
+                className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Continue <ArrowRight className="h-4 w-4" />
               </button>
@@ -1068,7 +1179,7 @@ export default function BookingPage(): JSX.Element {
               <button
                 type="button"
                 onClick={() => void handleCreateCheckoutSession()}
-                disabled={paymentSubmitting}
+                disabled={paymentSubmitting || Boolean(incompleteSelectedVehicle)}
                 className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {paymentSubmitting ? 'Opening secure payment' : `Pay ${formatPaymentCurrency(depositDueToday)} Deposit`} <ArrowRight className="h-4 w-4" />
