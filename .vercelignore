@@ -16,6 +16,7 @@ yarn-error.log*
 .pnpm-debug.log*
 apps/api
 DetailFlow App
+_archive/DetailFlow App
 skills
 docs
 *.md
