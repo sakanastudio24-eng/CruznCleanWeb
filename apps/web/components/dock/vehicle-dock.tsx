@@ -31,6 +31,8 @@ export function VehicleDock(): JSX.Element {
   const canAddVehicle = vehicles.length < MAX_BOOKED_VEHICLES_PER_DAY;
   const grandBreakdown = getGrandPricingBreakdown();
   const activeBreakdown = getVehiclePricingBreakdown(activeVehicleId);
+  const selectedServiceCount = vehicles.reduce((count, vehicle) => count + vehicle.serviceIds.length, 0);
+  const hasSelections = selectedServiceCount > 0;
 
   /**
    * Applies missing services from a savings suggestion to the active vehicle.
@@ -158,12 +160,18 @@ export function VehicleDock(): JSX.Element {
           <p className="text-sm font-semibold text-ink">Total</p>
           <p className="font-heading text-2xl font-extrabold text-charcoal">${getGrandTotal()}</p>
         </div>
-        <Link
-          href="/booking"
-          className="block rounded-full bg-charcoal px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-ink"
-        >
-          Book All Vehicles
-        </Link>
+        {hasSelections ? (
+          <Link
+            href="/booking"
+            className="block rounded-full bg-charcoal px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-ink"
+          >
+            Book All Vehicles
+          </Link>
+        ) : (
+          <p className="rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-center text-sm font-semibold text-ink/70">
+            Select a package or add-on to book.
+          </p>
+        )}
       </div>
     </aside>
   );

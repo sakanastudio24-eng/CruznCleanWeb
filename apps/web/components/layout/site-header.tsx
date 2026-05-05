@@ -95,6 +95,7 @@ export function SiteHeader(): JSX.Element {
     [getVehicleServices, vehicles],
   );
   const grandPricingBreakdown = getGrandPricingBreakdown();
+  const hasCartSelections = vehiclesWithSelections.length > 0;
 
   /**
    * Adds suggested missing services to a specific cart vehicle.
@@ -111,6 +112,14 @@ export function SiteHeader(): JSX.Element {
         toggleServiceForVehicle(vehicleId, service);
       }
     });
+  }
+
+  /**
+   * Sends customers to booking only when service selections exist.
+   */
+  function handleCartBookNow(): void {
+    setCartOpen(false);
+    router.push(hasCartSelections ? '/booking' : '/services');
   }
 
   useEffect(() => {
@@ -227,7 +236,7 @@ export function SiteHeader(): JSX.Element {
 
                 {vehiclesWithSelections.length === 0 ? (
                   <p className="mt-2 rounded-xl bg-white/5 p-3 text-sm text-white/70">
-                    No services selected yet Add services from the Services page
+                    No services selected yet. Choose a package or add-on before booking.
                   </p>
                 ) : (
                   <div className="mt-3 space-y-3">
@@ -300,13 +309,10 @@ export function SiteHeader(): JSX.Element {
                     </Link>
                     <button
                       type="button"
-                      onClick={() => {
-                        setCartOpen(false);
-                        router.push('/booking');
-                      }}
+                      onClick={handleCartBookNow}
                       className="rounded-full bg-burgundy px-3 py-2 text-center text-xs font-semibold text-white transition hover:bg-burgundyAccent"
                     >
-                      Book Now
+                      {hasCartSelections ? 'Book Now' : 'Select Services'}
                     </button>
                   </div>
                 </div>
@@ -349,6 +355,11 @@ export function SiteHeader(): JSX.Element {
               >
                 <h3 className="font-heading text-lg font-semibold text-white">Cart Summary</h3>
                 <p className="mt-1 text-xs text-white/60">{vehiclesWithSelections.length} vehicles selected</p>
+                {!hasCartSelections ? (
+                  <p className="mt-2 rounded-xl bg-white/5 p-3 text-sm text-white/70">
+                    No services selected yet. Choose services before booking.
+                  </p>
+                ) : null}
                 {grandPricingBreakdown.savingsTotal > 0 ? (
                   <div className="mt-2 rounded-xl border border-burgundy/35 bg-burgundy/10 p-2 text-xs font-semibold text-white">
                     Savings applied -${grandPricingBreakdown.savingsTotal}
@@ -357,11 +368,15 @@ export function SiteHeader(): JSX.Element {
                 <div className="mt-2 border-t border-white/10 pt-2 text-right text-sm font-semibold text-fog">${getGrandTotal()}</div>
                 <div className="mt-2 grid grid-cols-2 gap-2">
                   <Link href="/services" onClick={() => setCartOpen(false)} className="rounded-full border border-white/20 px-3 py-2 text-center text-xs font-semibold text-white">
-                    View
+                    {hasCartSelections ? 'Edit' : 'Services'}
                   </Link>
-                  <Link href="/booking" onClick={() => setCartOpen(false)} className="rounded-full bg-burgundy px-3 py-2 text-center text-xs font-semibold text-white transition hover:bg-burgundyAccent">
-                    Checkout
-                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleCartBookNow}
+                    className="rounded-full bg-burgundy px-3 py-2 text-center text-xs font-semibold text-white transition hover:bg-burgundyAccent"
+                  >
+                    {hasCartSelections ? 'Book Now' : 'Select Services'}
+                  </button>
                 </div>
               </div>
             ) : null}
