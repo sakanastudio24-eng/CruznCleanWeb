@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { ArrowRight, Clock3, MapPin, PhoneCall, Sparkles } from 'lucide-react';
 import { getPackageServices } from '@/lib/services-catalog';
 import { SITE_PROFILE } from '@/lib/site-profile';
-import heroImage from '../../assets/attachments/Exter12.jpg';
+import heroImage from '../../../../photo_refrences/Full Exterior Detail.jpg';
 
 const SERVICE_AREA_FRAMES = [
   ['Yorba Linda', 'Placentia', 'Fullerton'],

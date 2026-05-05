@@ -39,6 +39,7 @@ export function GalleryPreviewSection(): JSX.Element {
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-2 sm:p-4">
                 <p className="text-xs font-semibold leading-tight text-white sm:text-sm">{item.label}</p>
+                <p className="mt-1 hidden text-xs leading-snug text-white/70 sm:line-clamp-2 sm:block">{item.description}</p>
               </div>
             </article>
           ))}

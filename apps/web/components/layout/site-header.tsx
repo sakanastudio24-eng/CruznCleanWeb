@@ -1,12 +1,13 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   CalendarDays,
   FileText,
   Home,
-  Image,
+  Image as ImageIcon,
   Phone,
   ShoppingCart,
   Sparkles,
@@ -18,6 +19,7 @@ import { useBooking } from '@/components/providers/booking-provider';
 import { findServiceById } from '@/lib/services-catalog';
 import { SITE_PROFILE } from '@/lib/site-profile';
 import { getVehicleDisplayName } from '@/lib/vehicle-utils';
+import horizontalLogo from '../../assets/Logos/horizontal-nav-logo-1x.png';
 
 interface NavLinkItem {
   href: string;
@@ -47,7 +49,7 @@ function getMobileNavLinks(): MobileNavItem[] {
   return [
     { href: '/', label: 'Home', icon: Home },
     { href: '/services', label: 'Services', icon: Sparkles },
-    { href: '/gallery', label: 'Gallery', icon: Image },
+    { href: '/gallery', label: 'Gallery', icon: ImageIcon },
     { href: '/quote', label: 'Quote', icon: FileText },
     { href: '/booking', label: 'Book', icon: CalendarDays },
   ];
@@ -151,8 +153,14 @@ export function SiteHeader(): JSX.Element {
     <>
       <header className="sticky top-0 z-40 border-b border-line bg-ink/98 backdrop-blur-xl">
         <div className="site-frame grid grid-cols-[auto_1fr_auto] items-center gap-4 py-3">
-          <Link href="/" className="brand-mark shrink-0 whitespace-nowrap text-white">
-            <span>{SITE_PROFILE.businessName}</span>
+          <Link href="/" className="shrink-0" aria-label="Cruizn Clean home">
+            <Image
+              src={horizontalLogo}
+              alt="Cruizn Clean"
+              priority
+              className="h-auto max-h-9 w-[138px] object-contain sm:w-[145px] lg:max-h-10 lg:w-[160px]"
+              sizes="(max-width: 1024px) 145px, 160px"
+            />
           </Link>
 
           <nav className="hidden min-w-0 items-center justify-center gap-8 lg:flex" aria-label="Primary">

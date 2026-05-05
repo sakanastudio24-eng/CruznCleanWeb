@@ -1,58 +1,130 @@
 import type { StaticImageData } from 'next/image';
 
-import enter1 from '../assets/attachments/Enter1.jpg';
-import entera from '../assets/attachments/Entera.jpg';
-import exter1 from '../assets/attachments/Exter1.jpeg';
-import exter10Rear from '../assets/attachments/Exter10:Rear.jpg';
-import exter12 from '../assets/attachments/Exter12.jpg';
-import exter13Rear from '../assets/attachments/Exter13:Rear.jpg';
-import exter14Headlights from '../assets/attachments/Exter14:Headlights.jpg';
-import exter2 from '../assets/attachments/Exter2.jpg';
-import exter3Tire from '../assets/attachments/Exter3:Tire.jpg';
-import exter4 from '../assets/attachments/Exter4.jpg';
-import exter5 from '../assets/attachments/Exter5.jpg';
-import exter6Headlights from '../assets/attachments/Exter6:Headlights.jpg';
-import exter7Tire from '../assets/attachments/Exter7.:Tirejpg.jpg';
-import exter8Rear from '../assets/attachments/Exter8:Rear.jpg';
-import inter8 from '../assets/attachments/Inter8.jpg';
-import leatherSeats from '../assets/attachments/Leather-seats.jpg';
-import tire1 from '../assets/attachments/Tire.jpg';
-import tire2 from '../assets/attachments/Tire2.jpg';
-import windowShot from '../assets/attachments/Window.jpg';
+import oneStepPaintCorrection from '../../../photo_refrences/1-Step Paint Correction.jpg';
+import basicExteriorDetail from '../../../photo_refrences/Basic Exterior Detail.jpg';
+import basicInteriorDetail from '../../../photo_refrences/Basic Interior Detail.jpg';
+import deepInteriorDetail from '../../../photo_refrences/Deep Interior Detail.jpg';
+import fullExteriorDetail from '../../../photo_refrences/Full Exterior Detail.jpg';
+import fullInteriorDetail from '../../../photo_refrences/Full Interior Detail.jpg';
+import handWashedAndSealed from '../../../photo_refrences/Hand Washed and Sealed.jpg';
+import headlightRestoration from '../../../photo_refrences/Headlight Restoration.jpg';
+import paintEnhancementPolish from '../../../photo_refrences/Paint Enhancing Polish.jpeg';
+import spotlessShine from '../../../photo_refrences/Spotless Shine.jpg';
+import spotlessWheelsAndTires from '../../../photo_refrences/Spotless Wheels and Tires.jpg';
+import wheelsBarrelCleaning from '../../../photo_refrences/Wheels + Barrels Spotless.jpg';
 
 export type GalleryCategory = 'exterior' | 'interior' | 'wheels-tires' | 'specialty';
 
 export interface GalleryItem {
   id: string;
+  filename: string;
   label: string;
+  description: string;
   category: GalleryCategory;
   src: StaticImageData;
 }
 
 /**
- * Returns the local gallery inventory using filename hints supplied with the attachments.
+ * Returns the current client photo references with filename-backed labels.
  */
 export function getGalleryItems(): GalleryItem[] {
   return [
-    { id: 'exterior-1', label: 'Exterior gloss finish', category: 'exterior', src: exter1 },
-    { id: 'exterior-2', label: 'Exterior reset in natural light', category: 'exterior', src: exter2 },
-    { id: 'exterior-3', label: 'Rear quarter exterior finish', category: 'exterior', src: exter10Rear },
-    { id: 'exterior-4', label: 'Rear profile exterior detail', category: 'exterior', src: exter13Rear },
-    { id: 'exterior-5', label: 'Body panel finish detail', category: 'exterior', src: exter12 },
-    { id: 'exterior-6', label: 'Exterior finish pass', category: 'exterior', src: exter4 },
-    { id: 'exterior-7', label: 'Exterior finish inspection', category: 'exterior', src: exter5 },
-    { id: 'exterior-8', label: 'Rear exterior reflection', category: 'exterior', src: exter8Rear },
-    { id: 'interior-1', label: 'Interior deep clean reset', category: 'interior', src: enter1 },
-    { id: 'interior-2', label: 'Interior touchpoint cleanup', category: 'interior', src: entera },
-    { id: 'interior-3', label: 'Interior finish detail', category: 'interior', src: inter8 },
-    { id: 'interior-4', label: 'Leather seating treatment', category: 'interior', src: leatherSeats },
-    { id: 'wheels-1', label: 'Wheel and tire finish', category: 'wheels-tires', src: tire1 },
-    { id: 'wheels-2', label: 'Wheel face coating prep', category: 'wheels-tires', src: tire2 },
-    { id: 'wheels-3', label: 'Tire sidewall detail', category: 'wheels-tires', src: exter3Tire },
-    { id: 'wheels-4', label: 'Wheel close-up finish', category: 'wheels-tires', src: exter7Tire },
-    { id: 'specialty-1', label: 'Window coating result', category: 'specialty', src: windowShot },
-    { id: 'specialty-2', label: 'Headlight refinement result', category: 'specialty', src: exter14Headlights },
-    { id: 'specialty-3', label: 'Headlight restoration detail', category: 'specialty', src: exter6Headlights },
+    {
+      id: 'full-exterior-detail',
+      filename: 'Full Exterior Detail.jpg',
+      label: 'Full Exterior Detail',
+      description: 'A complete exterior detail built for gloss, clean trim, wheels, and overall presentation.',
+      category: 'exterior',
+      src: fullExteriorDetail,
+    },
+    {
+      id: 'one-step-paint-correction',
+      filename: '1-Step Paint Correction.jpg',
+      label: 'One-Step Paint Correction',
+      description: 'Light correction to reduce haze, improve gloss, and restore a cleaner paint finish.',
+      category: 'specialty',
+      src: oneStepPaintCorrection,
+    },
+    {
+      id: 'basic-exterior-detail',
+      filename: 'Basic Exterior Detail.jpg',
+      label: 'Basic Exterior Detail',
+      description: 'A clean exterior reset focused on wash quality, shine, and presentable finish.',
+      category: 'exterior',
+      src: basicExteriorDetail,
+    },
+    {
+      id: 'basic-interior-detail',
+      filename: 'Basic Interior Detail.jpg',
+      label: 'Basic Interior Detail',
+      description: 'A focused interior refresh for seats, panels, mats, and everyday buildup.',
+      category: 'interior',
+      src: basicInteriorDetail,
+    },
+    {
+      id: 'deep-interior-detail',
+      filename: 'Deep Interior Detail.jpg',
+      label: 'Deep Interior Detail',
+      description: 'A deeper cabin reset for heavier buildup, seats, trim, carpets, and interior surfaces.',
+      category: 'interior',
+      src: deepInteriorDetail,
+    },
+    {
+      id: 'full-interior-detail',
+      filename: 'Full Interior Detail.jpg',
+      label: 'Full Interior Detail',
+      description: 'A full cabin detail for a cleaner, fresher, more comfortable interior.',
+      category: 'interior',
+      src: fullInteriorDetail,
+    },
+    {
+      id: 'hand-wash-seal',
+      filename: 'Hand Washed and Sealed.jpg',
+      label: 'Hand Wash & Seal',
+      description: 'A careful hand wash finished with protection to help boost shine and slickness.',
+      category: 'exterior',
+      src: handWashedAndSealed,
+    },
+    {
+      id: 'headlight-restoration',
+      filename: 'Headlight Restoration.jpg',
+      label: 'Headlight Restoration',
+      description: 'A clarity-focused headlight service to improve lens appearance and front-end presentation.',
+      category: 'specialty',
+      src: headlightRestoration,
+    },
+    {
+      id: 'paint-enhancement-polish',
+      filename: 'Paint Enhancing Polish.jpeg',
+      label: 'Paint Enhancement Polish',
+      description: 'A gloss-focused polish that improves depth, reflection, and overall paint appearance.',
+      category: 'specialty',
+      src: paintEnhancementPolish,
+    },
+    {
+      id: 'spotless-shine-finish',
+      filename: 'Spotless Shine.jpg',
+      label: 'Spotless Shine Finish',
+      description: 'A final finish result focused on clean reflections, gloss, and presentation.',
+      category: 'exterior',
+      src: spotlessShine,
+    },
+    {
+      id: 'spotless-wheels-tires',
+      filename: 'Spotless Wheels and Tires.jpg',
+      label: 'Spotless Wheels & Tires',
+      description: 'Wheel and tire cleaning finished for a crisp, dressed, detailed look.',
+      category: 'wheels-tires',
+      src: spotlessWheelsAndTires,
+    },
+    {
+      id: 'wheels-barrel-cleaning',
+      filename: 'Wheels + Barrels Spotless.jpg',
+      label: 'Wheels + Barrel Cleaning',
+      description: 'A deeper wheel cleaning focused on faces, barrels, and built-up grime.',
+      category: 'wheels-tires',
+      src: wheelsBarrelCleaning,
+    },
   ];
 }
 

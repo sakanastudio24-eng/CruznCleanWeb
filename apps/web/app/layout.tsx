@@ -1,6 +1,11 @@
 import type { Metadata } from 'next';
 import { Providers } from '@/app/providers';
 import { SITE_PROFILE } from '@/lib/site-profile';
+import favicon16 from '../assets/Logos/Cruz-favicon-16x.png';
+import favicon48 from '../assets/Logos/Cruz-favicon-48x.png';
+import favicon180 from '../assets/Logos/Cruz-favicon-180x.png';
+import favicon192 from '../assets/Logos/Cruz-favicon-192x.png';
+import favicon512 from '../assets/Logos/Cruz-favicon-512x.png';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -14,6 +19,15 @@ export const metadata: Metadata = {
   authors: [{ name: 'Zward Studio', url: 'https://zward.com' }],
   creator: 'Zward Studio',
   publisher: 'Zward Studio',
+  icons: {
+    icon: [
+      { url: favicon16.src, sizes: '16x16', type: 'image/png' },
+      { url: favicon48.src, sizes: '48x48', type: 'image/png' },
+      { url: favicon192.src, sizes: '192x192', type: 'image/png' },
+      { url: favicon512.src, sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [{ url: favicon180.src, sizes: '180x180', type: 'image/png' }],
+  },
   alternates: {
     canonical: '/',
   },
