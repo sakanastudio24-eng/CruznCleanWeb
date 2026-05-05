@@ -10,6 +10,8 @@ from urllib import error, request
 from app.services.discounts import build_vehicle_pricing_breakdown, normalize_vehicle_size
 
 RESEND_API_URL = "https://api.resend.com/emails"
+SUPPORT_PHONE_DISPLAY = "(951)-434-3767"
+SUPPORT_PHONE_TEL = "tel:+19514343767"
 
 
 class EmailDeliveryError(RuntimeError):
@@ -153,6 +155,96 @@ def _format_currency(value: int | float) -> str:
     return f"{float(value):,.2f}"
 
 
+def _get_env_number(name: str, fallback: float) -> float:
+    """Parses numeric email display configuration with the same safe defaults as checkout."""
+    try:
+        value = float(os.getenv(name, ""))
+        return value if value > 0 else fallback
+    except ValueError:
+        return fallback
+
+
+def _calculate_deposit_amount(estimate_total: int | float) -> float:
+    """Calculates the displayed deposit amount from the trusted backend estimate."""
+    percent = _get_env_number("STRIPE_DEPOSIT_PERCENT", 10)
+    min_amount = _get_env_number("STRIPE_DEPOSIT_MIN_CENTS", 2500) / 100
+    max_amount = _get_env_number("STRIPE_DEPOSIT_MAX_CENTS", 10000) / 100
+    raw_deposit = float(estimate_total) * (percent / 100)
+    return min(max(raw_deposit, min_amount), max_amount)
+
+
+def _format_vehicle_label(vehicle: dict[str, Any]) -> str:
+    """Formats one vehicle as Year Make Model — Color."""
+    vehicle_name = " ".join(
+        str(vehicle.get(part, "")).strip()
+        for part in ["year", "make", "model"]
+        if str(vehicle.get(part, "")).strip()
+    ) or str(vehicle.get("label", "Vehicle")).strip() or "Vehicle"
+    color = str(vehicle.get("color", "")).strip()
+    return f"{vehicle_name} — {color}" if color else vehicle_name
+
+
+def _format_vehicle_summary(vehicles: list[dict[str, Any]]) -> str:
+    """Formats all booked vehicles for email summaries."""
+    labels = [_format_vehicle_label(vehicle) for vehicle in vehicles]
+    return " | ".join(labels) if labels else "Vehicle to be confirmed"
+
+
+def _get_service_names(vehicles: list[dict[str, Any]], *, packages_only: bool | None = None) -> list[str]:
+    """Returns selected service names, optionally filtered by package/add-on role."""
+    service_names: list[str] = []
+    for vehicle in vehicles:
+        for service in vehicle.get("services", []):
+            service_id = str(service.get("id", "")).strip()
+            is_package = service_id.startswith("pkg-")
+            if packages_only is True and not is_package:
+                continue
+            if packages_only is False and is_package:
+                continue
+
+            service_name = str(service.get("name", "")).strip()
+            if service_name:
+                service_names.append(service_name)
+
+    return service_names
+
+
+def _format_selected_service(vehicles: list[dict[str, Any]]) -> str:
+    """Returns the primary selected package or a compact fallback service list."""
+    package_names = _get_service_names(vehicles, packages_only=True)
+    if package_names:
+        return ", ".join(package_names)
+
+    service_names = _get_service_names(vehicles)
+    return ", ".join(service_names) if service_names else "Service to be confirmed"
+
+
+def _format_add_ons(vehicles: list[dict[str, Any]]) -> str:
+    """Returns selected non-package add-ons for owner job summaries."""
+    add_on_names = _get_service_names(vehicles, packages_only=False)
+    return ", ".join(add_on_names) if add_on_names else "None"
+
+
+def _format_service_address(customer: dict[str, Any]) -> str:
+    """Formats the best available service location without inventing a street address."""
+    address = str(customer.get("address", "")).strip()
+    if address:
+        return address
+
+    zip_code = str(customer.get("zipCode", "")).strip()
+    return f"ZIP {zip_code} - full address confirmed during scheduling" if zip_code else "Service address to be confirmed"
+
+
+def _format_appointment_label(booking: dict[str, Any]) -> str:
+    """Formats appointment timing when present; otherwise keeps the email accurate."""
+    scheduled_at = str(booking.get("scheduledAt", "")).strip()
+    timezone_hint = str(booking.get("scheduledTimezone", "")).strip()
+    if not scheduled_at:
+        return "Scheduling in progress"
+
+    return _format_booking_datetime_label(scheduled_at, timezone_hint)
+
+
 def _resolve_booking_timestamp(booking: dict[str, Any]) -> tuple[str, str]:
     """Resolves the best booking datetime source and optional timezone hint."""
     scheduled_at = str(booking.get("scheduledAt", "")).strip()
@@ -205,74 +297,47 @@ def _build_owner_fallback_content(template_variables: dict[str, Any]) -> dict[st
     booking = template_variables["booking"]
     customer = template_variables["customer"]
     vehicles = template_variables["vehicles"]
+    estimate = template_variables["estimate"]
     booking_id = str(booking["bookingId"])
-    booking_timestamp, timezone_hint = _resolve_booking_timestamp(booking)
-    submitted_datetime = _format_booking_datetime_label(booking_timestamp, timezone_hint)
-    submitted_date = _format_booking_date_label(booking_timestamp)
-    manage_link = _build_owner_manage_link(booking_id)
-    notes = customer["notes"] or "None"
-
-    services_flat: list[dict[str, Any]] = []
-    receipt_rows: list[str] = []
-    for vehicle in vehicles:
-        vehicle_name = f"{vehicle['year']} {vehicle['make']} {vehicle['model']} ({vehicle['color']})".strip()
-        for service in vehicle["services"]:
-            services_flat.append(service)
-            original_price = int(service.get("originalPrice", service["price"]))
-            discount_amount = int(service.get("discountAmount", 0))
-            price_note = (
-                f"<br/><span style='color:#6b7280;font-size:11px;'>Original ${_format_currency(original_price)}, saved ${_format_currency(discount_amount)}</span>"
-                if discount_amount > 0
-                else ""
-            )
-            receipt_rows.append(
-                "<tr>"
-                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;'>{escape(vehicle['label'])} - {escape(vehicle_name)} - {escape(service['name'])}</td>"
-                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;text-align:right;'>${_format_currency(int(service['price']))}{price_note}</td>"
-                "</tr>"
-            )
-        for savings_line in vehicle.get("savingsLines", []):
-            receipt_rows.append(
-                "<tr>"
-                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;font-weight:700;'>{escape(str(savings_line['label']))}</td>"
-                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;text-align:right;font-weight:700;'>-${_format_currency(int(savings_line['amount']))}</td>"
-                "</tr>"
-            )
-
-    primary_service = next(
-        (service["name"] for service in services_flat if str(service["id"]).startswith("pkg-")),
-        services_flat[0]["name"] if services_flat else "Detail",
-    )
-    service_summary = ", ".join([str(service["name"]) for service in services_flat]) if services_flat else "No services selected"
-
-    if not receipt_rows:
-        receipt_rows.append(
-            "<tr><td style='padding:8px;color:#111111;font-size:13px;' colspan='2'>No services selected.</td></tr>"
-        )
+    appointment_label = _format_appointment_label(booking)
+    vehicle_summary = _format_vehicle_summary(vehicles)
+    selected_service = _format_selected_service(vehicles)
+    add_ons = _format_add_ons(vehicles)
+    service_address = _format_service_address(customer)
+    notes = str(customer.get("notes", "")).strip() or "None"
+    estimated_total = int(estimate["grandTotal"])
+    deposit_paid = _calculate_deposit_amount(estimated_total)
+    remaining_balance = max(float(estimated_total) - deposit_paid, 0)
+    deposit_label = "Deposit Paid" if booking.get("depositPaid") else "Deposit Due"
 
     lines = [
-        "New Booking Confirmed",
-        f"{primary_service} — {submitted_date}",
+        "New booking received.",
         "",
-        f"Customer name: {customer['fullName']}",
+        f"Booking Reference: {booking_id}",
+        "",
+        f"Customer: {customer['fullName']}",
         f"Phone: {customer['phone']}",
         f"Email: {customer['email']}",
-        f"Service: {service_summary}",
-        f"Date/time (timezone): {submitted_datetime}",
-        f"Notes: {notes}",
-        f"Booking ID: {booking_id}",
-        f"Manage link: {manage_link or 'Not available'}",
         "",
-        "This owner notification is sent after booking confirmation.",
+        f"Appointment: {appointment_label}",
+        f"Service Address: {service_address}",
+        f"Vehicle: {vehicle_summary}",
+        f"Selected Service: {selected_service}",
+        f"Add-ons: {add_ons}",
+        "",
+        "Payment Summary",
+        f"Estimated Total: ${_format_currency(estimated_total)}",
+        f"{deposit_label}: ${_format_currency(deposit_paid)}",
+        f"Estimated Balance Due After Service: ${_format_currency(remaining_balance)}",
+        "",
+        "Status:",
+        "Appointment scheduled" if appointment_label != "Scheduling in progress" else "Appointment scheduling in progress",
+        "Deposit paid" if booking.get("depositPaid") else "Deposit payment pending",
+        "",
+        "Notes:",
+        "Final price should be confirmed after vehicle inspection and condition review.",
+        f"Customer notes: {notes}",
     ]
-
-    manage_link_html = (
-        "<p style='margin:12px 0 0 0;font-size:13px;'>"
-        f"<a href='{escape(manage_link)}' style='color:#2f2f2f;font-weight:700;text-decoration:none;'>Manage Booking</a>"
-        "</p>"
-        if manage_link
-        else "<p style='margin:12px 0 0 0;font-size:13px;color:#6b7280;'>Manage link: Not available</p>"
-    )
 
     html = (
         "<div style='margin:0;padding:0;background:#f3f4f6;font-family:Arial,sans-serif;color:#111111;'>"
@@ -283,43 +348,51 @@ def _build_owner_fallback_content(template_variables: dict[str, Any]) -> dict[st
         "<tr>"
         "<td style='color:#ffffff;font-size:22px;font-weight:700;'>Cruizn Clean</td>"
         "<td style='text-align:right;font-size:12px;'>"
-        "<span style='color:#e5e7eb;text-decoration:none;margin-left:12px;'>Owner Alert</span>"
+        "<span style='color:#e5e7eb;text-decoration:none;margin-left:12px;'>Owner Job Summary</span>"
         "</td>"
         "</tr>"
         "</table>"
         "</div>"
         "<div style='padding:20px;'>"
-        "<p style='margin:0;font-size:23px;font-weight:800;color:#2f2f2f;'>"
-        "New Booking Confirmed<br/>"
-        f"{escape(primary_service)} — {escape(submitted_date)}"
-        "</p>"
-        "<p style='margin:8px 0 0 0;font-size:13px;color:#374151;'>This owner notification is sent after booking confirmation.</p>"
+        "<p style='margin:0;font-size:23px;font-weight:800;color:#2f2f2f;'>New booking received.</p>"
+        f"<p style='margin:6px 0 0 0;font-size:13px;color:#374151;'>Booking Reference: <strong>{escape(booking_id)}</strong></p>"
         "<div style='margin-top:16px;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;'>"
         "<table role='presentation' width='100%' cellspacing='0' cellpadding='0' style='border-collapse:collapse;'>"
-        "<tr><td style='padding:8px;background:#f9fafb;font-weight:700;font-size:13px;'>Customer name</td>"
+        "<tr><td style='padding:8px;background:#f9fafb;font-weight:700;font-size:13px;'>Customer</td>"
         f"<td style='padding:8px;background:#f9fafb;font-size:13px;text-align:right;'>{escape(customer['fullName'])}</td></tr>"
         "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Phone</td>"
         f"<td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>{escape(customer['phone'])}</td></tr>"
         "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Email</td>"
         f"<td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>{escape(customer['email'])}</td></tr>"
-        "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Service</td>"
-        f"<td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>{escape(service_summary)}</td></tr>"
-        "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Date/time (timezone)</td>"
-        f"<td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>{escape(submitted_datetime)}</td></tr>"
-        "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Notes</td>"
-        f"<td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>{escape(notes)}</td></tr>"
-        "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Booking ID</td>"
-        f"<td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;color:#2f2f2f;font-weight:700;'>{escape(booking_id)}</td></tr>"
+        "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Appointment</td>"
+        f"<td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>{escape(appointment_label)}</td></tr>"
+        "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Service Address</td>"
+        f"<td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>{escape(service_address)}</td></tr>"
+        "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Vehicle</td>"
+        f"<td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>{escape(vehicle_summary)}</td></tr>"
+        "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Selected Service</td>"
+        f"<td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>{escape(selected_service)}</td></tr>"
+        "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Add-ons</td>"
+        f"<td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>{escape(add_ons)}</td></tr>"
         "</table>"
         "</div>"
-        "<div style='margin-top:14px;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;'>"
+        "<h2 style='margin:18px 0 8px 0;font-size:18px;color:#111111;'>Payment Summary</h2>"
+        "<div style='border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;'>"
         "<table role='presentation' width='100%' cellspacing='0' cellpadding='0' style='border-collapse:collapse;'>"
-        "<tr><td style='padding:10px;background:#111827;color:#ffffff;font-size:12px;font-weight:700;'>Service Line</td>"
-        "<td style='padding:10px;background:#111827;color:#ffffff;font-size:12px;font-weight:700;text-align:right;'>Cost</td></tr>"
-        f"{''.join(receipt_rows)}"
+        "<tr><td style='padding:8px;background:#f9fafb;font-weight:700;font-size:13px;'>Estimated Total</td>"
+        f"<td style='padding:8px;background:#f9fafb;font-size:13px;text-align:right;'>${_format_currency(estimated_total)}</td></tr>"
+        f"<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>{escape(deposit_label)}</td>"
+        f"<td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>${_format_currency(deposit_paid)}</td></tr>"
+        "<tr><td style='padding:10px;background:#111827;color:#ffffff;font-size:14px;font-weight:800;'>Estimated Balance Due After Service</td>"
+        f"<td style='padding:10px;background:#111827;color:#ffffff;font-size:14px;font-weight:800;text-align:right;'>${_format_currency(remaining_balance)}</td></tr>"
         "</table>"
         "</div>"
-        f"{manage_link_html}"
+        "<div style='margin-top:14px;padding:12px;border:1px solid #d1d5db;background:#f9fafb;border-radius:10px;'>"
+        "<p style='margin:0;font-size:13px;font-weight:700;color:#2f2f2f;'>Status</p>"
+        f"<p style='margin:6px 0 0 0;font-size:13px;color:#374151;'>{'Appointment scheduled' if appointment_label != 'Scheduling in progress' else 'Appointment scheduling in progress'}<br/>{'Deposit paid' if booking.get('depositPaid') else 'Deposit payment pending'}</p>"
+        "</div>"
+        "<p style='margin:14px 0 0 0;font-size:13px;color:#374151;'>Final price should be confirmed after vehicle inspection and condition review.</p>"
+        f"<p style='margin:8px 0 0 0;font-size:13px;color:#374151;'>Customer notes: {escape(notes)}</p>"
         "</div>"
         "</div>"
         "</div>"
@@ -327,7 +400,7 @@ def _build_owner_fallback_content(template_variables: dict[str, Any]) -> dict[st
     )
 
     return {
-        "subject": f"New Booking Confirmed — {primary_service} — {submitted_date}",
+        "subject": f"New Cruizn Clean Booking — {booking_id}",
         "text": "\n".join(lines),
         "html": html,
     }
@@ -340,74 +413,55 @@ def _build_customer_fallback_content(template_variables: dict[str, Any]) -> dict
     vehicles = template_variables["vehicles"]
     estimate = template_variables["estimate"]
     site_url = os.getenv("PUBLIC_SITE_URL", "https://www.cruiznclean.com").rstrip("/")
-    terms_link = f"{site_url}/terms"
-    readiness_link = f"{site_url}/faq#service-readiness"
     support_email = os.getenv("EMAIL_REPLY_TO", os.getenv("EMAIL_FROM", "hello@cruiznclean.com")).strip()
-    support_phone = "(555) 123-4567"
-    address_value = customer.get("address") or customer.get("zipCode") or "Address to be confirmed"
     booking_id = str(booking["bookingId"])
     customer_name = str(customer["fullName"])
-    customer_phone = str(customer["phone"])
-
-    service_charge_total = 0
-    other_services_total = 0
-    other_services: list[str] = []
-    receipt_rows: list[str] = []
-
-    for vehicle in vehicles:
-        vehicle_name = f"{vehicle['year']} {vehicle['make']} {vehicle['model']} ({vehicle['color']})".strip()
-        for service in vehicle["services"]:
-            price = int(service["price"])
-            original_price = int(service.get("originalPrice", price))
-            discount_amount = int(service.get("discountAmount", 0))
-            price_note = (
-                f"<br/><span style='color:#6b7280;font-size:11px;'>Original ${_format_currency(original_price)}, saved ${_format_currency(discount_amount)}</span>"
-                if discount_amount > 0
-                else ""
-            )
-            receipt_rows.append(
-                "<tr>"
-                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;'>{escape(vehicle['label'])} - {escape(vehicle_name)} - {escape(service['name'])}</td>"
-                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;text-align:right;'>${_format_currency(price)}{price_note}</td>"
-                "</tr>"
-            )
-            if str(service["id"]).startswith("pkg-"):
-                service_charge_total += price
-            else:
-                other_services_total += price
-                other_services.append(service["name"])
-        for savings_line in vehicle.get("savingsLines", []):
-            receipt_rows.append(
-                "<tr>"
-                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;font-weight:700;'>{escape(str(savings_line['label']))}</td>"
-                f"<td style='padding:8px;border-bottom:1px solid #e5e7eb;color:#111111;font-size:13px;text-align:right;font-weight:700;'>-${_format_currency(int(savings_line['amount']))}</td>"
-                "</tr>"
-            )
-
-    if not receipt_rows:
-        receipt_rows.append(
-            "<tr><td style='padding:8px;color:#111111;font-size:13px;' colspan='2'>No services selected.</td></tr>"
-        )
-
-    other_services_text = ", ".join(other_services) if other_services else "None"
-    total_amount = int(estimate["grandTotal"])
+    appointment_label = _format_appointment_label(booking)
+    vehicle_summary = _format_vehicle_summary(vehicles)
+    selected_service = _format_selected_service(vehicles)
+    service_address = _format_service_address(customer)
+    estimated_total = int(estimate["grandTotal"])
+    deposit_paid = _calculate_deposit_amount(estimated_total)
+    remaining_balance = max(float(estimated_total) - deposit_paid, 0)
+    deposit_received = bool(booking.get("depositPaid"))
+    deposit_label = "Deposit Paid Today" if deposit_received else "Deposit Due Today"
+    intro_sentence = (
+        "Thanks for booking with Cruizn Clean. Your appointment has been scheduled and your deposit has been paid."
+        if deposit_received and appointment_label != "Scheduling in progress"
+        else "Thanks for booking with Cruizn Clean. Your booking intake has been saved and your deposit is ready for secure payment."
+    )
     lines = [
-        "Cruizn Clean order confirmation",
+        f"Hi {customer_name},",
         "",
-        f"Order number: {booking_id}",
-        f"Order name: {customer_name}",
+        intro_sentence,
         "",
-        "THANK YOU ✓",
-        "Your receipt:",
-        f"Name: {customer_name}",
-        f"Address: {address_value}",
-        f"Number: {customer_phone}",
-        f"Service charge cost: ${_format_currency(service_charge_total)}",
-        f"Other services: {other_services_text} (${_format_currency(other_services_total)})",
-        f"Total amount due: ${_format_currency(total_amount)}",
-        "Payment info: A non-refundable deposit of $25-$100 may be required to secure your appointment and is applied toward the total service cost.",
-        f"Terms and service readiness: {terms_link} | {readiness_link}",
-        f"For inquiries call/email: {support_phone} | {support_email}",
+        "Booking Details",
+        f"Booking Reference: {booking_id}",
+        f"Appointment: {appointment_label}",
+        f"Vehicle: {vehicle_summary}",
+        f"Selected Service: {selected_service}",
+        f"Service Address: {service_address}",
+        "",
+        "Payment Summary",
+        f"Estimated Service Total: ${_format_currency(estimated_total)}",
+        f"{deposit_label}: ${_format_currency(deposit_paid)}",
+        f"Estimated Balance Due After Service: ${_format_currency(remaining_balance)}",
+        "",
+        "Your deposit has been applied toward your estimated service total. The remaining balance is due after your service is completed."
+        if deposit_received
+        else "Your deposit will be applied toward your estimated service total. The remaining balance is due after your service is completed.",
+        "",
+        "Deposit Policy",
+        "Deposits are calculated as 10% of the estimated total, with a $25 minimum and $100 maximum.",
+        "",
+        "Important Note",
+        "Final pricing is confirmed on-site after vehicle inspection and condition review. Pricing may change if the vehicle requires additional work or if extra services are added.",
+        "",
+        "Need to make a change?",
+        f"Reply to this email or contact us at {SUPPORT_PHONE_DISPLAY}.",
+        "",
+        "Thank you,",
+        "Cruizn Clean",
     ]
 
     html = (
@@ -421,50 +475,49 @@ def _build_customer_fallback_content(template_variables: dict[str, Any]) -> dict
         "<td style='text-align:right;font-size:12px;'>"
         f"<a href='{site_url}' style='color:#e5e7eb;text-decoration:none;margin-left:12px;'>Home</a>"
         f"<a href='{site_url}/services' style='color:#e5e7eb;text-decoration:none;margin-left:12px;'>Services</a>"
-        f"<a href='{site_url}/booking' style='color:#e5e7eb;text-decoration:none;margin-left:12px;'>Book</a>"
+        f"<a href='{SUPPORT_PHONE_TEL}' style='color:#e5e7eb;text-decoration:none;margin-left:12px;'>{SUPPORT_PHONE_DISPLAY}</a>"
         "</td>"
         "</tr>"
         "</table>"
         "</div>"
         "<div style='padding:20px;'>"
-        "<p style='margin:0;font-size:12px;color:#6b7280;'>Order Number</p>"
-        f"<p style='margin:4px 0 0 0;font-size:16px;font-weight:700;color:#2f2f2f;'>{escape(booking_id)}</p>"
-        f"<p style='margin:4px 0 0 0;font-size:13px;color:#374151;'>Order Name: {escape(customer_name)}</p>"
-        "<div style='margin-top:18px;padding:14px;border:1px solid #d1d5db;background:#f3f4f6;border-radius:10px;'>"
-        "<p style='margin:0;font-size:28px;font-weight:800;color:#374151;'>THANK YOU ✓</p>"
-        "<p style='margin:6px 0 0 0;font-size:13px;color:#374151;'>Your booking intake has been confirmed.</p>"
-        "</div>"
-        "<h2 style='margin:18px 0 8px 0;font-size:18px;color:#111111;'>Receipt</h2>"
+        f"<p style='margin:0;font-size:16px;color:#111111;'>Hi {escape(customer_name)},</p>"
+        f"<p style='margin:10px 0 0 0;font-size:14px;line-height:1.5;color:#374151;'>{escape(intro_sentence)}</p>"
+        "<h2 style='margin:22px 0 8px 0;font-size:18px;color:#111111;'>Booking Details</h2>"
         "<table role='presentation' width='100%' cellspacing='0' cellpadding='0' style='border-collapse:collapse;'>"
-        "<tr><td style='padding:8px;background:#f9fafb;font-weight:700;font-size:13px;'>Name</td>"
-        f"<td style='padding:8px;background:#f9fafb;font-size:13px;text-align:right;'>{escape(customer_name)}</td></tr>"
-        "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Address</td>"
-        f"<td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>{escape(address_value)}</td></tr>"
-        "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Number</td>"
-        f"<td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>{escape(customer_phone)}</td></tr>"
+        "<tr><td style='padding:8px;background:#f9fafb;font-weight:700;font-size:13px;'>Booking Reference</td>"
+        f"<td style='padding:8px;background:#f9fafb;font-size:13px;text-align:right;'>{escape(booking_id)}</td></tr>"
+        "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Appointment</td>"
+        f"<td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>{escape(appointment_label)}</td></tr>"
+        "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Vehicle</td>"
+        f"<td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>{escape(vehicle_summary)}</td></tr>"
+        "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Selected Service</td>"
+        f"<td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>{escape(selected_service)}</td></tr>"
+        "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Service Address</td>"
+        f"<td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>{escape(service_address)}</td></tr>"
         "</table>"
-        "<div style='margin-top:14px;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;'>"
+        "<h2 style='margin:22px 0 8px 0;font-size:18px;color:#111111;'>Payment Summary</h2>"
         "<table role='presentation' width='100%' cellspacing='0' cellpadding='0' style='border-collapse:collapse;'>"
-        "<tr><td style='padding:10px;background:#111827;color:#ffffff;font-size:12px;font-weight:700;'>Service</td>"
-        "<td style='padding:10px;background:#111827;color:#ffffff;font-size:12px;font-weight:700;text-align:right;'>Cost</td></tr>"
-        f"{''.join(receipt_rows)}"
-        "<tr><td style='padding:8px;background:#f9fafb;font-size:13px;font-weight:700;'>Service charge cost</td>"
-        f"<td style='padding:8px;background:#f9fafb;font-size:13px;text-align:right;'>${_format_currency(service_charge_total)}</td></tr>"
-        "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;font-weight:700;'>Other services</td>"
-        f"<td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>${_format_currency(other_services_total)}</td></tr>"
-        "<tr><td style='padding:10px;background:#2f2f2f;color:#ffffff;font-size:14px;font-weight:800;'>Total amount due</td>"
-        f"<td style='padding:10px;background:#2f2f2f;color:#ffffff;font-size:14px;font-weight:800;text-align:right;'>${_format_currency(total_amount)}</td></tr>"
+        "<tr><td style='padding:8px;background:#f9fafb;font-weight:700;font-size:13px;'>Estimated Service Total</td>"
+        f"<td style='padding:8px;background:#f9fafb;font-size:13px;text-align:right;'>${_format_currency(estimated_total)}</td></tr>"
+        f"<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>{escape(deposit_label)}</td>"
+        f"<td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>${_format_currency(deposit_paid)}</td></tr>"
+        "<tr><td style='padding:10px;background:#111827;color:#ffffff;font-size:14px;font-weight:800;'>Estimated Balance Due After Service</td>"
+        f"<td style='padding:10px;background:#111827;color:#ffffff;font-size:14px;font-weight:800;text-align:right;'>${_format_currency(remaining_balance)}</td></tr>"
         "</table>"
+        f"<p style='margin:12px 0 0 0;font-size:13px;line-height:1.5;color:#374151;'>{escape('Your deposit has been applied toward your estimated service total. The remaining balance is due after your service is completed.' if deposit_received else 'Your deposit will be applied toward your estimated service total. The remaining balance is due after your service is completed.')}</p>"
+        "<div style='margin-top:14px;padding:12px;border:1px solid #d1d5db;background:#f9fafb;border-radius:10px;'>"
+        "<p style='margin:0;font-size:13px;font-weight:700;color:#2f2f2f;'>Deposit Policy</p>"
+        "<p style='margin:6px 0 0 0;font-size:13px;color:#2f2f2f;'>Deposits are calculated as 10% of the estimated total, with a $25 minimum and $100 maximum.</p>"
         "</div>"
         "<div style='margin-top:14px;padding:12px;border:1px solid #d1d5db;background:#f9fafb;border-radius:10px;'>"
-        "<p style='margin:0;font-size:13px;font-weight:700;color:#2f2f2f;'>Payment info</p>"
-        "<p style='margin:6px 0 0 0;font-size:13px;color:#2f2f2f;'>A non-refundable deposit of $25-$100 may be required to secure your appointment and is applied toward the total service cost.</p>"
+        "<p style='margin:0;font-size:13px;font-weight:700;color:#2f2f2f;'>Important Note</p>"
+        "<p style='margin:6px 0 0 0;font-size:13px;color:#2f2f2f;'>Final pricing is confirmed on-site after vehicle inspection and condition review. Pricing may change if the vehicle requires additional work or if extra services are added.</p>"
         "</div>"
-        "<p style='margin:14px 0 0 0;font-size:13px;'>"
-        f"<a href='{terms_link}' style='color:#2f2f2f;font-weight:700;text-decoration:none;'>Terms & Conditions</a> | "
-        f"<a href='{readiness_link}' style='color:#2f2f2f;font-weight:700;text-decoration:none;'>Service Readiness</a>"
-        "</p>"
-        f"<p style='margin:10px 0 0 0;font-size:13px;color:#374151;'>For any inquiries call/email: {escape(support_phone)} | {escape(support_email)}</p>"
+        "<p style='margin:14px 0 0 0;font-size:13px;color:#374151;'>Need to make a change?</p>"
+        f"<p style='margin:4px 0 0 0;font-size:13px;color:#374151;'>Reply to this email or contact us at <a href='{SUPPORT_PHONE_TEL}' style='color:#2f2f2f;font-weight:700;text-decoration:none;'>{SUPPORT_PHONE_DISPLAY}</a>.</p>"
+        f"<p style='margin:10px 0 0 0;font-size:13px;color:#6b7280;'>Email support: {escape(support_email)}</p>"
+        "<p style='margin:18px 0 0 0;font-size:13px;color:#374151;'>Thank you,<br/>Cruizn Clean</p>"
         "</div>"
         "</div>"
         "</div>"
@@ -472,7 +525,7 @@ def _build_customer_fallback_content(template_variables: dict[str, Any]) -> dict
     )
 
     return {
-        "subject": "Cruizn Clean order confirmation",
+        "subject": "Cruizn Clean Booking Confirmed — Deposit Received" if deposit_received else "Cruizn Clean Booking Received — Deposit Pending",
         "text": "\n".join(lines),
         "html": html,
     }

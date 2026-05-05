@@ -21,7 +21,7 @@ import { useBooking } from '@/components/providers/booking-provider';
 import { VehicleSizeGuideLookup } from '@/components/vehicle/vehicle-size-guide-lookup';
 import { BOOKING_LIMIT_DISCLAIMER, MAX_BOOKED_VEHICLES_PER_DAY, countSelectedVehicles } from '@/lib/booking-policy';
 import type { CustomerBookingForm, ServiceOption, VehicleProfile, VehicleSize } from '@/lib/booking-types';
-import { createStripeCheckoutSession, getCalendarBookingLink, getCalendarBookingUrl } from '@/lib/api-client';
+import { createStripeCheckoutSession, getCalendarBookingLink, getCalendarBookingUrl, submitBookingIntake } from '@/lib/api-client';
 import { getServiceAreaZipSummary, isZipInServiceArea, normalizeZipCode } from '@/lib/service-area';
 import { findServiceById } from '@/lib/services-catalog';
 import { usePersistentState } from '@/lib/use-persistent-state';
@@ -255,6 +255,25 @@ function formatCurrency(value: number): string {
 }
 
 /**
+ * Formats payment preview amounts with cents for deposit clarity.
+ */
+function formatPaymentCurrency(value: number): string {
+  return `$${value.toFixed(2)}`;
+}
+
+/**
+ * Calculates the display-only deposit preview for the payment step.
+ * Stripe still uses the backend recalculated estimate as the trusted amount.
+ */
+function getDepositPreviewAmount(estimatedTotal: number): number {
+  if (estimatedTotal <= 0) {
+    return 0;
+  }
+
+  return Math.min(100, Math.max(25, estimatedTotal * 0.1));
+}
+
+/**
  * Builds a compact vehicle label for dock cards.
  */
 function getVehicleHint(vehicle: VehicleProfile): string {
@@ -316,6 +335,7 @@ export default function BookingPage(): JSX.Element {
   const [fieldErrors, setFieldErrors] = useState<BookingFieldErrors>({});
   const [submittedBookingContext, setSubmittedBookingContext] = useState<SubmittedBookingCalendarContext | null>(null);
   const [statusMessage, setStatusMessage] = useState('');
+  const [scheduleSubmitting, setScheduleSubmitting] = useState(false);
   const [paymentSubmitting, setPaymentSubmitting] = useState(false);
   const plannerTopRef = useRef<HTMLDivElement>(null);
 
@@ -331,6 +351,9 @@ export default function BookingPage(): JSX.Element {
   const selectedPackageLine = activePricingBreakdown?.serviceLines.find((line) => line.service.id.startsWith('pkg-'));
   const selectedPremiumLines = activePricingBreakdown?.serviceLines.filter((line) => line.service.category !== 'package') ?? [];
   const grandPricingBreakdown = getGrandPricingBreakdown();
+  const estimatedTotal = getGrandTotal();
+  const depositDueToday = getDepositPreviewAmount(estimatedTotal);
+  const remainingBalance = Math.max(estimatedTotal - depositDueToday, 0);
   const selectedVehicles = useMemo(
     () => vehicles.filter((vehicle) => getVehicleServices(vehicle.id).length > 0),
     [getVehicleServices, vehicles],
@@ -349,6 +372,7 @@ export default function BookingPage(): JSX.Element {
   function resetInteractionState(): void {
     setFieldErrors({});
     setSubmittedBookingContext(null);
+    setScheduleSubmitting(false);
     setPaymentSubmitting(false);
   }
 
@@ -451,6 +475,7 @@ export default function BookingPage(): JSX.Element {
         customer: {
           email: submittedBookingContext.customer.email,
           fullName: submittedBookingContext.customer.fullName,
+          phone: submittedBookingContext.customer.phone,
         },
         vehicles,
       });
@@ -463,9 +488,9 @@ export default function BookingPage(): JSX.Element {
   }
 
   /**
-   * Builds Cal.com prefill metadata locally so scheduling does not depend on the optional API service.
+   * Saves the booking intake before rendering Cal.com with the persisted booking reference.
    */
-  function handleOpenCalendar(): void {
+  async function handleOpenCalendar(): Promise<void> {
     const submissionErrors = validateSubmission(form, vehicles);
     if (Object.keys(submissionErrors).length > 0) {
       setFieldErrors(submissionErrors);
@@ -478,20 +503,39 @@ export default function BookingPage(): JSX.Element {
     }
 
     setFieldErrors({});
-    setSubmittedBookingContext({
-      bookingId: `cal-${Date.now()}`,
-      customer: {
-        email: form.email,
-        fullName: form.fullName,
-        phone: form.phone,
-      },
-      estimatedTotal: getGrandTotal(),
-      servicesSummary: getSelectedServicesSummary(selectedVehicles, getVehiclePricingBreakdown),
-      vehicleCount: selectedVehicles.length,
-    });
-    setStatusMessage('');
-    setStep(2);
-    scrollPlannerToTop();
+    setScheduleSubmitting(true);
+    setStatusMessage('Saving booking intake');
+
+    try {
+      const intakeResponse = await submitBookingIntake({
+        customer: form,
+        vehicles,
+        honeypot,
+      });
+      const bookingId = intakeResponse.bookingId?.trim();
+      if (!bookingId) {
+        throw new Error('Booking intake saved without a booking reference');
+      }
+
+      setSubmittedBookingContext({
+        bookingId,
+        customer: {
+          email: form.email,
+          fullName: form.fullName,
+          phone: form.phone,
+        },
+        estimatedTotal: getGrandTotal(),
+        servicesSummary: getSelectedServicesSummary(selectedVehicles, getVehiclePricingBreakdown),
+        vehicleCount: selectedVehicles.length,
+      });
+      setStatusMessage('Booking intake saved. Choose an appointment time below.');
+      setStep(2);
+      scrollPlannerToTop();
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message.replace(/\.$/, '') : 'Unable to save booking intake');
+    } finally {
+      setScheduleSubmitting(false);
+    }
   }
 
   /**
@@ -961,16 +1005,31 @@ export default function BookingPage(): JSX.Element {
               <div>
                 <h2 className="font-heading text-2xl font-semibold text-ink">Deposit Billing</h2>
                 <p className="mt-1 text-sm text-ink/65">
-                  Open secure Stripe Checkout to pay the deposit after selecting your appointment time
+                  Secure your appointment with a deposit today. The remaining balance is paid after service.
                 </p>
               </div>
-              <div className="rounded-xl border border-burgundy/35 bg-burgundy/10 px-4 py-3">
-                <p className="text-sm font-semibold text-ink">
-                  Deposit due now: 10% of the estimate, with a $25 minimum and $100 maximum
+              <div className="rounded-xl border border-burgundy/40 bg-burgundy/10 px-4 py-4">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-burgundyAccent">Due today</p>
+                <p className="mt-1 font-heading text-4xl font-extrabold text-white">
+                  {formatPaymentCurrency(depositDueToday)} Deposit Due Today
                 </p>
-                <p className="mt-1 text-xs text-ink/65">
-                  Final pricing is confirmed after vehicle inspection and condition review
-                </p>
+                <p className="mt-1 text-sm font-semibold text-ink/75">Final price confirmed on-site</p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-xl border border-line bg-[#141414] px-4 py-3">
+                  <p className="text-xs uppercase tracking-[0.15em] text-ink/55">Remaining balance after service</p>
+                  <p className="mt-1 font-heading text-2xl font-bold text-ink">{formatPaymentCurrency(remainingBalance)}</p>
+                  <p className="mt-1 text-xs text-ink/60">Due after service</p>
+                </div>
+                <div className="rounded-xl border border-line bg-[#141414] px-4 py-3">
+                  <p className="text-xs uppercase tracking-[0.15em] text-ink/55">Estimated total</p>
+                  <p className="mt-1 font-heading text-2xl font-bold text-ink">{formatPaymentCurrency(estimatedTotal)}</p>
+                  <p className="mt-1 text-xs text-ink/60">Full service estimate</p>
+                </div>
+              </div>
+              <div className="rounded-xl border border-line bg-[#141414] px-4 py-3 text-sm text-ink/70">
+                <p>Deposit is calculated as 10% of the estimate, with a $25 minimum and $100 maximum.</p>
+                <p className="mt-2">Final pricing may change after vehicle inspection, condition review, or added services.</p>
               </div>
             </section>
           ) : null}
@@ -1012,10 +1071,11 @@ export default function BookingPage(): JSX.Element {
               ) : (
                 <button
                   type="button"
-                  onClick={handleOpenCalendar}
-                  className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent"
+                  onClick={() => void handleOpenCalendar()}
+                  disabled={scheduleSubmitting}
+                  className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Continue <ArrowRight className="h-4 w-4" />
+                  {scheduleSubmitting ? 'Saving Intake' : 'Save Intake & Schedule'} <ArrowRight className="h-4 w-4" />
                 </button>
               )
             ) : step === 2 ? (
@@ -1033,7 +1093,7 @@ export default function BookingPage(): JSX.Element {
                 disabled={paymentSubmitting}
                 className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {paymentSubmitting ? 'Opening Checkout' : 'Pay Deposit'} <ArrowRight className="h-4 w-4" />
+                {paymentSubmitting ? 'Opening secure payment' : `Pay ${formatPaymentCurrency(depositDueToday)} Deposit`} <ArrowRight className="h-4 w-4" />
               </button>
             ) : (
               <span />
@@ -1154,15 +1214,48 @@ export default function BookingPage(): JSX.Element {
               ) : null}
             </article>
 
-            <div className="rounded-xl bg-canvas p-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-ink">Vehicle Subtotal</span>
-                <span className="font-heading text-2xl font-extrabold text-charcoal">
-                  {formatCurrency(activeVehicle ? getVehicleTotal(activeVehicle.id) : 0)}
-                </span>
+            {step === 3 ? (
+              <article className="rounded-xl border border-burgundy/35 bg-burgundy/10 p-3">
+                <p className="text-xs font-bold uppercase tracking-[0.15em] text-burgundyAccent">Payment Summary</p>
+                <div className="mt-3 rounded-lg bg-[#141414] p-3">
+                  <p className="text-xs text-ink/60">Deposit due today</p>
+                  <p className="mt-1 font-heading text-3xl font-extrabold text-white">
+                    {formatPaymentCurrency(depositDueToday)} Deposit Due Today
+                  </p>
+                  <p className="mt-1 text-xs text-ink/60">10% of estimate</p>
+                </div>
+                <div className="mt-3 space-y-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-semibold text-ink">Remaining balance after service</p>
+                      <p className="text-xs text-ink/60">Due after service</p>
+                    </div>
+                    <p className="font-semibold text-ink">{formatPaymentCurrency(remainingBalance)}</p>
+                  </div>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-semibold text-ink">Estimated total</p>
+                      <p className="text-xs text-ink/60">Full service estimate</p>
+                    </div>
+                    <p className="font-semibold text-ink">{formatPaymentCurrency(estimatedTotal)}</p>
+                  </div>
+                </div>
+                <p className="mt-3 text-xs text-ink/60">Final price confirmed on-site</p>
+                <p className="mt-2 text-xs text-ink/60">
+                  Final pricing may change after vehicle inspection, condition review, or added services.
+                </p>
+              </article>
+            ) : (
+              <div className="rounded-xl bg-canvas p-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-ink">Vehicle Subtotal</span>
+                  <span className="font-heading text-2xl font-extrabold text-charcoal">
+                    {formatCurrency(activeVehicle ? getVehicleTotal(activeVehicle.id) : 0)}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-ink/60">Final price confirmed on-site</p>
               </div>
-              <p className="mt-1 text-xs text-ink/60">Final price confirmed on-site</p>
-            </div>
+            )}
 
             <div className="rounded-xl border border-black/10 p-3">
               <div className="mb-2 flex items-center justify-between text-xs text-ink/60">
@@ -1185,8 +1278,10 @@ export default function BookingPage(): JSX.Element {
                   ))}
                 </div>
               ) : null}
-              <p className="text-xs text-ink/60">All vehicles total</p>
-              <p className="font-heading text-2xl font-extrabold text-charcoal">{formatCurrency(getGrandTotal())}</p>
+              <p className="text-xs text-ink/60">{step === 3 ? 'Total estimate' : 'All vehicles total'}</p>
+              <p className={`font-heading font-extrabold text-charcoal ${step === 3 ? 'text-xl' : 'text-2xl'}`}>
+                {step === 3 ? formatPaymentCurrency(estimatedTotal) : formatCurrency(estimatedTotal)}
+              </p>
             </div>
           </div>
         </aside>

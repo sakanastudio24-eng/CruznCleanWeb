@@ -105,7 +105,7 @@ export async function submitBookingIntake(payload: {
  */
 export async function createStripeCheckoutSession(payload: {
   bookingId: string;
-  customer: Pick<CustomerBookingForm, 'email' | 'fullName'>;
+  customer: Pick<CustomerBookingForm, 'email' | 'fullName' | 'phone'>;
   vehicles: VehicleProfile[];
 }): Promise<{ checkoutUrl: string; depositCents: number; estimatedTotalCents: number }> {
   const vehicles: BookingVehicleRequest[] = payload.vehicles

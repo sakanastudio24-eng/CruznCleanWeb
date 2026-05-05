@@ -11,6 +11,7 @@ interface CheckoutSessionRequest {
   customer?: {
     email?: unknown;
     fullName?: unknown;
+    phone?: unknown;
   };
   vehicles?: unknown;
 }
@@ -96,6 +97,10 @@ function formatVehicleDetail(vehicle: BookingVehicleRequest): string {
   return vehicle.color ? `${fallbackName} (${vehicle.color})` : fallbackName;
 }
 
+function formatMetadataDollars(cents: number): string {
+  return (cents / 100).toFixed(2);
+}
+
 function calculateCheckoutTotals(vehicles: BookingVehicleRequest[]): CheckoutTotals {
   let estimatedTotalDollars = 0;
   let savingsTotalDollars = 0;
@@ -154,6 +159,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   const bookingId = getString(payload.bookingId);
   const customerEmail = getString(payload.customer?.email);
   const customerName = getString(payload.customer?.fullName);
+  const customerPhone = getString(payload.customer?.phone);
   const vehicles = normalizeVehicles(payload.vehicles).filter((vehicle) => vehicle.serviceIds.length > 0);
 
   if (!bookingId || !customerEmail || vehicles.length === 0) {
@@ -190,11 +196,22 @@ export async function POST(request: Request): Promise<NextResponse> {
   appendStripeField(stripePayload, 'line_items[0][price_data][unit_amount]', totals.depositCents);
   appendStripeField(stripePayload, 'line_items[0][quantity]', 1);
   appendStripeField(stripePayload, 'metadata[bookingId]', bookingId);
+  appendStripeField(stripePayload, 'metadata[orderId]', bookingId);
   appendStripeField(stripePayload, 'metadata[customerName]', customerName);
+  appendStripeField(stripePayload, 'metadata[customerEmail]', customerEmail);
+  appendStripeField(stripePayload, 'metadata[customerPhone]', customerPhone);
+  appendStripeField(stripePayload, 'metadata[vehicle]', vehicles.map(formatVehicleDetail).join(' | ').slice(0, 500));
   appendStripeField(stripePayload, 'metadata[vehicleCount]', vehicles.length);
   appendStripeField(stripePayload, 'metadata[estimatedTotalCents]', totals.estimatedTotalCents);
+  appendStripeField(stripePayload, 'metadata[estimateTotal]', formatMetadataDollars(totals.estimatedTotalCents));
   appendStripeField(stripePayload, 'metadata[savingsTotalCents]', totals.savingsTotalCents);
   appendStripeField(stripePayload, 'metadata[depositCents]', totals.depositCents);
+  appendStripeField(stripePayload, 'metadata[depositAmount]', formatMetadataDollars(totals.depositCents));
+  appendStripeField(
+    stripePayload,
+    'metadata[remainingBalance]',
+    formatMetadataDollars(totals.estimatedTotalCents - totals.depositCents),
+  );
   appendStripeField(stripePayload, 'metadata[servicesSummary]', totals.servicesSummary.slice(0, 500));
 
   const stripeResponse = await fetch(STRIPE_CHECKOUT_SESSIONS_URL, {
