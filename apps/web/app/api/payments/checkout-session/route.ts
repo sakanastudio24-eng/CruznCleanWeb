@@ -184,6 +184,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   appendStripeField(stripePayload, 'mode', 'payment');
   appendStripeField(stripePayload, 'customer_email', customerEmail);
   appendStripeField(stripePayload, 'client_reference_id', bookingId);
+  appendStripeField(stripePayload, 'allow_promotion_codes', 'true');
   appendStripeField(stripePayload, 'success_url', getStripeSuccessUrl());
   appendStripeField(stripePayload, 'cancel_url', getStripeCancelUrl());
   appendStripeField(stripePayload, 'line_items[0][price_data][currency]', 'usd');
