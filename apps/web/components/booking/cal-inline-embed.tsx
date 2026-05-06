@@ -12,6 +12,26 @@ type CalQueueFunction = ((...args: CalArgument[]) => void) & {
   q?: CalArgument[][];
 };
 
+interface CalEmbedEvent {
+  detail?: {
+    data?: unknown;
+    namespace?: string;
+    type?: string;
+  };
+}
+
+export interface CalBookingSuccessDetails {
+  bookingId: string;
+  uid: string;
+  title: string;
+  startTime: string;
+  endTime: string;
+  eventTypeId: number | null;
+  status: string;
+  paymentRequired: boolean | null;
+  isRecurring: boolean | null;
+}
+
 declare global {
   interface Window {
     Cal?: CalQueueFunction;
@@ -28,6 +48,7 @@ interface CalInlineEmbedProps {
   vehicleCount: number;
   servicesSummary: string;
   fallbackUrl: string;
+  onBookingSuccess: (details: CalBookingSuccessDetails) => void;
 }
 
 /**
@@ -66,6 +87,38 @@ function getCalPhoneLocation(phone: string): string {
   }
 
   return '';
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function getString(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function getNumberOrNull(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+}
+
+function getBooleanOrNull(value: unknown): boolean | null {
+  return typeof value === 'boolean' ? value : null;
+}
+
+function normalizeBookingSuccessDetails(bookingId: string, data: unknown): CalBookingSuccessDetails {
+  const record = isRecord(data) ? data : {};
+
+  return {
+    bookingId,
+    uid: getString(record.uid),
+    title: getString(record.title),
+    startTime: getString(record.startTime),
+    endTime: getString(record.endTime),
+    eventTypeId: getNumberOrNull(record.eventTypeId),
+    status: getString(record.status),
+    paymentRequired: getBooleanOrNull(record.paymentRequired),
+    isRecurring: getBooleanOrNull(record.isRecurring),
+  };
 }
 
 /**
@@ -130,6 +183,7 @@ export function CalInlineEmbed({
   vehicleCount,
   servicesSummary,
   fallbackUrl,
+  onBookingSuccess,
 }: CalInlineEmbedProps): JSX.Element {
   const namespace = useMemo(() => getCalNamespace(calLink), [calLink]);
   const mountId = useMemo(() => createMountId(namespace), [namespace]);
@@ -139,6 +193,8 @@ export function CalInlineEmbed({
   const [showFallback, setShowFallback] = useState(false);
 
   useEffect(() => {
+    let listenerActive = true;
+
     if (!calLink.trim()) {
       setEmbedError('Calendar link is not configured');
       return;
@@ -180,6 +236,17 @@ export function CalInlineEmbed({
       });
     }
 
+    namespacedCal('on', {
+      action: 'bookingSuccessfulV2',
+      callback: (event: CalEmbedEvent) => {
+        if (!listenerActive) {
+          return;
+        }
+
+        onBookingSuccess(normalizeBookingSuccessDetails(bookingId, event.detail?.data));
+      },
+    });
+
     namespacedCal('inline', {
       elementOrSelector: `#${mountId}`,
       config: embedConfig,
@@ -199,29 +266,30 @@ export function CalInlineEmbed({
     }, 10000);
 
     return () => {
+      listenerActive = false;
       window.clearTimeout(fallbackTimer);
     };
-  }, [bookingId, calLink, calPhoneLocation, customerName, email, estimatedTotal, mountId, namespace, phone, servicesSummary, vehicleCount]);
+  }, [bookingId, calLink, calPhoneLocation, customerName, email, estimatedTotal, mountId, namespace, onBookingSuccess, phone, servicesSummary, vehicleCount]);
 
   return (
     <section className="space-y-4">
       {embedError || showFallback ? (
-        <div className="flex justify-end">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3">
+          <p className="text-sm text-white/70">
+            Having trouble with the scheduler? Open the booking calendar in a new tab. After your appointment is scheduled, return here to continue.
+          </p>
           <a
             href={fallbackUrl}
             target="_blank"
             rel="noreferrer"
             className="rounded-full border border-white/20 px-3 py-1.5 text-xs font-semibold text-white transition hover:border-burgundyAccent hover:bg-burgundyAccent/10"
           >
-            Open fallback link
+            Open booking calendar
           </a>
         </div>
       ) : null}
 
       {embedError ? <p className="a11y-error mt-3 text-sm font-medium">{embedError}</p> : null}
-      {showFallback && !embedError ? (
-        <p className="mt-3 text-sm text-white/65">Calendar is taking longer than expected Use the fallback link if it does not load</p>
-      ) : null}
       {!embedReady && !embedError ? <p className="mt-3 text-sm text-white/65">Loading calendar</p> : null}
 
       <div

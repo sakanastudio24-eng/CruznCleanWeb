@@ -13,9 +13,9 @@ import {
   Trash2,
   User,
 } from 'lucide-react';
-import { useMemo, useRef, useState, type ComponentType } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
 
-import { CalInlineEmbed } from '@/components/booking/cal-inline-embed';
+import { CalInlineEmbed, type CalBookingSuccessDetails } from '@/components/booking/cal-inline-embed';
 import { SiteShell } from '@/components/layout/site-shell';
 import { useBooking } from '@/components/providers/booking-provider';
 import { VehicleSizeGuideLookup } from '@/components/vehicle/vehicle-size-guide-lookup';
@@ -357,9 +357,11 @@ export default function BookingPage(): JSX.Element {
   const [honeypot, setHoneypot] = useState('');
   const [fieldErrors, setFieldErrors] = useState<BookingFieldErrors>({});
   const [submittedBookingContext, setSubmittedBookingContext] = useState<SubmittedBookingCalendarContext | null>(null);
+  const [scheduledAppointment, setScheduledAppointment] = useState<CalBookingSuccessDetails | null>(null);
   const [statusMessage, setStatusMessage] = useState('');
   const [paymentSubmitting, setPaymentSubmitting] = useState(false);
   const plannerTopRef = useRef<HTMLDivElement>(null);
+  const previousBookingDraftSignatureRef = useRef<string | null>(null);
 
   const steps = getBookingSteps();
   const sizes = getVehicleSizes();
@@ -384,6 +386,21 @@ export default function BookingPage(): JSX.Element {
     () => getIncompleteSelectedVehicle(selectedVehicles),
     [selectedVehicles],
   );
+  const bookingDraftSignature = useMemo(
+    () => JSON.stringify({
+      form,
+      vehicles: selectedVehicles.map((vehicle) => ({
+        id: vehicle.id,
+        year: vehicle.year,
+        make: vehicle.make,
+        model: vehicle.model,
+        color: vehicle.color,
+        size: vehicle.size,
+        serviceIds: vehicle.serviceIds,
+      })),
+    }),
+    [form, selectedVehicles],
+  );
   const vehicleGuardMessage = incompleteSelectedVehicle
     ? getVehicleDetailGuardMessage(incompleteSelectedVehicle)
     : '';
@@ -394,6 +411,28 @@ export default function BookingPage(): JSX.Element {
   const stepOneValid = Object.keys(stepOneErrors).length === 0;
   const normalizedZipCode = normalizeZipCode(form.zipCode);
   const showServiceAreaQuoteHelp = normalizedZipCode.length === 5 && !isZipInServiceArea(normalizedZipCode);
+  const hasCompletedScheduling = Boolean(
+    submittedBookingContext && scheduledAppointment?.bookingId === submittedBookingContext.bookingId,
+  );
+  const schedulingGateMessage = hasCompletedScheduling
+    ? 'Appointment selected. Continue to payment.'
+    : 'Finish scheduling to continue.';
+
+  useEffect(() => {
+    if (previousBookingDraftSignatureRef.current === null) {
+      previousBookingDraftSignatureRef.current = bookingDraftSignature;
+      return;
+    }
+
+    if (previousBookingDraftSignatureRef.current === bookingDraftSignature) {
+      return;
+    }
+
+    previousBookingDraftSignatureRef.current = bookingDraftSignature;
+    setSubmittedBookingContext(null);
+    setScheduledAppointment(null);
+    setPaymentSubmitting(false);
+  }, [bookingDraftSignature]);
 
   /**
    * Clears field-level errors and optimistic confirmation state before new edits.
@@ -401,6 +440,7 @@ export default function BookingPage(): JSX.Element {
   function resetInteractionState(): void {
     setFieldErrors({});
     setSubmittedBookingContext(null);
+    setScheduledAppointment(null);
     setPaymentSubmitting(false);
   }
 
@@ -510,6 +550,11 @@ export default function BookingPage(): JSX.Element {
       return;
     }
 
+    if (!hasCompletedScheduling) {
+      setStatusMessage('Finish scheduling to continue.');
+      return;
+    }
+
     const submissionErrors = validateSubmission(form, vehicles);
     const missingVehicleDetails = getIncompleteSelectedVehicle(selectedVehicles);
     if (missingVehicleDetails || Object.keys(submissionErrors).length > 0) {
@@ -536,6 +581,13 @@ export default function BookingPage(): JSX.Element {
   async function handleCreateCheckoutSession(): Promise<void> {
     if (!submittedBookingContext) {
       setStatusMessage('Open the scheduler before deposit billing');
+      return;
+    }
+
+    if (!hasCompletedScheduling) {
+      setStatusMessage('Finish scheduling to continue.');
+      setStep(2);
+      scrollPlannerToTop();
       return;
     }
 
@@ -598,6 +650,7 @@ export default function BookingPage(): JSX.Element {
     }
 
     setFieldErrors({});
+    setScheduledAppointment(null);
     setSubmittedBookingContext({
       bookingId: `web-${Date.now()}`,
       customer: {
@@ -614,6 +667,15 @@ export default function BookingPage(): JSX.Element {
     scrollPlannerToTop();
   }
 
+  const handleCalendarBookingSuccess = useCallback((details: CalBookingSuccessDetails): void => {
+    if (!submittedBookingContext || details.bookingId !== submittedBookingContext.bookingId) {
+      return;
+    }
+
+    setScheduledAppointment(details);
+    setStatusMessage('Appointment selected. Continue to payment.');
+  }, [submittedBookingContext]);
+
   /**
    * Adds the missing services suggested by the active vehicle savings helper.
    */
@@ -622,6 +684,7 @@ export default function BookingPage(): JSX.Element {
       return;
     }
 
+    resetInteractionState();
     serviceIds.forEach((serviceId) => {
       const service = findServiceById(serviceId);
       if (service && !activeVehicle.serviceIds.includes(service.id)) {
@@ -1077,6 +1140,7 @@ export default function BookingPage(): JSX.Element {
                   vehicleCount={submittedBookingContext.vehicleCount}
                   servicesSummary={submittedBookingContext.servicesSummary}
                   fallbackUrl={getCalendarBookingUrl()}
+                  onBookingSuccess={handleCalendarBookingSuccess}
                 />
               ) : null}
             </section>
@@ -1120,6 +1184,19 @@ export default function BookingPage(): JSX.Element {
           {step > 1 && vehicleGuardMessage ? (
             <p className="rounded-xl border border-burgundy/35 bg-burgundy/10 px-4 py-3 text-sm font-semibold text-ink">
               {vehicleGuardMessage} Vehicle details help us prepare the correct service estimate.
+            </p>
+          ) : null}
+
+          {step === 2 ? (
+            <p
+              id="booking-scheduling-gate-message"
+              className={`rounded-xl border px-4 py-3 text-sm font-semibold ${
+                hasCompletedScheduling
+                  ? 'border-green-400/35 bg-green-400/10 text-ink'
+                  : 'border-burgundy/35 bg-burgundy/10 text-ink'
+              }`}
+            >
+              {schedulingGateMessage}
             </p>
           ) : null}
 
@@ -1170,7 +1247,8 @@ export default function BookingPage(): JSX.Element {
               <button
                 type="button"
                 onClick={continueToPayment}
-                disabled={Boolean(incompleteSelectedVehicle)}
+                disabled={Boolean(incompleteSelectedVehicle) || !hasCompletedScheduling}
+                aria-describedby="booking-scheduling-gate-message"
                 className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Continue <ArrowRight className="h-4 w-4" />
@@ -1179,7 +1257,7 @@ export default function BookingPage(): JSX.Element {
               <button
                 type="button"
                 onClick={() => void handleCreateCheckoutSession()}
-                disabled={paymentSubmitting || Boolean(incompleteSelectedVehicle)}
+                disabled={paymentSubmitting || Boolean(incompleteSelectedVehicle) || !hasCompletedScheduling}
                 className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {paymentSubmitting ? 'Opening secure payment' : `Pay ${formatPaymentCurrency(depositDueToday)} Deposit`} <ArrowRight className="h-4 w-4" />
