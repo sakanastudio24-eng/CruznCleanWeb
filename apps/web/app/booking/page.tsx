@@ -379,7 +379,6 @@ export default function BookingPage(): JSX.Element {
   const grandPricingBreakdown = getGrandPricingBreakdown();
   const estimatedTotal = getGrandTotal();
   const depositDueToday = getDepositPreviewAmount(estimatedTotal);
-  const remainingBalance = Math.max(estimatedTotal - depositDueToday, 0);
   const selectedVehicles = useMemo(
     () => vehicles.filter((vehicle) => getVehicleServices(vehicle.id).length > 0),
     [getVehicleServices, vehicles],
@@ -417,8 +416,9 @@ export default function BookingPage(): JSX.Element {
     submittedBookingContext && scheduledAppointment?.bookingId === submittedBookingContext.bookingId,
   );
   const schedulingGateMessage = hasCompletedScheduling
-    ? 'Appointment selected. Continue to secure checkout.'
+    ? 'Appointment selected. Pay your deposit to finish booking.'
     : 'Finish scheduling to continue.';
+  const progressStep = step === 2 && hasCompletedScheduling ? 3 : step;
 
   useEffect(() => {
     if (previousBookingDraftSignatureRef.current === null) {
@@ -666,10 +666,9 @@ export default function BookingPage(): JSX.Element {
     }
 
     setScheduledAppointment(details);
-    setStatusMessage('Appointment selected. Continue to secure checkout.');
-    setStep(3);
-    scrollPlannerToTop();
-  }, [submittedBookingContext]);
+    setStatusMessage('Appointment selected. Pay your deposit to finish booking.');
+    scrollSchedulingSectionIntoView();
+  }, [scrollSchedulingSectionIntoView, submittedBookingContext]);
 
   useEffect(() => {
     if (step !== 2 || !submittedBookingContext) {
@@ -708,14 +707,14 @@ export default function BookingPage(): JSX.Element {
             <div className="h-2 rounded-full bg-black/30">
               <div
                 className="h-2 rounded-full bg-burgundy transition-all duration-500"
-                style={{ width: `${(step / steps.length) * 100}%` }}
+                style={{ width: `${(progressStep / steps.length) * 100}%` }}
               />
             </div>
             <div className="mt-5 grid grid-cols-3 gap-3">
               {steps.map((item) => {
                 const Icon = item.icon;
-                const active = item.id === step;
-                const complete = item.id < Math.min(step, steps.length);
+                const active = item.id === progressStep;
+                const complete = item.id < Math.min(progressStep, steps.length);
 
                 return (
                   <div key={item.id} className="flex flex-col items-center gap-2 text-center">
@@ -1132,7 +1131,39 @@ export default function BookingPage(): JSX.Element {
 
           {step === 2 ? (
             <section ref={schedulingSectionRef} className="min-h-[520px] transition-all duration-300">
-              {submittedBookingContext ? (
+              {hasCompletedScheduling ? (
+                <div className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition-all duration-300">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-burgundyAccent">Appointment selected</p>
+                    <h2 className="mt-1 font-heading text-2xl font-semibold text-ink">Finish with your deposit</h2>
+                    <p className="mt-1 text-sm text-ink/65">
+                      Your Cal.com appointment is saved. Pay your deposit in secure Stripe Checkout to complete booking.
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-burgundy/40 bg-burgundy/10 px-4 py-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-burgundyAccent">Deposit due today</p>
+                        <p className="mt-1 font-heading text-3xl font-extrabold text-white">
+                          {formatPaymentCurrency(depositDueToday)}
+                        </p>
+                      </div>
+                      <CheckCircle2 className="h-8 w-8 text-burgundyAccent" aria-hidden="true" />
+                    </div>
+                    <p className="mt-2 text-sm font-semibold text-ink/75">
+                      The remaining balance is due after service, once final pricing is confirmed on-site.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => void handleCreateCheckoutSession()}
+                    disabled={paymentSubmitting || Boolean(incompleteSelectedVehicle)}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-burgundy px-5 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                  >
+                    {paymentSubmitting ? 'Opening secure checkout' : `Pay ${formatPaymentCurrency(depositDueToday)} Deposit`} <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : submittedBookingContext ? (
                 <CalInlineEmbed
                   bookingId={submittedBookingContext.bookingId}
                   calLink={getCalendarBookingLink()}
@@ -1146,38 +1177,6 @@ export default function BookingPage(): JSX.Element {
                   onBookingSuccess={handleCalendarBookingSuccess}
                 />
               ) : null}
-            </section>
-          ) : null}
-
-          {step === 3 ? (
-            <section className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition-all duration-300">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-burgundyAccent">Payment</p>
-                <h2 className="mt-1 font-heading text-2xl font-semibold text-ink">Ready for secure checkout</h2>
-                <p className="mt-1 text-sm text-ink/65">
-                  Appointment selected. Continue to secure Stripe Checkout to pay your deposit.
-                </p>
-              </div>
-              <div className="rounded-xl border border-burgundy/40 bg-burgundy/10 px-4 py-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-burgundyAccent">Due today</p>
-                    <p className="mt-1 font-heading text-3xl font-extrabold text-white">
-                      {formatPaymentCurrency(depositDueToday)}
-                    </p>
-                  </div>
-                  <CheckCircle2 className="h-8 w-8 text-burgundyAccent" aria-hidden="true" />
-                </div>
-                <p className="mt-2 text-sm font-semibold text-ink/75">
-                  Your scheduled appointment is saved. Stripe Checkout will open in a secure page.
-                </p>
-              </div>
-              <div className="rounded-xl border border-line bg-[#141414] px-4 py-3 text-sm text-ink/70">
-                <p>
-                  Your deposit is applied toward the final service total. Final pricing may change after vehicle inspection,
-                  condition review, or added services.
-                </p>
-              </div>
             </section>
           ) : null}
           </div>
@@ -1247,28 +1246,7 @@ export default function BookingPage(): JSX.Element {
                 </button>
               )
             ) : step === 2 ? (
-              hasCompletedScheduling ? (
-                <button
-                  type="button"
-                  onClick={() => void handleCreateCheckoutSession()}
-                  disabled={paymentSubmitting || Boolean(incompleteSelectedVehicle)}
-                  aria-describedby="booking-scheduling-gate-message"
-                  className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {paymentSubmitting ? 'Opening secure checkout' : 'Continue to secure checkout'} <ArrowRight className="h-4 w-4" />
-                </button>
-              ) : (
-                <span />
-              )
-            ) : step === 3 ? (
-              <button
-                type="button"
-                onClick={() => void handleCreateCheckoutSession()}
-                disabled={paymentSubmitting || Boolean(incompleteSelectedVehicle) || !hasCompletedScheduling}
-                className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {paymentSubmitting ? 'Opening secure checkout' : 'Continue to secure checkout'} <ArrowRight className="h-4 w-4" />
-              </button>
+              <span />
             ) : (
               <span />
             )}
@@ -1388,56 +1366,23 @@ export default function BookingPage(): JSX.Element {
               ) : null}
             </article>
 
-            {step === 3 ? (
-              <article className="rounded-xl border border-burgundy/35 bg-burgundy/10 p-3">
-                <p className="text-xs font-bold uppercase tracking-[0.15em] text-burgundyAccent">Payment Summary</p>
-                <div className="mt-3 rounded-lg bg-[#141414] p-3">
-                  <p className="text-xs text-ink/60">Deposit due today</p>
-                  <p className="mt-1 font-heading text-3xl font-extrabold text-white">
-                    {formatPaymentCurrency(depositDueToday)} Deposit Due Today
-                  </p>
-                  <p className="mt-1 text-xs text-ink/60">10% of estimate</p>
-                </div>
-                <div className="mt-3 space-y-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-semibold text-ink">Remaining balance after service</p>
-                      <p className="text-xs text-ink/60">Due after service</p>
-                    </div>
-                    <p className="font-semibold text-ink">{formatPaymentCurrency(remainingBalance)}</p>
-                  </div>
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-semibold text-ink">Estimated total</p>
-                      <p className="text-xs text-ink/60">Full service estimate</p>
-                    </div>
-                    <p className="font-semibold text-ink">{formatPaymentCurrency(estimatedTotal)}</p>
-                  </div>
-                </div>
-                <p className="mt-3 text-xs text-ink/60">Final price confirmed on-site</p>
-                <p className="mt-2 text-xs text-ink/60">
-                  Final pricing may change after vehicle inspection, condition review, or added services.
-                </p>
-              </article>
-            ) : (
-              <div className="rounded-xl bg-canvas p-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-ink">Vehicle Subtotal</span>
-                  <span className="font-heading text-2xl font-extrabold text-charcoal">
-                    {formatCurrency(activeVehicle ? getVehicleTotal(activeVehicle.id) : 0)}
-                  </span>
-                </div>
-                <p className="mt-1 text-xs text-ink/60">Final price confirmed on-site</p>
+            <div className="rounded-xl bg-canvas p-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-ink">Vehicle Subtotal</span>
+                <span className="font-heading text-2xl font-extrabold text-charcoal">
+                  {formatCurrency(activeVehicle ? getVehicleTotal(activeVehicle.id) : 0)}
+                </span>
               </div>
-            )}
+              <p className="mt-1 text-xs text-ink/60">Final price confirmed on-site</p>
+            </div>
 
             <div className="rounded-xl border border-black/10 p-3">
               <div className="mb-2 flex items-center justify-between text-xs text-ink/60">
                 <span>Booking Progress</span>
-                <span>Step {step} of {steps.length}</span>
+                <span>Step {progressStep} of {steps.length}</span>
               </div>
               <div className="h-2 rounded-full bg-black/10">
-                <div className="h-2 rounded-full bg-ink transition-all duration-500" style={{ width: `${(step / steps.length) * 100}%` }} />
+                <div className="h-2 rounded-full bg-ink transition-all duration-500" style={{ width: `${(progressStep / steps.length) * 100}%` }} />
               </div>
             </div>
 
@@ -1452,10 +1397,8 @@ export default function BookingPage(): JSX.Element {
                   ))}
                 </div>
               ) : null}
-              <p className="text-xs text-ink/60">{step === 3 ? 'Total estimate' : 'All vehicles total'}</p>
-              <p className={`font-heading font-extrabold text-charcoal ${step === 3 ? 'text-xl' : 'text-2xl'}`}>
-                {step === 3 ? formatPaymentCurrency(estimatedTotal) : formatCurrency(estimatedTotal)}
-              </p>
+              <p className="text-xs text-ink/60">All vehicles total</p>
+              <p className="font-heading text-2xl font-extrabold text-charcoal">{formatCurrency(estimatedTotal)}</p>
             </div>
           </div>
         </aside>
