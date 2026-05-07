@@ -2,6 +2,8 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 
 import { NextResponse } from 'next/server';
 
+import { sendStripeCustomerReceipt, type CustomerReceiptSendResult } from '@/lib/email/stripe-receipts';
+
 export const runtime = 'nodejs';
 
 const STRIPE_SIGNATURE_TOLERANCE_SECONDS = 300;
@@ -236,34 +238,67 @@ function getBookingId(metadata: Record<string, string> | null | undefined, fallb
   return getMetadataString(metadata, 'bookingId') || getMetadataString(metadata, 'orderId') || fallbackId || null;
 }
 
-function handleCheckoutSessionCompleted(
+async function handleCheckoutSessionCompleted(
   event: StripeWebhookEvent,
   object: Record<string, unknown>,
-): StripeWebhookHandlingResult {
+): Promise<StripeWebhookHandlingResult> {
   const session = object as StripeCheckoutSession;
   const estimatedServiceTotalCents = getEstimatedServiceTotalCents(session.metadata);
   const stripeConfirmedAmountPaidCents = session.payment_status === 'paid' ? coalesceCents(session.amount_total) : null;
+  const paymentIntentId = getObjectId(session.payment_intent);
+  const customerEmail =
+    session.customer_details?.email || session.customer_email || getMetadataString(session.metadata, 'customerEmail');
+  const customerName = session.customer_details?.name || getMetadataString(session.metadata, 'customerName');
+  const customerPhone = session.customer_details?.phone || getMetadataString(session.metadata, 'customerPhone');
+  const bookingId = getBookingId(session.metadata, session.client_reference_id);
+  const orderId = getMetadataString(session.metadata, 'orderId') || session.client_reference_id || null;
+  const depositSubtotalBeforeDiscountCents = coalesceCents(session.amount_subtotal);
+  const stripeDiscountAmountCents = coalesceCents(session.total_details?.amount_discount);
+  const remainingBalanceCents = calculateRemainingBalanceCents(estimatedServiceTotalCents, stripeConfirmedAmountPaidCents);
+  const receiptEmailDelivery: CustomerReceiptSendResult =
+    session.payment_status === 'paid'
+      ? await sendStripeCustomerReceipt({
+          checkoutSessionId: session.id ?? null,
+          paymentIntentId,
+          clientReferenceId: session.client_reference_id ?? null,
+          bookingId,
+          orderId,
+          customerEmail,
+          customerName,
+          customerPhone,
+          vehicleSummary: getMetadataString(session.metadata, 'vehicle'),
+          servicesSummary: getMetadataString(session.metadata, 'servicesSummary'),
+          estimatedServiceTotalCents,
+          depositSubtotalBeforeDiscountCents,
+          depositPaidTodayCents: stripeConfirmedAmountPaidCents,
+          discountAppliedCents: stripeDiscountAmountCents,
+          remainingBalanceCents,
+        })
+      : {
+          attempted: false,
+          reason: 'not_paid',
+        };
   const normalized = {
     source: 'checkout.session.completed',
     receiptEligible: session.payment_status === 'paid',
     checkoutSessionId: session.id ?? null,
-    paymentIntentId: getObjectId(session.payment_intent),
+    paymentIntentId,
     clientReferenceId: session.client_reference_id ?? null,
-    bookingId: getBookingId(session.metadata, session.client_reference_id),
-    orderId: getMetadataString(session.metadata, 'orderId') || session.client_reference_id || null,
-    customerEmail:
-      session.customer_email || session.customer_details?.email || getMetadataString(session.metadata, 'customerEmail'),
-    customerName: session.customer_details?.name || getMetadataString(session.metadata, 'customerName'),
-    customerPhone: session.customer_details?.phone || getMetadataString(session.metadata, 'customerPhone'),
+    bookingId,
+    orderId,
+    customerEmail,
+    customerName,
+    customerPhone,
     vehicleSummary: getMetadataString(session.metadata, 'vehicle'),
     servicesSummary: getMetadataString(session.metadata, 'servicesSummary'),
     paymentStatus: session.payment_status ?? null,
     checkoutStatus: session.status ?? null,
     estimatedServiceTotalCents,
-    depositSubtotalBeforeDiscountCents: coalesceCents(session.amount_subtotal),
+    depositSubtotalBeforeDiscountCents,
     stripeConfirmedAmountPaidCents,
-    stripeDiscountAmountCents: coalesceCents(session.total_details?.amount_discount),
-    remainingBalanceCents: calculateRemainingBalanceCents(estimatedServiceTotalCents, stripeConfirmedAmountPaidCents),
+    stripeDiscountAmountCents,
+    remainingBalanceCents,
+    receiptEmailDelivery,
   };
 
   return {
@@ -382,7 +417,7 @@ function handleChargeDisputeCreated(
   };
 }
 
-function handleStripeEvent(event: StripeWebhookEvent): StripeWebhookHandlingResult {
+async function handleStripeEvent(event: StripeWebhookEvent): Promise<StripeWebhookHandlingResult> {
   if (!isApprovedStripeEventType(event.type)) {
     return {
       handled: false,
@@ -448,7 +483,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     return NextResponse.json({ detail: 'Invalid Stripe webhook payload' }, { status: 400 });
   }
 
-  const handlingResult = handleStripeEvent(event);
+  const handlingResult = await handleStripeEvent(event);
   logStripeHandlingResult(handlingResult);
 
   return NextResponse.json({ received: true, result: handlingResult });
