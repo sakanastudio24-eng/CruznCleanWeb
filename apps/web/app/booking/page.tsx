@@ -361,6 +361,8 @@ export default function BookingPage(): JSX.Element {
   const [statusMessage, setStatusMessage] = useState('');
   const [paymentSubmitting, setPaymentSubmitting] = useState(false);
   const plannerTopRef = useRef<HTMLDivElement>(null);
+  const schedulingSectionRef = useRef<HTMLElement>(null);
+  const schedulingControlsRef = useRef<HTMLDivElement>(null);
   const previousBookingDraftSignatureRef = useRef<string | null>(null);
 
   const steps = getBookingSteps();
@@ -533,6 +535,38 @@ export default function BookingPage(): JSX.Element {
   }
 
   /**
+   * Scrolls Step 2 to the active scheduler instead of the full planner shell.
+   */
+  const scrollSchedulingSectionIntoView = useCallback((): void => {
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        const target = schedulingSectionRef.current;
+        if (!target) {
+          return;
+        }
+
+        const headerOffset = 96;
+        const targetTop = target.getBoundingClientRect().top + window.scrollY - headerOffset;
+        window.scrollTo({ top: Math.max(targetTop, 0), behavior: 'smooth' });
+      });
+    });
+  }, []);
+
+  /**
+   * Keeps the scheduling status and Continue action easy to find after Cal.com succeeds.
+   */
+  const scrollSchedulingControlsIntoView = useCallback((): void => {
+    window.requestAnimationFrame(() => {
+      const target = schedulingControlsRef.current;
+      if (!target) {
+        return;
+      }
+
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }, []);
+
+  /**
    * Moves back to the previous booking step.
    */
   function goBack(): void {
@@ -664,7 +698,6 @@ export default function BookingPage(): JSX.Element {
     });
     setStatusMessage('Your booking details will be included with your payment request.');
     setStep(2);
-    scrollPlannerToTop();
   }
 
   const handleCalendarBookingSuccess = useCallback((details: CalBookingSuccessDetails): void => {
@@ -674,7 +707,16 @@ export default function BookingPage(): JSX.Element {
 
     setScheduledAppointment(details);
     setStatusMessage('Appointment selected. Continue to payment.');
-  }, [submittedBookingContext]);
+    scrollSchedulingControlsIntoView();
+  }, [scrollSchedulingControlsIntoView, submittedBookingContext]);
+
+  useEffect(() => {
+    if (step !== 2 || !submittedBookingContext) {
+      return;
+    }
+
+    scrollSchedulingSectionIntoView();
+  }, [scrollSchedulingSectionIntoView, step, submittedBookingContext]);
 
   /**
    * Adds the missing services suggested by the active vehicle savings helper.
@@ -1128,7 +1170,7 @@ export default function BookingPage(): JSX.Element {
           ) : null}
 
           {step === 2 ? (
-            <section className="min-h-[520px] transition-all duration-300">
+            <section ref={schedulingSectionRef} className="min-h-[520px] transition-all duration-300">
               {submittedBookingContext ? (
                 <CalInlineEmbed
                   bookingId={submittedBookingContext.bookingId}
@@ -1188,16 +1230,18 @@ export default function BookingPage(): JSX.Element {
           ) : null}
 
           {step === 2 ? (
-            <p
-              id="booking-scheduling-gate-message"
-              className={`rounded-xl border px-4 py-3 text-sm font-semibold ${
-                hasCompletedScheduling
-                  ? 'border-green-400/35 bg-green-400/10 text-ink'
-                  : 'border-burgundy/35 bg-burgundy/10 text-ink'
-              }`}
-            >
-              {schedulingGateMessage}
-            </p>
+            <div ref={schedulingControlsRef}>
+              <p
+                id="booking-scheduling-gate-message"
+                className={`rounded-xl border px-4 py-3 text-sm font-semibold ${
+                  hasCompletedScheduling
+                    ? 'border-green-400/35 bg-green-400/10 text-ink'
+                    : 'border-burgundy/35 bg-burgundy/10 text-ink'
+                }`}
+              >
+                {schedulingGateMessage}
+              </p>
+            </div>
           ) : null}
 
           {step === 1 ? (
