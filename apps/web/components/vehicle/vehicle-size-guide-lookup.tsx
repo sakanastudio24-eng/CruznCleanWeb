@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Search } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type KeyboardEvent } from 'react';
 
 import type { VehicleProfile, VehicleSize } from '@/lib/booking-types';
 import {
@@ -141,6 +141,28 @@ export function VehicleSizeGuideLookup({
     onApplyTypedVehicle(typedVehicleDetails);
   }
 
+  /**
+   * Applies the current finder value without requiring a visible secondary action.
+   */
+  function handleTypedVehicleKeyDown(event: KeyboardEvent<HTMLInputElement>): void {
+    if (event.key !== 'Enter') {
+      return;
+    }
+
+    if (searchResults.length === 1) {
+      event.preventDefault();
+      applyLookupEntry(searchResults[0]);
+      return;
+    }
+
+    if (!typedVehicleDetails || !onApplyTypedVehicle) {
+      return;
+    }
+
+    event.preventDefault();
+    handleApplyTypedVehicle();
+  }
+
   return (
     <div className={`rounded-xl border border-line bg-transparent p-3 ${className}`}>
       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/55">Vehicle Lookup</p>
@@ -193,10 +215,16 @@ export function VehicleSizeGuideLookup({
           <input
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
+            onKeyDown={handleTypedVehicleKeyDown}
             placeholder="Type make or model (e.g. Camry, Model Y)"
             className="gray-field w-full rounded-lg py-2 pl-8 pr-3 text-sm"
           />
         </div>
+        {onApplyTypedVehicle ? (
+          <span className="mt-1 block text-[11px] font-medium text-ink/55">
+            Press Enter to use typed vehicle details.
+          </span>
+        ) : null}
       </label>
 
       {searchQuery.trim() ? (
@@ -218,15 +246,6 @@ export function VehicleSizeGuideLookup({
           ) : (
             <p className="text-xs text-ink/65">No catalog match yet Select the closest standard vehicle type, or request a custom quote for specialty vehicles</p>
           )}
-          {onApplyTypedVehicle && typedVehicleDetails ? (
-            <button
-              type="button"
-              onClick={handleApplyTypedVehicle}
-              className="mt-2 w-full rounded-full border border-burgundy/60 bg-burgundy/15 px-3 py-2 text-xs font-semibold text-white transition hover:bg-burgundy/25"
-            >
-              Use typed vehicle details
-            </button>
-          ) : null}
         </div>
       ) : null}
 
