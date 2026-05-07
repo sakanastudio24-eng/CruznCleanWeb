@@ -45,6 +45,8 @@ export interface BookingVehicleRequest {
   year: string;
   color: string;
   size: VehicleSize;
+  sizeSource?: VehicleSizeSource | null;
+  customLabel?: string;
   serviceIds: string[];
 }
 

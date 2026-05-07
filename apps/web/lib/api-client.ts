@@ -75,6 +75,8 @@ export async function createStripeCheckoutSession(payload: {
       year: vehicle.year,
       color: vehicle.color,
       size: vehicle.size,
+      sizeSource: vehicle.sizeSource,
+      customLabel: vehicle.customLabel,
       serviceIds: vehicle.serviceIds,
     }));
 

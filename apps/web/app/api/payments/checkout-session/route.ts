@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-import type { BookingVehicleRequest, VehicleSize } from '@/lib/booking-types';
+import type { BookingVehicleRequest, VehicleSize, VehicleSizeSource } from '@/lib/booking-types';
 import { getVehiclePricingBreakdown } from '@/lib/pricing';
 import { findServiceById } from '@/lib/services-catalog';
 
@@ -25,9 +25,21 @@ interface CheckoutTotals {
 
 const STRIPE_CHECKOUT_SESSIONS_URL = 'https://api.stripe.com/v1/checkout/sessions';
 const VALID_VEHICLE_SIZES: VehicleSize[] = ['sedan_coupe', 'small_suv_truck', 'large_suv_truck', 'oversized'];
+const VALID_VEHICLE_SIZE_SOURCES: VehicleSizeSource[] = ['guide', 'manual'];
+const VEHICLE_SIZE_LABELS: Record<VehicleSize, string> = {
+  sedan_coupe: 'Sedan/Coupe',
+  small_suv_truck: 'Small SUV/Truck',
+  large_suv_truck: 'Large SUV/Truck',
+  oversized: 'Oversized',
+};
 
 function getString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
+}
+
+function getVehicleSizeSource(value: unknown): VehicleSizeSource | null {
+  const sizeSource = getString(value) as VehicleSizeSource;
+  return VALID_VEHICLE_SIZE_SOURCES.includes(sizeSource) ? sizeSource : null;
 }
 
 function getEnvNumber(name: string, fallback: number): number {
@@ -62,7 +74,7 @@ function normalizeVehicles(rawVehicles: unknown): BookingVehicleRequest[] {
   }
 
   return rawVehicles
-    .map((vehicle) => {
+    .map((vehicle): BookingVehicleRequest | null => {
       if (!vehicle || typeof vehicle !== 'object') {
         return null;
       }
@@ -85,6 +97,8 @@ function normalizeVehicles(rawVehicles: unknown): BookingVehicleRequest[] {
         year: getString(record.year),
         color: getString(record.color),
         size,
+        sizeSource: getVehicleSizeSource(record.sizeSource),
+        customLabel: getString(record.customLabel) || undefined,
         serviceIds,
       };
     })
@@ -92,9 +106,11 @@ function normalizeVehicles(rawVehicles: unknown): BookingVehicleRequest[] {
 }
 
 function formatVehicleDetail(vehicle: BookingVehicleRequest): string {
-  const vehicleName = [vehicle.year, vehicle.make, vehicle.model].filter(Boolean).join(' ').trim();
-  const fallbackName = vehicle.label || vehicleName || 'Vehicle';
-  return vehicle.color ? `${fallbackName} (${vehicle.color})` : fallbackName;
+  const vehicleName = vehicle.customLabel || [vehicle.year, vehicle.make, vehicle.model].filter(Boolean).join(' ').trim();
+  const fallbackName = vehicleName || vehicle.label || 'Vehicle';
+  const displayName = vehicle.color ? `${fallbackName} (${vehicle.color})` : fallbackName;
+  const customPrefix = vehicle.customLabel || vehicle.sizeSource === 'manual' ? 'Custom vehicle: ' : '';
+  return `${customPrefix}${displayName} — ${VEHICLE_SIZE_LABELS[vehicle.size]}`;
 }
 
 function formatMetadataDollars(cents: number): string {
