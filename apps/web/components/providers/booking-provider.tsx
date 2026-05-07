@@ -97,6 +97,7 @@ function normalizeVehicleSize(size: unknown): VehicleSize {
 export function BookingProvider({ children }: BookingProviderProps): JSX.Element {
   const [vehicles, setVehicles] = useState<VehicleProfile[]>([createDefaultVehicle(0)]);
   const [activeVehicleId, setActiveVehicleId] = useState<string>(vehicles[0].id);
+  const [storageHydrated, setStorageHydrated] = useState(false);
 
   useEffect(() => {
     const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -105,6 +106,7 @@ export function BookingProvider({ children }: BookingProviderProps): JSX.Element
     const storedValue = raw ?? legacyRaw;
 
     if (!storedValue) {
+      setStorageHydrated(true);
       return;
     }
 
@@ -132,12 +134,18 @@ export function BookingProvider({ children }: BookingProviderProps): JSX.Element
     } catch {
       window.localStorage.removeItem(STORAGE_KEY);
       LEGACY_STORAGE_KEYS.forEach((legacyKey) => window.localStorage.removeItem(legacyKey));
+    } finally {
+      setStorageHydrated(true);
     }
   }, []);
 
   useEffect(() => {
+    if (!storageHydrated) {
+      return;
+    }
+
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ vehicles, activeVehicleId }));
-  }, [activeVehicleId, vehicles]);
+  }, [activeVehicleId, storageHydrated, vehicles]);
 
   /**
    * Adds a new vehicle to the customer dock and makes it active.
