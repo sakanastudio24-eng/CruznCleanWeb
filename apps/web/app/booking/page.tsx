@@ -362,8 +362,8 @@ export default function BookingPage(): JSX.Element {
   const [paymentSubmitting, setPaymentSubmitting] = useState(false);
   const plannerTopRef = useRef<HTMLDivElement>(null);
   const schedulingSectionRef = useRef<HTMLElement>(null);
-  const schedulingControlsRef = useRef<HTMLDivElement>(null);
   const previousBookingDraftSignatureRef = useRef<string | null>(null);
+  const checkoutRequestInFlightRef = useRef(false);
 
   const steps = getBookingSteps();
   const sizes = getVehicleSizes();
@@ -417,7 +417,7 @@ export default function BookingPage(): JSX.Element {
     submittedBookingContext && scheduledAppointment?.bookingId === submittedBookingContext.bookingId,
   );
   const schedulingGateMessage = hasCompletedScheduling
-    ? 'Appointment selected. Continue to payment.'
+    ? 'Appointment selected. Continue to secure checkout.'
     : 'Finish scheduling to continue.';
 
   useEffect(() => {
@@ -434,6 +434,7 @@ export default function BookingPage(): JSX.Element {
     setSubmittedBookingContext(null);
     setScheduledAppointment(null);
     setPaymentSubmitting(false);
+    checkoutRequestInFlightRef.current = false;
   }, [bookingDraftSignature]);
 
   /**
@@ -444,6 +445,7 @@ export default function BookingPage(): JSX.Element {
     setSubmittedBookingContext(null);
     setScheduledAppointment(null);
     setPaymentSubmitting(false);
+    checkoutRequestInFlightRef.current = false;
   }
 
   /**
@@ -553,20 +555,6 @@ export default function BookingPage(): JSX.Element {
   }, []);
 
   /**
-   * Keeps the scheduling status and Continue action easy to find after Cal.com succeeds.
-   */
-  const scrollSchedulingControlsIntoView = useCallback((): void => {
-    window.requestAnimationFrame(() => {
-      const target = schedulingControlsRef.current;
-      if (!target) {
-        return;
-      }
-
-      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    });
-  }, []);
-
-  /**
    * Moves back to the previous booking step.
    */
   function goBack(): void {
@@ -576,43 +564,13 @@ export default function BookingPage(): JSX.Element {
   }
 
   /**
-   * Advances from Cal.com scheduling to site-side Stripe deposit billing.
-   */
-  function continueToPayment(): void {
-    if (!submittedBookingContext) {
-      setStatusMessage('Open the scheduler before continuing to deposit billing');
-      return;
-    }
-
-    if (!hasCompletedScheduling) {
-      setStatusMessage('Finish scheduling to continue.');
-      return;
-    }
-
-    const submissionErrors = validateSubmission(form, vehicles);
-    const missingVehicleDetails = getIncompleteSelectedVehicle(selectedVehicles);
-    if (missingVehicleDetails || Object.keys(submissionErrors).length > 0) {
-      if (missingVehicleDetails) {
-        focusIncompleteSelectedVehicle(missingVehicleDetails);
-        return;
-      }
-
-      setFieldErrors(submissionErrors);
-      setStatusMessage('Complete required booking details before continuing to payment.');
-      setStep(1);
-      scrollPlannerToTop();
-      return;
-    }
-
-    setStatusMessage('');
-    setStep(3);
-    scrollPlannerToTop();
-  }
-
-  /**
    * Creates a hosted Stripe Checkout Session for the deposit step.
    */
   async function handleCreateCheckoutSession(): Promise<void> {
+    if (checkoutRequestInFlightRef.current) {
+      return;
+    }
+
     if (!submittedBookingContext) {
       setStatusMessage('Open the scheduler before deposit billing');
       return;
@@ -640,6 +598,7 @@ export default function BookingPage(): JSX.Element {
       return;
     }
 
+    checkoutRequestInFlightRef.current = true;
     setPaymentSubmitting(true);
     setStatusMessage('Opening secure Stripe checkout');
 
@@ -657,6 +616,7 @@ export default function BookingPage(): JSX.Element {
       window.location.href = checkoutSession.checkoutUrl;
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message.replace(/\.$/, '') : 'Unable to open Stripe checkout');
+      checkoutRequestInFlightRef.current = false;
       setPaymentSubmitting(false);
     }
   }
@@ -706,9 +666,10 @@ export default function BookingPage(): JSX.Element {
     }
 
     setScheduledAppointment(details);
-    setStatusMessage('Appointment selected. Continue to payment.');
-    scrollSchedulingControlsIntoView();
-  }, [scrollSchedulingControlsIntoView, submittedBookingContext]);
+    setStatusMessage('Appointment selected. Continue to secure checkout.');
+    setStep(3);
+    scrollPlannerToTop();
+  }, [submittedBookingContext]);
 
   useEffect(() => {
     if (step !== 2 || !submittedBookingContext) {
@@ -1191,33 +1152,31 @@ export default function BookingPage(): JSX.Element {
           {step === 3 ? (
             <section className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition-all duration-300">
               <div>
-                <h2 className="font-heading text-2xl font-semibold text-ink">Deposit Billing</h2>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-burgundyAccent">Payment</p>
+                <h2 className="mt-1 font-heading text-2xl font-semibold text-ink">Ready for secure checkout</h2>
                 <p className="mt-1 text-sm text-ink/65">
-                  Secure your appointment with a deposit today. The remaining balance is paid after service.
+                  Appointment selected. Continue to secure Stripe Checkout to pay your deposit.
                 </p>
               </div>
               <div className="rounded-xl border border-burgundy/40 bg-burgundy/10 px-4 py-4">
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-burgundyAccent">Due today</p>
-                <p className="mt-1 font-heading text-4xl font-extrabold text-white">
-                  {formatPaymentCurrency(depositDueToday)} Deposit Due Today
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-burgundyAccent">Due today</p>
+                    <p className="mt-1 font-heading text-3xl font-extrabold text-white">
+                      {formatPaymentCurrency(depositDueToday)}
+                    </p>
+                  </div>
+                  <CheckCircle2 className="h-8 w-8 text-burgundyAccent" aria-hidden="true" />
+                </div>
+                <p className="mt-2 text-sm font-semibold text-ink/75">
+                  Your scheduled appointment is saved. Stripe Checkout will open in a secure page.
                 </p>
-                <p className="mt-1 text-sm font-semibold text-ink/75">Final price confirmed on-site</p>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-xl border border-line bg-[#141414] px-4 py-3">
-                  <p className="text-xs uppercase tracking-[0.15em] text-ink/55">Remaining balance after service</p>
-                  <p className="mt-1 font-heading text-2xl font-bold text-ink">{formatPaymentCurrency(remainingBalance)}</p>
-                  <p className="mt-1 text-xs text-ink/60">Due after service</p>
-                </div>
-                <div className="rounded-xl border border-line bg-[#141414] px-4 py-3">
-                  <p className="text-xs uppercase tracking-[0.15em] text-ink/55">Estimated total</p>
-                  <p className="mt-1 font-heading text-2xl font-bold text-ink">{formatPaymentCurrency(estimatedTotal)}</p>
-                  <p className="mt-1 text-xs text-ink/60">Full service estimate</p>
-                </div>
               </div>
               <div className="rounded-xl border border-line bg-[#141414] px-4 py-3 text-sm text-ink/70">
-                <p>Deposit is calculated as 10% of the estimate, with a $25 minimum and $100 maximum.</p>
-                <p className="mt-2">Final pricing may change after vehicle inspection, condition review, or added services.</p>
+                <p>
+                  Your deposit is applied toward the final service total. Final pricing may change after vehicle inspection,
+                  condition review, or added services.
+                </p>
               </div>
             </section>
           ) : null}
@@ -1230,7 +1189,7 @@ export default function BookingPage(): JSX.Element {
           ) : null}
 
           {step === 2 ? (
-            <div ref={schedulingControlsRef}>
+            <div>
               <p
                 id="booking-scheduling-gate-message"
                 className={`rounded-xl border px-4 py-3 text-sm font-semibold ${
@@ -1288,15 +1247,19 @@ export default function BookingPage(): JSX.Element {
                 </button>
               )
             ) : step === 2 ? (
-              <button
-                type="button"
-                onClick={continueToPayment}
-                disabled={Boolean(incompleteSelectedVehicle) || !hasCompletedScheduling}
-                aria-describedby="booking-scheduling-gate-message"
-                className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                Continue <ArrowRight className="h-4 w-4" />
-              </button>
+              hasCompletedScheduling ? (
+                <button
+                  type="button"
+                  onClick={() => void handleCreateCheckoutSession()}
+                  disabled={paymentSubmitting || Boolean(incompleteSelectedVehicle)}
+                  aria-describedby="booking-scheduling-gate-message"
+                  className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {paymentSubmitting ? 'Opening secure checkout' : 'Continue to secure checkout'} <ArrowRight className="h-4 w-4" />
+                </button>
+              ) : (
+                <span />
+              )
             ) : step === 3 ? (
               <button
                 type="button"
@@ -1304,7 +1267,7 @@ export default function BookingPage(): JSX.Element {
                 disabled={paymentSubmitting || Boolean(incompleteSelectedVehicle) || !hasCompletedScheduling}
                 className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {paymentSubmitting ? 'Opening secure payment' : `Pay ${formatPaymentCurrency(depositDueToday)} Deposit`} <ArrowRight className="h-4 w-4" />
+                {paymentSubmitting ? 'Opening secure checkout' : 'Continue to secure checkout'} <ArrowRight className="h-4 w-4" />
               </button>
             ) : (
               <span />
