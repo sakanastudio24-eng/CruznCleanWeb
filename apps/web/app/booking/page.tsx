@@ -59,7 +59,6 @@ interface BookingFieldErrors {
   selectedVehicleDetails?: string;
   selectedVehicleLimit?: string;
   confirmationChannel?: string;
-  smsConsent?: string;
   acceptedConsent?: string;
 }
 
@@ -127,12 +126,10 @@ function getSelectableCardClass(selected: boolean, emphasized = false): string {
 }
 
 /**
- * Validates confirmation preference inputs for email and SMS updates.
+ * Validates the customer-facing email confirmation preference.
  */
 function hasValidConfirmationPreference(form: CustomerBookingForm): boolean {
-  const selectedAnyChannel = form.sendEmailConfirmation || form.sendSmsConfirmation;
-  const smsConsentSatisfied = !form.sendSmsConfirmation || form.acceptedSmsConsent;
-  return selectedAnyChannel && smsConsentSatisfied;
+  return form.sendEmailConfirmation;
 }
 
 /**
@@ -184,11 +181,7 @@ function appendCustomerValidationErrors(
   }
 
   if (!hasValidConfirmationPreference(form)) {
-    errors.confirmationChannel = 'Select at least one confirmation channel';
-  }
-
-  if (form.sendSmsConfirmation && !form.acceptedSmsConsent) {
-    errors.smsConsent = 'SMS confirmation requires consent';
+    errors.confirmationChannel = 'Keep email confirmations enabled to continue';
   }
 
   if (!form.acceptedConsent) {
@@ -1019,12 +1012,18 @@ export default function BookingPage(): JSX.Element {
                     autoComplete="tel"
                     inputMode="tel"
                     aria-invalid={Boolean(fieldErrors.phone)}
-                    aria-describedby={fieldErrors.phone ? 'booking-phone-error' : undefined}
+                    aria-describedby={[
+                      'booking-phone-help',
+                      fieldErrors.phone ? 'booking-phone-error' : '',
+                    ].filter(Boolean).join(' ')}
                     className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
                       fieldErrors.phone ? 'border-charcoal focus:border-charcoal' : 'border-black/15 focus:border-fog'
                     }`}
                     placeholder="(555) 123-4567"
                   />
+                  <span id="booking-phone-help" className="mt-1 block text-xs font-medium text-ink/55">
+                    We use your phone number to coordinate your booking and support payment verification.
+                  </span>
                   {fieldErrors.phone ? <span id="booking-phone-error" className="a11y-error mt-1 block text-xs font-medium">{fieldErrors.phone}</span> : null}
                 </label>
                 <label className="text-sm font-semibold text-ink/75">
@@ -1152,40 +1151,9 @@ export default function BookingPage(): JSX.Element {
                     <span>I agree to receive booking confirmations and service-related emails</span>
                   </label>
 
-                  <label className="flex items-start gap-2 rounded-lg border border-line bg-[#141414] px-3 py-2 text-sm text-ink/80">
-                    <input
-                      type="checkbox"
-                      checked={form.sendSmsConfirmation}
-                      onChange={(event) => {
-                        const checked = event.target.checked;
-                        updateCustomerField('sendSmsConfirmation', checked);
-                        if (!checked) {
-                          updateCustomerField('acceptedSmsConsent', false);
-                        }
-                      }}
-                      className="mt-1"
-                    />
-                    <span>
-                      SMS confirmations to <span className="font-semibold text-ink">your phone number</span>
-                    </span>
-                  </label>
-                {form.sendSmsConfirmation ? (
-                  <label className={`flex items-start gap-2 rounded-lg px-3 py-2 text-xs text-ink/80 ${
-                    fieldErrors.smsConsent ? 'border border-burgundyAccent bg-burgundy/15' : 'border border-burgundy/30 bg-burgundy/5'
-                  }`}>
-                    <input
-                      type="checkbox"
-                      checked={form.acceptedSmsConsent}
-                      onChange={(event) => updateCustomerField('acceptedSmsConsent', event.target.checked)}
-                      className="mt-0.5"
-                    />
-                    I agree to receive booking-related SMS confirmations Message/data rates may apply
-                  </label>
-                ) : null}
                 {fieldErrors.confirmationChannel ? (
                   <p className="a11y-error text-xs font-medium">{fieldErrors.confirmationChannel}</p>
                 ) : null}
-                {fieldErrors.smsConsent ? <p className="a11y-error text-xs font-medium">{fieldErrors.smsConsent}</p> : null}
               </div>
 
             </section>
