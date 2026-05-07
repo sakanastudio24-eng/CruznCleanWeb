@@ -2,7 +2,13 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 
 import { NextResponse } from 'next/server';
 
-import { sendStripeCustomerReceipt, type CustomerReceiptSendResult } from '@/lib/email/stripe-receipts';
+import {
+  sendStripeCustomerReceipt,
+  sendStripeOwnerNotification,
+  type CustomerReceiptSendResult,
+  type OwnerNotificationSendResult,
+  type StripeCustomerReceiptInput,
+} from '@/lib/email/stripe-receipts';
 
 export const runtime = 'nodejs';
 
@@ -255,25 +261,33 @@ async function handleCheckoutSessionCompleted(
   const depositSubtotalBeforeDiscountCents = coalesceCents(session.amount_subtotal);
   const stripeDiscountAmountCents = coalesceCents(session.total_details?.amount_discount);
   const remainingBalanceCents = calculateRemainingBalanceCents(estimatedServiceTotalCents, stripeConfirmedAmountPaidCents);
+  const receiptInput: StripeCustomerReceiptInput = {
+    checkoutSessionId: session.id ?? null,
+    paymentIntentId,
+    clientReferenceId: session.client_reference_id ?? null,
+    bookingId,
+    orderId,
+    customerEmail,
+    customerName,
+    customerPhone,
+    vehicleSummary: getMetadataString(session.metadata, 'vehicle'),
+    servicesSummary: getMetadataString(session.metadata, 'servicesSummary'),
+    estimatedServiceTotalCents,
+    depositSubtotalBeforeDiscountCents,
+    depositPaidTodayCents: stripeConfirmedAmountPaidCents,
+    discountAppliedCents: stripeDiscountAmountCents,
+    remainingBalanceCents,
+  };
   const receiptEmailDelivery: CustomerReceiptSendResult =
     session.payment_status === 'paid'
-      ? await sendStripeCustomerReceipt({
-          checkoutSessionId: session.id ?? null,
-          paymentIntentId,
-          clientReferenceId: session.client_reference_id ?? null,
-          bookingId,
-          orderId,
-          customerEmail,
-          customerName,
-          customerPhone,
-          vehicleSummary: getMetadataString(session.metadata, 'vehicle'),
-          servicesSummary: getMetadataString(session.metadata, 'servicesSummary'),
-          estimatedServiceTotalCents,
-          depositSubtotalBeforeDiscountCents,
-          depositPaidTodayCents: stripeConfirmedAmountPaidCents,
-          discountAppliedCents: stripeDiscountAmountCents,
-          remainingBalanceCents,
-        })
+      ? await sendStripeCustomerReceipt(receiptInput)
+      : {
+          attempted: false,
+          reason: 'not_paid',
+        };
+  const ownerEmailDelivery: OwnerNotificationSendResult =
+    session.payment_status === 'paid'
+      ? await sendStripeOwnerNotification(receiptInput)
       : {
           attempted: false,
           reason: 'not_paid',
@@ -299,6 +313,7 @@ async function handleCheckoutSessionCompleted(
     stripeDiscountAmountCents,
     remainingBalanceCents,
     receiptEmailDelivery,
+    ownerEmailDelivery,
   };
 
   return {

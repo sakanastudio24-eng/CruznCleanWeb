@@ -44,6 +44,21 @@ export type CustomerReceiptSendResult =
       delivery: SendResendEmailResult;
     };
 
+export type OwnerNotificationSendResult =
+  | {
+      attempted: false;
+      reason: 'not_paid' | 'missing_checkout_session_id' | 'missing_owner_email';
+    }
+  | {
+      attempted: true;
+      idempotencyKey: string;
+      delivery: SendResendEmailResult;
+    };
+
+function getEnvValue(name: string): string {
+  return process.env[name]?.trim() || '';
+}
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, '&amp;')
@@ -283,6 +298,108 @@ function buildReceiptEmail(input: StripeCustomerReceiptInput): { subject: string
   };
 }
 
+function buildOwnerNotificationEmail(input: StripeCustomerReceiptInput): { subject: string; html: string; text: string } {
+  const bookingReference = formatOptionalValue(input.bookingId || input.orderId || input.clientReferenceId, 'Unavailable');
+  const customerName = formatOptionalValue(input.customerName, 'Customer name unavailable');
+  const customerPhone = formatOptionalValue(input.customerPhone, 'Customer phone unavailable');
+  const customerEmail = formatOptionalValue(input.customerEmail, 'Customer email unavailable');
+  const displayAmounts = calculateReceiptDisplayAmounts(input);
+  const promotionApplied = isValidCents(displayAmounts.serviceDiscountCents) && displayAmounts.serviceDiscountCents > 0;
+  const promotionPercentLabel = promotionApplied
+    ? `Promotion applied: ${formatPercent(displayAmounts.discountPercent)}% off estimated service`
+    : null;
+  const hasPaymentIntentId = Boolean(input.paymentIntentId?.trim());
+  const textRows = [
+    `Booking/order reference: ${bookingReference}`,
+    `Paid status: Paid`,
+    `Customer name: ${customerName}`,
+    `Customer phone: ${customerPhone}`,
+    `Customer email: ${customerEmail}`,
+    `Vehicle summary: ${formatOptionalValue(input.vehicleSummary, 'Vehicle to be confirmed')}`,
+    `Services summary: ${formatOptionalValue(input.servicesSummary, 'Services to be confirmed')}`,
+    `Estimated service total: ${formatCurrency(input.estimatedServiceTotalCents)}`,
+    ...(promotionPercentLabel ? [promotionPercentLabel] : []),
+    ...(promotionApplied ? [`Promotion savings: -${formatCurrency(displayAmounts.serviceDiscountCents)}`] : []),
+    `Discounted estimated total: ${formatCurrency(displayAmounts.discountedEstimatedServiceTotalCents)}`,
+    `Deposit paid today: ${formatCurrency(input.depositPaidTodayCents)}`,
+    `Estimated remaining balance due after service: ${formatCurrency(displayAmounts.remainingBalanceCents)}`,
+    `Checkout Session ID: ${formatOptionalValue(input.checkoutSessionId, 'Unavailable')}`,
+    ...(hasPaymentIntentId ? [`Payment Intent ID: ${input.paymentIntentId?.trim()}`] : []),
+  ];
+  const paymentSummaryHtml = [
+    buildPaymentRow('Estimated service total', formatCurrency(input.estimatedServiceTotalCents)),
+    ...(promotionPercentLabel ? [buildPaymentRow('Promotion', promotionPercentLabel)] : []),
+    ...(promotionApplied ? [buildPaymentRow('Promotion savings', `-${formatCurrency(displayAmounts.serviceDiscountCents)}`)] : []),
+    buildPaymentRow('Discounted estimated total', formatCurrency(displayAmounts.discountedEstimatedServiceTotalCents)),
+    buildPaymentRow('Deposit paid today', formatCurrency(input.depositPaidTodayCents)),
+    buildPaymentRow('Estimated remaining balance due after service', formatCurrency(displayAmounts.remainingBalanceCents), true),
+  ].join('');
+  const paymentIntentReference = hasPaymentIntentId
+    ? `<br/>Payment Intent ID: ${escapeHtml(input.paymentIntentId?.trim() || '')}`
+    : '';
+
+  const text = [
+    'Paid booking received.',
+    '',
+    ...textRows,
+    '',
+    'Final price confirmed after inspection.',
+    `Owner note: Customer-facing changes can be handled through ${SUPPORT_PHONE_DISPLAY}.`,
+  ].join('\n');
+
+  const html = (
+    '<div style="margin:0;padding:0;background:#f3f4f6;font-family:Arial,sans-serif;color:#111111;">' +
+    '<div style="max-width:700px;margin:0 auto;padding:24px 16px;">' +
+    '<div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;">' +
+    '<div style="background:#111111;padding:16px 20px;">' +
+    '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;"><tr>' +
+    '<td style="color:#ffffff;font-size:22px;font-weight:700;">Cruizn Clean</td>' +
+    `<td style="text-align:right;font-size:12px;color:#e5e7eb;">Owner Alert</td>` +
+    '</tr></table></div>' +
+    '<div style="padding:20px;">' +
+    '<p style="margin:0;font-size:13px;font-weight:800;color:#16a34a;">Paid status: Paid</p>' +
+    '<h1 style="margin:6px 0 4px 0;font-size:22px;color:#111111;">Paid booking received</h1>' +
+    '<div style="margin-top:14px;padding:14px;border:1px solid #e5e7eb;background:#f9fafb;border-radius:10px;">' +
+    '<p style="margin:0;font-size:12px;font-weight:700;color:#4b5563;">Booking/order reference</p>' +
+    `<p style="margin:4px 0 0 0;font-size:18px;font-weight:800;color:#111111;">${escapeHtml(bookingReference)}</p>` +
+    '</div>' +
+    '<div style="margin-top:14px;padding:14px;border:1px solid #e5e7eb;border-radius:10px;">' +
+    '<p style="margin:0;font-size:16px;font-weight:800;color:#111111;">Customer</p>' +
+    `${buildInfoRow('Customer name', customerName)}` +
+    `${buildInfoRow('Customer phone', customerPhone)}` +
+    `${buildInfoRow('Customer email', customerEmail)}` +
+    '</div>' +
+    '<div style="margin-top:14px;padding:14px;border:1px solid #e5e7eb;border-radius:10px;">' +
+    '<p style="margin:0;font-size:16px;font-weight:800;color:#111111;">Vehicle and services</p>' +
+    `${buildInfoRow('Vehicle summary', formatOptionalValue(input.vehicleSummary, 'Vehicle to be confirmed'))}` +
+    `${buildInfoRow('Services summary', formatOptionalValue(input.servicesSummary, 'Services to be confirmed'))}` +
+    '</div>' +
+    '<div style="margin-top:14px;padding:14px;border:1px solid #e5e7eb;border-radius:10px;">' +
+    '<p style="margin:0;font-size:16px;font-weight:800;color:#111111;">Payment summary</p>' +
+    paymentSummaryHtml +
+    '</div>' +
+    '<div style="margin-top:14px;padding:12px;border:1px solid #d1d5db;background:#f9fafb;border-radius:10px;">' +
+    '<p style="margin:0;font-size:13px;font-weight:700;color:#2f2f2f;">Final price confirmed after inspection</p>' +
+    '<p style="margin:6px 0 0 0;font-size:13px;color:#374151;">This payment summary uses Stripe-confirmed paid values and the current launch receipt discount interpretation. Confirm final pricing after vehicle inspection and condition review.</p>' +
+    '</div>' +
+    '<div style="margin-top:14px;padding:12px;border:1px solid #e5e7eb;background:#ffffff;border-radius:10px;">' +
+    '<p style="margin:0;font-size:12px;font-weight:700;color:#6b7280;">Receipt references</p>' +
+    `<p style="margin:6px 0 0 0;font-size:11px;line-height:1.45;color:#6b7280;">Checkout Session ID: ${escapeHtml(
+      formatOptionalValue(input.checkoutSessionId, 'Unavailable'),
+    )}${paymentIntentReference}</p>` +
+    '</div>' +
+    '<p style="margin:14px 0 0 0;font-size:13px;color:#374151;">Customer-facing support phone: ' +
+    `<a href="${SUPPORT_PHONE_TEL}" style="color:#2f2f2f;font-weight:700;text-decoration:none;">${SUPPORT_PHONE_DISPLAY}</a>.</p>` +
+    '</div></div></div></div>'
+  );
+
+  return {
+    subject: `Paid Cruizn Clean booking - ${bookingReference}`,
+    html,
+    text,
+  };
+}
+
 export async function sendStripeCustomerReceipt(input: StripeCustomerReceiptInput): Promise<CustomerReceiptSendResult> {
   if (!input.checkoutSessionId) {
     return {
@@ -313,6 +430,45 @@ export async function sendStripeCustomerReceipt(input: StripeCustomerReceiptInpu
     idempotencyKey,
     delivery: await sendResendEmail({
       to: input.customerEmail,
+      subject: email.subject,
+      html: email.html,
+      text: email.text,
+      idempotencyKey,
+    }),
+  };
+}
+
+export async function sendStripeOwnerNotification(input: StripeCustomerReceiptInput): Promise<OwnerNotificationSendResult> {
+  if (!input.checkoutSessionId) {
+    return {
+      attempted: false,
+      reason: 'missing_checkout_session_id',
+    };
+  }
+
+  if (typeof input.depositPaidTodayCents !== 'number') {
+    return {
+      attempted: false,
+      reason: 'not_paid',
+    };
+  }
+
+  const ownerEmail = getEnvValue('BOOKING_OWNER_EMAIL');
+  if (!ownerEmail) {
+    return {
+      attempted: false,
+      reason: 'missing_owner_email',
+    };
+  }
+
+  const idempotencyKey = `stripe-checkout/${input.checkoutSessionId}/owner-notification`;
+  const email = buildOwnerNotificationEmail(input);
+
+  return {
+    attempted: true,
+    idempotencyKey,
+    delivery: await sendResendEmail({
+      to: ownerEmail,
       subject: email.subject,
       html: email.html,
       text: email.text,
