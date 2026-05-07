@@ -86,7 +86,8 @@ export function SiteHeader(): JSX.Element {
   } = useBooking();
   const selectedServiceCount = getSelectedServiceCount();
   const [cartOpen, setCartOpen] = useState(false);
-  const cartRef = useRef<HTMLDivElement>(null);
+  const desktopCartRef = useRef<HTMLDivElement>(null);
+  const mobileCartRef = useRef<HTMLDivElement>(null);
   const desktopCartSummaryId = 'desktop-cart-summary';
   const mobileCartSummaryId = 'mobile-cart-summary';
 
@@ -127,11 +128,11 @@ export function SiteHeader(): JSX.Element {
      * Closes cart panel when pointer clicks outside dropdown container.
      */
     function onPointerDown(event: MouseEvent): void {
-      if (!cartRef.current) {
-        return;
-      }
+      const target = event.target as Node;
+      const clickedInsideDesktop = desktopCartRef.current?.contains(target) ?? false;
+      const clickedInsideMobile = mobileCartRef.current?.contains(target) ?? false;
 
-      if (!cartRef.current.contains(event.target as Node)) {
+      if (!clickedInsideDesktop && !clickedInsideMobile) {
         setCartOpen(false);
       }
     }
@@ -192,7 +193,7 @@ export function SiteHeader(): JSX.Element {
             })}
           </nav>
 
-          <div className="hidden shrink-0 items-center justify-end gap-3 lg:flex" ref={cartRef}>
+          <div className="hidden shrink-0 items-center justify-end gap-3 lg:flex" ref={desktopCartRef}>
             <a href={SITE_PROFILE.phoneHref} className="inline-flex items-center gap-2 text-sm font-semibold text-white transition hover:text-burgundyAccent">
               <Phone className="h-4 w-4" />
               {SITE_PROFILE.phoneDisplay}
@@ -320,7 +321,7 @@ export function SiteHeader(): JSX.Element {
             ) : null}
           </div>
 
-          <div className="flex items-center justify-end gap-1 lg:hidden" ref={cartRef}>
+          <div className="flex items-center justify-end gap-1 lg:hidden" ref={mobileCartRef}>
             <a
               href={SITE_PROFILE.phoneHref}
               className="inline-flex h-11 w-11 items-center justify-center rounded-full text-white transition duration-300 hover:bg-burgundy/10 hover:text-burgundyAccent"
