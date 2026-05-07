@@ -10,7 +10,7 @@ import { VehicleSizeGuideLookup } from '@/components/vehicle/vehicle-size-guide-
 import type { ServiceCategory, ServiceOption, VehicleProfile, VehicleSize } from '@/lib/booking-types';
 import { formatSizeAdjustmentLabel, getAdjustedServicePrice, getServiceSavingsTags } from '@/lib/pricing';
 import { getCorrectionServices, getPackageServices, getProtectionServices } from '@/lib/services-catalog';
-import { getVehicleDisplayName } from '@/lib/vehicle-utils';
+import { getVehicleDisplayName, isVehicleGuideSizeLocked, needsManualVehicleSize } from '@/lib/vehicle-utils';
 
 interface VehicleSizeOption {
   id: VehicleSize;
@@ -41,6 +41,31 @@ function getActiveVehiclePricingLabel(activeVehicle: VehicleProfile): string {
  */
 function formatCurrency(value: number): string {
   return `$${value.toFixed(0)}`;
+}
+
+/**
+ * Keeps make input to text-style characters while preserving natural names.
+ */
+function sanitizeVehicleTextInput(value: string): string {
+  return value.replace(/[^a-zA-Z\s'-]/g, '');
+}
+
+/**
+ * Keeps vehicle year entry numeric and bounded to a normal four-digit year.
+ */
+function sanitizeVehicleYearInput(value: string): string {
+  return value.replace(/\D/g, '').slice(0, 4);
+}
+
+/**
+ * Resolves whether a services-page size card should read as selected.
+ */
+function isVehicleSizeSelected(vehicle: VehicleProfile, size: VehicleSize): boolean {
+  if (vehicle.size !== size) {
+    return false;
+  }
+
+  return isVehicleGuideSizeLocked(vehicle) || vehicle.sizeSource === 'manual';
 }
 
 /**
@@ -208,6 +233,17 @@ function VehicleSelectSection(): JSX.Element {
             make: match.make,
             model: match.model,
             size: match.size,
+            sizeSource: 'guide',
+            customLabel: undefined,
+          });
+        }}
+        onApplyTypedVehicle={(details) => {
+          updateVehicle(activeVehicle.id, {
+            year: details.year ? sanitizeVehicleYearInput(details.year) : '',
+            make: details.make ? sanitizeVehicleTextInput(details.make) : '',
+            model: details.model ?? '',
+            customLabel: details.label,
+            sizeSource: null,
           });
         }}
         className="mt-4"
@@ -215,25 +251,34 @@ function VehicleSelectSection(): JSX.Element {
 
       <div className="mt-4 grid gap-3 md:grid-cols-3">
         {options.map((option) => {
-          const selected = activeVehicle.size === option.id;
+          const selected = isVehicleSizeSelected(activeVehicle, option.id);
+          const sizeLocked = isVehicleGuideSizeLocked(activeVehicle);
           return (
-            <div
+            <button
               key={option.id}
-              aria-current={selected ? 'true' : undefined}
-              className={`rounded-2xl border px-4 py-5 transition duration-300 ${
+              type="button"
+              onClick={() => updateVehicle(activeVehicle.id, { size: option.id, sizeSource: 'manual' })}
+              disabled={sizeLocked}
+              aria-pressed={selected}
+              className={`rounded-2xl border px-4 py-5 text-left transition duration-300 ${
                 selected
                   ? 'border-white/45 bg-white/[0.12] shadow-md'
                   : 'border-white/10 bg-[#111111]'
-              }`}
+              } disabled:cursor-not-allowed disabled:opacity-75`}
             >
               <div className="flex items-start justify-between gap-2">
                 <p className="font-heading text-xl font-semibold text-ink">{option.label}</p>
               </div>
               <p className="mt-1 text-sm text-ink/55">{option.hint}</p>
-            </div>
+            </button>
           );
         })}
       </div>
+      {needsManualVehicleSize(activeVehicle) ? (
+        <p className="mt-3 rounded-xl border border-burgundy/35 bg-burgundy/10 px-4 py-3 text-sm font-semibold text-ink">
+          Custom vehicle. Choose a size category to continue.
+        </p>
+      ) : null}
     </section>
   );
 }

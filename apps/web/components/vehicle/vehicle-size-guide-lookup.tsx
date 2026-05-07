@@ -16,7 +16,7 @@ import {
 interface VehicleSizeGuideLookupProps {
   activeVehicle: VehicleProfile;
   onApplyLookupMatch: (match: { make: string; model: string; size: VehicleSize }) => void;
-  onApplyTypedVehicle?: (details: { year?: string; make?: string; model?: string }) => void;
+  onApplyTypedVehicle?: (details: { label: string; year?: string; make?: string; model?: string }) => void;
   className?: string;
   includeOversized?: boolean;
 }
@@ -38,7 +38,7 @@ function getEntryValue(entry: VehicleGuideEntry): string {
 /**
  * Converts free-form typed vehicle text into the existing year/make/model fields.
  */
-function parseTypedVehicleDetails(value: string): { year?: string; make?: string; model?: string } | null {
+function parseTypedVehicleDetails(value: string): { label: string; year?: string; make?: string; model?: string } | null {
   const cleanedValue = value.replace(/[^a-zA-Z0-9\s.'+-]/g, ' ').replace(/\s+/g, ' ').trim();
   if (!cleanedValue) {
     return null;
@@ -54,6 +54,7 @@ function parseTypedVehicleDetails(value: string): { year?: string; make?: string
   }
 
   return {
+    label: cleanedValue,
     year,
     make: vehicleParts[0],
     model: vehicleParts.slice(1).join(' ') || undefined,
@@ -87,7 +88,9 @@ export function VehicleSizeGuideLookup({
   );
   const matchedByVehicleFields = vehicleFieldMatches.length === 1 ? vehicleFieldMatches[0] : undefined;
   const selectedDropdownEntry =
-    matchedByVehicleFields && (includeOversized || matchedByVehicleFields.size !== 'oversized') ? matchedByVehicleFields : undefined;
+    !activeVehicle.customLabel?.trim() && matchedByVehicleFields && (includeOversized || matchedByVehicleFields.size !== 'oversized')
+      ? matchedByVehicleFields
+      : undefined;
   const ambiguousVehicleMatch = useMemo(
     () => isVehicleGuideAmbiguous(activeVehicle.make, activeVehicle.model),
     [activeVehicle.make, activeVehicle.model],
@@ -104,7 +107,9 @@ export function VehicleSizeGuideLookup({
   }, [includeOversized, searchQuery]);
   const typedVehicleDetails = useMemo(() => parseTypedVehicleDetails(searchQuery), [searchQuery]);
 
-  const needsSupportRouting = ambiguousVehicleMatch || !matchedByVehicleFields || activeVehicle.size === 'oversized';
+  const hasVehicleDetails = Boolean(activeVehicle.make.trim() || activeVehicle.model.trim() || activeVehicle.customLabel?.trim());
+  const isCustomVehicle = Boolean(activeVehicle.customLabel?.trim());
+  const showSupportLinks = ambiguousVehicleMatch || isCustomVehicle || (hasVehicleDetails && !matchedByVehicleFields) || activeVehicle.size === 'oversized';
 
   /**
    * Applies one lookup result to active vehicle make/model/size.
@@ -139,6 +144,7 @@ export function VehicleSizeGuideLookup({
     }
 
     onApplyTypedVehicle(typedVehicleDetails);
+    setSearchQuery('');
   }
 
   /**
@@ -244,7 +250,7 @@ export function VehicleSizeGuideLookup({
               ))}
             </div>
           ) : (
-            <p className="text-xs text-ink/65">No catalog match yet Select the closest standard vehicle type, or request a custom quote for specialty vehicles</p>
+            <p className="text-xs text-ink/65">Vehicle not in guide yet. Press Enter to use typed vehicle details.</p>
           )}
         </div>
       ) : null}
@@ -261,21 +267,24 @@ export function VehicleSizeGuideLookup({
             Multiple guide matches were found for this make/model
             Select the closest exact match from the dropdown or type finder before you continue
           </>
+        ) : isCustomVehicle ? (
+          'Custom vehicle.'
         ) : matchedByVehicleFields ? (
           <>
-            Matched <span className="font-semibold">{matchedByVehicleFields.make} {matchedByVehicleFields.model}</span> and applied
-            <span className="font-semibold"> {SIZE_LABELS[matchedByVehicleFields.size]}</span> sizing guidance
+            Size set by vehicle guide:
+            <span className="font-semibold"> {SIZE_LABELS[matchedByVehicleFields.size]}</span>
           </>
         ) : (
-          'This vehicle is not in our standard sizing guide yet Select the closest standard vehicle type, or request a custom quote if the vehicle is modified, lifted, or specialty fitment'
+          hasVehicleDetails
+            ? 'Vehicle not in guide yet. Choose the closest size category to continue.'
+            : 'Select from the guide or type your vehicle.'
         )}
       </div>
 
-      {needsSupportRouting ? (
+      {showSupportLinks ? (
         <div className="mt-3 rounded-lg border border-line bg-[#141414] px-3 py-3 text-xs text-ink/75">
-          <p className="font-semibold text-ink">Mismatch check</p>
           <p className="mt-1">
-            If this vehicle has modifications, lift kits, oversized wheels, accessories, or anything else that changes service time, request a custom quote before booking
+            For lifted, modified, or specialty vehicles, final pricing may be confirmed after inspection.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <Link href="/quote" className="rounded-full bg-burgundy px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-burgundyAccent">

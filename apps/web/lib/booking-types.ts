@@ -1,5 +1,6 @@
 export type ServiceCategory = 'package' | 'protection' | 'correction';
 export type VehicleSize = 'sedan_coupe' | 'small_suv_truck' | 'large_suv_truck' | 'oversized';
+export type VehicleSizeSource = 'guide' | 'manual';
 
 export interface ServiceOption {
   id: string;
@@ -19,6 +20,8 @@ export interface VehicleProfile {
   year: string;
   color: string;
   size: VehicleSize;
+  sizeSource?: VehicleSizeSource | null;
+  customLabel?: string;
   serviceIds: string[];
 }
 

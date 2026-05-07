@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
 import { MAX_BOOKED_VEHICLES_PER_DAY } from '@/lib/booking-policy';
-import type { ServiceOption, VehicleProfile, VehicleSize } from '@/lib/booking-types';
+import type { ServiceOption, VehicleProfile, VehicleSize, VehicleSizeSource } from '@/lib/booking-types';
 import {
   getAdjustedServicePrice,
   getGrandPricingBreakdown as buildGrandPricingBreakdown,
@@ -53,6 +53,7 @@ function createDefaultVehicle(index: number): VehicleProfile {
     year: '',
     color: '',
     size: 'sedan_coupe',
+    sizeSource: null,
     serviceIds: [],
   };
 }
@@ -92,6 +93,13 @@ function normalizeVehicleSize(size: unknown): VehicleSize {
 }
 
 /**
+ * Normalizes persisted sizing source metadata added after initial launch.
+ */
+function normalizeVehicleSizeSource(sizeSource: unknown): VehicleSizeSource | null {
+  return sizeSource === 'guide' || sizeSource === 'manual' ? sizeSource : null;
+}
+
+/**
  * Provides multi-vehicle booking state for services and booking routes.
  */
 export function BookingProvider({ children }: BookingProviderProps): JSX.Element {
@@ -118,6 +126,10 @@ export function BookingProvider({ children }: BookingProviderProps): JSX.Element
           ...createDefaultVehicle(index),
           ...vehicle,
           size: normalizeVehicleSize(vehicle.size),
+          sizeSource: normalizeVehicleSizeSource(vehicle.sizeSource),
+          customLabel: typeof vehicle.customLabel === 'string' && vehicle.customLabel.trim()
+            ? vehicle.customLabel.trim()
+            : undefined,
           serviceIds: normalizeVehicleServices(Array.isArray(vehicle.serviceIds) ? vehicle.serviceIds : []),
         })).slice(0, MAX_BOOKED_VEHICLES_PER_DAY);
         const resolvedActiveVehicleId = normalizedVehicles.some((vehicle) => vehicle.id === parsed.activeVehicleId)

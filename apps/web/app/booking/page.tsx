@@ -25,8 +25,12 @@ import { createStripeCheckoutSession, getCalendarBookingLink, getCalendarBooking
 import { getServiceAreaZipSummary, isZipInServiceArea, normalizeZipCode } from '@/lib/service-area';
 import { findServiceById } from '@/lib/services-catalog';
 import { usePersistentState } from '@/lib/use-persistent-state';
-import { findVehicleGuideMatch } from '@/lib/vehicle-size-guide';
-import { getVehicleDisplayName } from '@/lib/vehicle-utils';
+import {
+  getStandardVehicleGuideMatch,
+  getVehicleDisplayName,
+  isVehicleGuideSizeLocked,
+  needsManualVehicleSize,
+} from '@/lib/vehicle-utils';
 import type { VehiclePricingBreakdown } from '@/lib/pricing';
 
 interface StepItem {
@@ -222,11 +226,7 @@ function validateStepOne(form: CustomerBookingForm, activeVehicle: VehicleProfil
 /**
  * Validates final booking submission requirements.
  */
-function validateSubmission(
-  form: CustomerBookingForm,
-  vehicles: VehicleProfile[],
-  manuallySizedVehicleIds: Set<string>,
-): BookingFieldErrors {
+function validateSubmission(form: CustomerBookingForm, vehicles: VehicleProfile[]): BookingFieldErrors {
   const errors: BookingFieldErrors = {};
   const selectedVehicles = vehicles.filter((vehicle) => vehicle.serviceIds.length > 0);
   const selectedVehicleCount = countSelectedVehicles(vehicles);
@@ -241,10 +241,10 @@ function validateSubmission(
     errors.selectedVehicleLimit = BOOKING_LIMIT_DISCLAIMER;
   }
 
-  const missingVehicleDetails = getIncompleteSelectedVehicle(selectedVehicles, manuallySizedVehicleIds);
+  const missingVehicleDetails = getIncompleteSelectedVehicle(selectedVehicles);
 
   if (missingVehicleDetails) {
-    errors.selectedVehicleDetails = getVehicleDetailGuardMessage(missingVehicleDetails, manuallySizedVehicleIds);
+    errors.selectedVehicleDetails = getVehicleDetailGuardMessage(missingVehicleDetails);
   }
 
   return errors;
@@ -312,60 +312,33 @@ function getBookedVehicleDetail(vehicle: VehicleProfile): string {
 /**
  * Confirms the selected vehicle has the smallest required customer-visible details.
  */
-function hasRequiredVehicleDetails(vehicle: VehicleProfile, manuallySizedVehicleIds: Set<string>): boolean {
+function hasRequiredVehicleDetails(vehicle: VehicleProfile): boolean {
   return Boolean(
     vehicle.year.trim()
     && vehicle.make.trim()
     && vehicle.model.trim()
     && vehicle.color.trim()
     && vehicle.size
-    && !getVehicleSizeGuardMessage(vehicle, manuallySizedVehicleIds),
+    && !getVehicleSizeGuardMessage(vehicle),
   );
 }
 
 /**
  * Finds the first selected vehicle that still needs details before scheduling or payment.
  */
-function getIncompleteSelectedVehicle(
-  selectedVehicles: VehicleProfile[],
-  manuallySizedVehicleIds: Set<string>,
-): VehicleProfile | undefined {
-  return selectedVehicles.find((vehicle) => !hasRequiredVehicleDetails(vehicle, manuallySizedVehicleIds));
-}
-
-/**
- * Returns exact lookup guidance when the current make/model is cataloged.
- */
-function getStandardVehicleGuideMatch(vehicle: VehicleProfile): ReturnType<typeof findVehicleGuideMatch> {
-  const match = findVehicleGuideMatch(vehicle.make, vehicle.model);
-  return match?.size === 'oversized' ? undefined : match;
-}
-
-/**
- * Identifies selected vehicles that need explicit customer size confirmation.
- */
-function getVehicleSizeGuardMessage(vehicle: VehicleProfile, manuallySizedVehicleIds: Set<string>): string {
-  const standardMatch = getStandardVehicleGuideMatch(vehicle);
-  if (standardMatch) {
-    return vehicle.size === standardMatch.size ? '' : 'Select the matching vehicle from lookup to apply the correct size category.';
-  }
-
-  if (vehicle.make.trim() && vehicle.model.trim() && !manuallySizedVehicleIds.has(vehicle.id)) {
-    return 'Custom vehicles need a size category so we can prepare the correct estimate.';
-  }
-
-  return '';
+function getIncompleteSelectedVehicle(selectedVehicles: VehicleProfile[]): VehicleProfile | undefined {
+  return selectedVehicles.find((vehicle) => !hasRequiredVehicleDetails(vehicle));
 }
 
 /**
  * Builds calm vehicle guard copy for inline prompts and blocked actions.
  */
-function getVehicleDetailGuardMessage(vehicle: VehicleProfile, manuallySizedVehicleIds: Set<string>): string {
+function getVehicleDetailGuardMessage(vehicle: VehicleProfile): string {
   if (!vehicle.year.trim() && !vehicle.make.trim() && !vehicle.model.trim()) {
     return 'Select or type your vehicle before booking.';
   }
 
-  const sizeGuardMessage = getVehicleSizeGuardMessage(vehicle, manuallySizedVehicleIds);
+  const sizeGuardMessage = getVehicleSizeGuardMessage(vehicle);
   if (sizeGuardMessage) {
     return sizeGuardMessage;
   }
@@ -374,19 +347,30 @@ function getVehicleDetailGuardMessage(vehicle: VehicleProfile, manuallySizedVehi
 }
 
 /**
+ * Identifies selected vehicles that need explicit customer size confirmation.
+ */
+function getVehicleSizeGuardMessage(vehicle: VehicleProfile): string {
+  const standardMatch = getStandardVehicleGuideMatch(vehicle);
+  if (!vehicle.customLabel?.trim() && standardMatch && vehicle.size !== standardMatch.size) {
+    return 'Size set by vehicle guide.';
+  }
+
+  if (needsManualVehicleSize(vehicle)) {
+    return 'Custom vehicle. Choose a size category to continue.';
+  }
+
+  return '';
+}
+
+/**
  * Resolves whether one size card should read as selected for the active vehicle.
  */
-function isVehicleSizeSelected(vehicle: VehicleProfile, size: VehicleSize, manuallySizedVehicleIds: Set<string>): boolean {
+function isVehicleSizeSelected(vehicle: VehicleProfile, size: VehicleSize): boolean {
   if (vehicle.size !== size) {
     return false;
   }
 
-  const standardMatch = getStandardVehicleGuideMatch(vehicle);
-  if (standardMatch) {
-    return standardMatch.size === size;
-  }
-
-  return manuallySizedVehicleIds.has(vehicle.id);
+  return isVehicleGuideSizeLocked(vehicle) || vehicle.sizeSource === 'manual';
 }
 
 /**
@@ -420,7 +404,6 @@ export default function BookingPage(): JSX.Element {
   const [scheduledAppointment, setScheduledAppointment] = useState<CalBookingSuccessDetails | null>(null);
   const [statusMessage, setStatusMessage] = useState('');
   const [paymentSubmitting, setPaymentSubmitting] = useState(false);
-  const [manuallySizedVehicleIds, setManuallySizedVehicleIds] = useState<Set<string>>(() => new Set());
   const plannerTopRef = useRef<HTMLDivElement>(null);
   const schedulingSectionRef = useRef<HTMLElement>(null);
   const previousBookingDraftSignatureRef = useRef<string | null>(null);
@@ -445,16 +428,15 @@ export default function BookingPage(): JSX.Element {
     [getVehicleServices, vehicles],
   );
   const incompleteSelectedVehicle = useMemo(
-    () => getIncompleteSelectedVehicle(selectedVehicles, manuallySizedVehicleIds),
-    [manuallySizedVehicleIds, selectedVehicles],
+    () => getIncompleteSelectedVehicle(selectedVehicles),
+    [selectedVehicles],
   );
   const activeVehicleSizeGuardMessage = activeVehicle
-    ? getVehicleSizeGuardMessage(activeVehicle, manuallySizedVehicleIds)
+    ? getVehicleSizeGuardMessage(activeVehicle)
     : '';
   const bookingDraftSignature = useMemo(
     () => JSON.stringify({
       form,
-      manuallySizedVehicleIds: Array.from(manuallySizedVehicleIds).sort(),
       vehicles: selectedVehicles.map((vehicle) => ({
         id: vehicle.id,
         year: vehicle.year,
@@ -462,13 +444,15 @@ export default function BookingPage(): JSX.Element {
         model: vehicle.model,
         color: vehicle.color,
         size: vehicle.size,
+        sizeSource: vehicle.sizeSource,
+        customLabel: vehicle.customLabel,
         serviceIds: vehicle.serviceIds,
       })),
     }),
-    [form, manuallySizedVehicleIds, selectedVehicles],
+    [form, selectedVehicles],
   );
   const vehicleGuardMessage = incompleteSelectedVehicle
-    ? getVehicleDetailGuardMessage(incompleteSelectedVehicle, manuallySizedVehicleIds)
+    ? getVehicleDetailGuardMessage(incompleteSelectedVehicle)
     : '';
   const stepOneErrors = useMemo(
     () => validateStepOne(form, activeVehicle),
@@ -534,34 +518,28 @@ export default function BookingPage(): JSX.Element {
         : field === 'make' || field === 'color'
           ? sanitizeVehicleTextInput(value)
           : value;
-    if (field === 'make' || field === 'model') {
-      setManuallySizedVehicleIds((current) => {
-        const next = new Set(current);
-        next.delete(activeVehicle.id);
-        return next;
-      });
-    }
-    updateVehicle(activeVehicle.id, { [field]: sanitizedValue });
+    updateVehicle(activeVehicle.id, {
+      [field]: sanitizedValue,
+      ...(field === 'color' ? {} : { customLabel: undefined }),
+      ...(field === 'make' || field === 'model' ? { sizeSource: null } : {}),
+    });
   }
 
   /**
-   * Applies a typed finder value to the active vehicle while preserving existing color and size.
+   * Applies a typed finder value to the active vehicle without retaining stale catalog fields.
    */
-  function applyTypedVehicleDetails(details: { year?: string; make?: string; model?: string }): void {
+  function applyTypedVehicleDetails(details: { label: string; year?: string; make?: string; model?: string }): void {
     if (!activeVehicle) {
       return;
     }
 
     resetInteractionState();
-    setManuallySizedVehicleIds((current) => {
-      const next = new Set(current);
-      next.delete(activeVehicle.id);
-      return next;
-    });
     updateVehicle(activeVehicle.id, {
-      year: details.year ? sanitizeVehicleYearInput(details.year) : activeVehicle.year,
-      make: details.make ? sanitizeVehicleTextInput(details.make) : activeVehicle.make,
-      model: details.model ?? activeVehicle.model,
+      year: details.year ? sanitizeVehicleYearInput(details.year) : '',
+      make: details.make ? sanitizeVehicleTextInput(details.make) : '',
+      model: details.model ?? '',
+      customLabel: details.label,
+      sizeSource: null,
     });
   }
 
@@ -572,7 +550,7 @@ export default function BookingPage(): JSX.Element {
     setActiveVehicleId(vehicle.id);
     setFieldErrors((current) => ({
       ...current,
-      selectedVehicleDetails: getVehicleDetailGuardMessage(vehicle, manuallySizedVehicleIds),
+      selectedVehicleDetails: getVehicleDetailGuardMessage(vehicle),
     }));
     setStatusMessage('Vehicle details help us prepare the correct service estimate.');
     setStep(1);
@@ -598,11 +576,6 @@ export default function BookingPage(): JSX.Element {
    */
   function handleRemoveVehicle(vehicleId: string): void {
     resetInteractionState();
-    setManuallySizedVehicleIds((current) => {
-      const next = new Set(current);
-      next.delete(vehicleId);
-      return next;
-    });
     removeVehicle(vehicleId);
     setStatusMessage('');
   }
@@ -663,8 +636,8 @@ export default function BookingPage(): JSX.Element {
       return;
     }
 
-    const submissionErrors = validateSubmission(form, vehicles, manuallySizedVehicleIds);
-    const missingVehicleDetails = getIncompleteSelectedVehicle(selectedVehicles, manuallySizedVehicleIds);
+    const submissionErrors = validateSubmission(form, vehicles);
+    const missingVehicleDetails = getIncompleteSelectedVehicle(selectedVehicles);
     if (missingVehicleDetails || Object.keys(submissionErrors).length > 0) {
       if (missingVehicleDetails) {
         focusIncompleteSelectedVehicle(missingVehicleDetails);
@@ -705,9 +678,9 @@ export default function BookingPage(): JSX.Element {
    * Opens scheduling with a local booking reference so payment can proceed without external intake services.
    */
   function handleOpenCalendar(): void {
-    const submissionErrors = validateSubmission(form, vehicles, manuallySizedVehicleIds);
+    const submissionErrors = validateSubmission(form, vehicles);
     if (Object.keys(submissionErrors).length > 0) {
-      const missingVehicleDetails = getIncompleteSelectedVehicle(selectedVehicles, manuallySizedVehicleIds);
+      const missingVehicleDetails = getIncompleteSelectedVehicle(selectedVehicles);
       if (missingVehicleDetails) {
         setActiveVehicleId(missingVehicleDetails.id);
       }
@@ -898,15 +871,12 @@ export default function BookingPage(): JSX.Element {
                     includeOversized={false}
                     onApplyLookupMatch={(match) => {
                       resetInteractionState();
-                      setManuallySizedVehicleIds((current) => {
-                        const next = new Set(current);
-                        next.delete(activeVehicle.id);
-                        return next;
-                      });
                       updateVehicle(activeVehicle.id, {
                         make: match.make,
                         model: match.model,
                         size: match.size,
+                        sizeSource: 'guide',
+                        customLabel: undefined,
                       });
                     }}
                     onApplyTypedVehicle={applyTypedVehicleDetails}
@@ -915,7 +885,8 @@ export default function BookingPage(): JSX.Element {
                 ) : null}
                 <div className="mt-3 grid gap-3 sm:grid-cols-3">
                   {sizes.map((size) => {
-                    const selected = activeVehicle ? isVehicleSizeSelected(activeVehicle, size.id, manuallySizedVehicleIds) : false;
+                    const selected = activeVehicle ? isVehicleSizeSelected(activeVehicle, size.id) : false;
+                    const sizeLocked = activeVehicle ? isVehicleGuideSizeLocked(activeVehicle) : false;
                     return (
                       <button
                         key={size.id}
@@ -926,17 +897,13 @@ export default function BookingPage(): JSX.Element {
                           }
 
                           resetInteractionState();
-                          setManuallySizedVehicleIds((current) => {
-                            const next = new Set(current);
-                            next.add(activeVehicle.id);
-                            return next;
-                          });
-                          updateVehicle(activeVehicle.id, { size: size.id });
+                          updateVehicle(activeVehicle.id, { size: size.id, sizeSource: 'manual' });
                         }}
+                        disabled={sizeLocked}
                         aria-pressed={selected}
                         className={`rounded-xl border px-4 py-3 text-left transition-all duration-300 ${
                           getSelectableCardClass(selected)
-                        }`}
+                        } disabled:cursor-not-allowed disabled:opacity-75`}
                       >
                         <div className="flex items-start justify-between gap-2">
                           <p className="font-heading text-base font-semibold text-ink">{size.label}</p>
