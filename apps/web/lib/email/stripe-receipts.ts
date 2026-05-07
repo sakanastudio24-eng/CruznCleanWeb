@@ -10,6 +10,11 @@ interface ReceiptDisplayAmounts {
   remainingBalanceCents: number | null;
 }
 
+interface ReceiptCopy {
+  intro: string;
+  paymentNote: string;
+}
+
 export interface StripeCustomerReceiptInput {
   checkoutSessionId: string | null;
   paymentIntentId: string | null;
@@ -142,6 +147,35 @@ function buildPaymentRow(label: string, value: string, strong = false): string {
   );
 }
 
+function buildReceiptCopy(input: StripeCustomerReceiptInput, displayAmounts: ReceiptDisplayAmounts): ReceiptCopy {
+  const paidTodayCents = isValidCents(input.depositPaidTodayCents) ? input.depositPaidTodayCents : null;
+  const remainingBalanceCents = isValidCents(displayAmounts.remainingBalanceCents) ? displayAmounts.remainingBalanceCents : null;
+  const promotionCoveredToday = paidTodayCents === 0 && isValidCents(input.discountAppliedCents) && input.discountAppliedCents > 0;
+  const promotionCoveredServiceBalance = promotionCoveredToday && remainingBalanceCents === 0;
+
+  if (promotionCoveredServiceBalance) {
+    return {
+      intro: 'Thanks for booking with Cruizn Clean. Your promotion covered today\'s deposit and your estimated service balance.',
+      paymentNote:
+        'Your promotion has been applied to the estimated service total shown here. No estimated balance is due after service unless the final on-site inspection changes the scope.',
+    };
+  }
+
+  if (promotionCoveredToday) {
+    return {
+      intro: 'Thanks for booking with Cruizn Clean. Your promotion covered today\'s deposit.',
+      paymentNote:
+        'Your promotion covered the deposit due today and has been applied to the estimated service total shown here. Any estimated balance is due after service is completed.',
+    };
+  }
+
+  return {
+    intro: 'Thanks for booking with Cruizn Clean. Your deposit payment has been confirmed.',
+    paymentNote:
+      'Your deposit has been applied toward your estimated service total. The remaining balance is due after service is completed.',
+  };
+}
+
 function buildReceiptEmail(input: StripeCustomerReceiptInput): { subject: string; html: string; text: string } {
   const bookingReference = formatOptionalValue(input.bookingId || input.orderId || input.clientReferenceId, 'your booking');
   const customerName = formatOptionalValue(input.customerName, 'there');
@@ -150,6 +184,8 @@ function buildReceiptEmail(input: StripeCustomerReceiptInput): { subject: string
   const promotionPercentLabel = promotionApplied
     ? `Promotion applied: ${formatPercent(displayAmounts.discountPercent)}% off estimated service`
     : null;
+  const receiptCopy = buildReceiptCopy(input, displayAmounts);
+  const hasPaymentIntentId = Boolean(input.paymentIntentId?.trim());
   const customerRows = [
     ...(input.customerName ? [`Customer name: ${input.customerName}`] : []),
     ...(input.customerPhone ? [`Customer phone: ${input.customerPhone}`] : []),
@@ -166,7 +202,7 @@ function buildReceiptEmail(input: StripeCustomerReceiptInput): { subject: string
     `Deposit paid today: ${formatCurrency(input.depositPaidTodayCents)}`,
     `Estimated balance due after service: ${formatCurrency(displayAmounts.remainingBalanceCents)}`,
     `Checkout Session ID: ${formatOptionalValue(input.checkoutSessionId, 'Unavailable')}`,
-    `Payment Intent ID: ${formatOptionalValue(input.paymentIntentId, 'Unavailable')}`,
+    ...(hasPaymentIntentId ? [`Payment Intent ID: ${input.paymentIntentId?.trim()}`] : []),
   ];
 
   const customerDetailsHtml = [
@@ -186,7 +222,7 @@ function buildReceiptEmail(input: StripeCustomerReceiptInput): { subject: string
   const text = [
     `Hi ${customerName},`,
     '',
-    'Thanks for booking with Cruizn Clean. Your deposit payment has been confirmed.',
+    receiptCopy.intro,
     '',
     ...textRows,
     '',
@@ -208,7 +244,7 @@ function buildReceiptEmail(input: StripeCustomerReceiptInput): { subject: string
     '</tr></table></div>' +
     '<div style="padding:20px;">' +
     `<p style="margin:0;font-size:16px;color:#111111;">Hi ${escapeHtml(customerName)},</p>` +
-    '<p style="margin:10px 0 0 0;font-size:14px;line-height:1.5;color:#374151;">Thanks for booking with Cruizn Clean. Your deposit payment has been confirmed.</p>' +
+    `<p style="margin:10px 0 0 0;font-size:14px;line-height:1.5;color:#374151;">${escapeHtml(receiptCopy.intro)}</p>` +
     '<h1 style="margin:22px 0 4px 0;font-size:22px;color:#111111;">Payment receipt</h1>' +
     '<div style="margin-top:14px;padding:14px;border:1px solid #e5e7eb;background:#f9fafb;border-radius:10px;">' +
     '<p style="margin:0;font-size:12px;font-weight:700;color:#4b5563;">Booking/order reference</p>' +
@@ -226,13 +262,13 @@ function buildReceiptEmail(input: StripeCustomerReceiptInput): { subject: string
     '</div>' +
     '<div style="margin-top:14px;padding:12px;border:1px solid #d1d5db;background:#f9fafb;border-radius:10px;">' +
     '<p style="margin:0;font-size:13px;font-weight:700;color:#2f2f2f;">Final price confirmed after inspection</p>' +
-    '<p style="margin:6px 0 0 0;font-size:13px;color:#374151;">Your deposit has been applied toward your estimated service total. The remaining balance is due after service is completed.</p>' +
+    `<p style="margin:6px 0 0 0;font-size:13px;color:#374151;">${escapeHtml(receiptCopy.paymentNote)}</p>` +
     '</div>' +
     '<div style="margin-top:14px;padding:12px;border:1px solid #e5e7eb;background:#ffffff;border-radius:10px;">' +
     '<p style="margin:0;font-size:12px;font-weight:700;color:#6b7280;">Receipt references</p>' +
     `<p style="margin:6px 0 0 0;font-size:11px;line-height:1.45;color:#6b7280;">Checkout Session ID: ${escapeHtml(
       formatOptionalValue(input.checkoutSessionId, 'Unavailable'),
-    )}<br/>Payment Intent ID: ${escapeHtml(formatOptionalValue(input.paymentIntentId, 'Unavailable'))}</p>` +
+    )}${hasPaymentIntentId ? `<br/>Payment Intent ID: ${escapeHtml(input.paymentIntentId?.trim() || '')}` : ''}</p>` +
     '</div>' +
     '<p style="margin:14px 0 0 0;font-size:13px;color:#374151;">Need to make a change? Call ' +
     `<a href="${SUPPORT_PHONE_TEL}" style="color:#2f2f2f;font-weight:700;text-decoration:none;">${SUPPORT_PHONE_DISPLAY}</a>.</p>` +
