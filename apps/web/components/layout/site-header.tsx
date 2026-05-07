@@ -168,8 +168,8 @@ export function SiteHeader(): JSX.Element {
               src={horizontalLogo}
               alt="Cruizn Clean"
               priority
-              className="h-auto max-h-9 w-[138px] object-contain sm:w-[145px] lg:max-h-10 lg:w-[160px]"
-              sizes="(max-width: 1024px) 145px, 160px"
+              className="h-auto max-h-10 w-[156px] object-contain sm:w-[166px] lg:max-h-11 lg:w-[184px]"
+              sizes="(max-width: 640px) 156px, (max-width: 1024px) 166px, 184px"
             />
           </Link>
 
