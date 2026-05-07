@@ -793,7 +793,7 @@ export default function BookingPage(): JSX.Element {
 
       <section className="mx-auto grid max-w-6xl gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_380px]">
         <div ref={plannerTopRef} className="gray-card flex min-h-[760px] flex-col p-5">
-          <div className="rounded-2xl border border-line bg-white/[0.04] p-4">
+          <div className="mb-5 rounded-2xl border border-line bg-white/[0.04] p-5 pb-6">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/60">Vehicle Deck</p>
@@ -807,7 +807,7 @@ export default function BookingPage(): JSX.Element {
                 <Plus className="h-4 w-4" /> Add Vehicle
               </button>
             </div>
-            <p className="mt-2 text-xs font-medium text-ink/60">{BOOKING_LIMIT_DISCLAIMER}</p>
+            <p className="mt-3 text-xs font-medium text-ink/60">{BOOKING_LIMIT_DISCLAIMER}</p>
 
             <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
               {vehicles.map((vehicle) => {
@@ -1232,7 +1232,7 @@ export default function BookingPage(): JSX.Element {
           ) : null}
 
           {step === 1 ? (
-            <nav aria-label="Booking policy links" className="flex flex-wrap justify-end gap-2 text-xs font-semibold">
+            <nav aria-label="Booking policy links" className="my-5 flex flex-wrap justify-end gap-2 border-y border-white/10 py-3 text-xs font-semibold">
               <Link href="/terms" className="rounded-full border border-line bg-[#141414] px-3 py-1.5 text-white transition hover:border-burgundyAccent hover:bg-burgundy/10">
                 Terms
               </Link>
@@ -1309,7 +1309,7 @@ export default function BookingPage(): JSX.Element {
           {fieldErrors.serviceSelection ? <p className="a11y-error text-xs font-medium">{fieldErrors.serviceSelection}</p> : null}
           {fieldErrors.selectedVehicleDetails ? <p className="a11y-error text-xs font-medium">{fieldErrors.selectedVehicleDetails}</p> : null}
           {fieldErrors.selectedVehicleLimit ? <p className="a11y-error text-xs font-medium">{fieldErrors.selectedVehicleLimit}</p> : null}
-          <p className="text-xs font-medium text-ink/60">
+          <p className="mt-4 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-xs font-medium text-ink/60">
             {BOOKING_LIMIT_DISCLAIMER.replace(/\.$/, '')} Booking window: Monday-Saturday 8am - 6pm
           </p>
 

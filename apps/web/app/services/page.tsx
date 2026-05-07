@@ -313,7 +313,7 @@ export default function ServicesPage(): JSX.Element {
                 </p>
               </div>
               <Link href="/quote" className="text-sm font-semibold text-white transition hover:text-burgundyAccent">
-                Need a custom setup?
+                Need a quote?
               </Link>
             </div>
 
