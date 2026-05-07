@@ -1133,20 +1133,9 @@ export default function BookingPage(): JSX.Element {
               className={hasCompletedScheduling ? 'transition-all duration-300' : 'min-h-[520px] transition-all duration-300'}
             >
               {hasCompletedScheduling ? (
-                <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-green-400/35 bg-green-400/10 px-4 py-3 transition-all duration-300">
-                  <div>
-                    <p className="text-sm font-bold text-ink">Appointment selected.</p>
-                    <p className="mt-1 text-xs font-medium text-ink/65">Pay your deposit in Stripe Checkout to finish booking.</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => void handleCreateCheckoutSession()}
-                    disabled={paymentSubmitting || Boolean(incompleteSelectedVehicle)}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-burgundy px-5 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-                  >
-                    {paymentSubmitting ? 'Opening secure checkout' : `Pay ${formatPaymentCurrency(depositDueToday)} Deposit`} <ArrowRight className="h-4 w-4" />
-                  </button>
-                </div>
+                <p className="rounded-xl border border-green-400/35 bg-green-400/10 px-4 py-3 text-sm font-semibold text-ink transition-all duration-300">
+                  Appointment selected. Pay your deposit to finish booking.
+                </p>
               ) : submittedBookingContext ? (
                 <CalInlineEmbed
                   bookingId={submittedBookingContext.bookingId}
@@ -1226,7 +1215,18 @@ export default function BookingPage(): JSX.Element {
                 </button>
               )
             ) : step === 2 ? (
-              <span />
+              hasCompletedScheduling ? (
+                <button
+                  type="button"
+                  onClick={() => void handleCreateCheckoutSession()}
+                  disabled={paymentSubmitting || Boolean(incompleteSelectedVehicle)}
+                  className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {paymentSubmitting ? 'Opening secure checkout' : `Pay ${formatPaymentCurrency(depositDueToday)} Deposit`} <ArrowRight className="h-4 w-4" />
+                </button>
+              ) : (
+                <span />
+              )
             ) : (
               <span />
             )}
