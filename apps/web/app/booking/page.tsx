@@ -1130,13 +1130,9 @@ export default function BookingPage(): JSX.Element {
           {step === 2 ? (
             <section
               ref={schedulingSectionRef}
-              className={hasCompletedScheduling ? 'transition-all duration-300' : 'min-h-[520px] transition-all duration-300'}
+              className="min-h-[520px] transition-all duration-300"
             >
-              {hasCompletedScheduling ? (
-                <p className="rounded-xl border border-green-400/35 bg-green-400/10 px-4 py-3 text-sm font-semibold text-ink transition-all duration-300">
-                  Appointment selected. Pay your deposit to finish booking.
-                </p>
-              ) : submittedBookingContext ? (
+              {submittedBookingContext ? (
                 <CalInlineEmbed
                   bookingId={submittedBookingContext.bookingId}
                   calLink={getCalendarBookingLink()}
