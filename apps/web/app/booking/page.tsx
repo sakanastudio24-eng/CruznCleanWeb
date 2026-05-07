@@ -415,9 +415,7 @@ export default function BookingPage(): JSX.Element {
   const hasCompletedScheduling = Boolean(
     submittedBookingContext && scheduledAppointment?.bookingId === submittedBookingContext.bookingId,
   );
-  const schedulingGateMessage = hasCompletedScheduling
-    ? 'Appointment selected. Pay your deposit to finish booking.'
-    : 'Finish scheduling to continue.';
+  const schedulingGateMessage = 'Finish scheduling to continue.';
   const progressStep = step === 2 && hasCompletedScheduling ? 3 : step;
 
   useEffect(() => {
@@ -666,7 +664,7 @@ export default function BookingPage(): JSX.Element {
     }
 
     setScheduledAppointment(details);
-    setStatusMessage('Appointment selected. Pay your deposit to finish booking.');
+    setStatusMessage('');
     scrollSchedulingSectionIntoView();
   }, [scrollSchedulingSectionIntoView, submittedBookingContext]);
 
@@ -1130,29 +1128,15 @@ export default function BookingPage(): JSX.Element {
           ) : null}
 
           {step === 2 ? (
-            <section ref={schedulingSectionRef} className="min-h-[520px] transition-all duration-300">
+            <section
+              ref={schedulingSectionRef}
+              className={hasCompletedScheduling ? 'transition-all duration-300' : 'min-h-[520px] transition-all duration-300'}
+            >
               {hasCompletedScheduling ? (
-                <div className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition-all duration-300">
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-green-400/35 bg-green-400/10 px-4 py-3 transition-all duration-300">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-burgundyAccent">Appointment selected</p>
-                    <h2 className="mt-1 font-heading text-2xl font-semibold text-ink">Finish with your deposit</h2>
-                    <p className="mt-1 text-sm text-ink/65">
-                      Your Cal.com appointment is saved. Pay your deposit in secure Stripe Checkout to complete booking.
-                    </p>
-                  </div>
-                  <div className="rounded-xl border border-burgundy/40 bg-burgundy/10 px-4 py-4">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div>
-                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-burgundyAccent">Deposit due today</p>
-                        <p className="mt-1 font-heading text-3xl font-extrabold text-white">
-                          {formatPaymentCurrency(depositDueToday)}
-                        </p>
-                      </div>
-                      <CheckCircle2 className="h-8 w-8 text-burgundyAccent" aria-hidden="true" />
-                    </div>
-                    <p className="mt-2 text-sm font-semibold text-ink/75">
-                      The remaining balance is due after service, once final pricing is confirmed on-site.
-                    </p>
+                    <p className="text-sm font-bold text-ink">Appointment selected.</p>
+                    <p className="mt-1 text-xs font-medium text-ink/65">Pay your deposit in Stripe Checkout to finish booking.</p>
                   </div>
                   <button
                     type="button"
@@ -1187,15 +1171,11 @@ export default function BookingPage(): JSX.Element {
             </p>
           ) : null}
 
-          {step === 2 ? (
+          {step === 2 && !hasCompletedScheduling ? (
             <div>
               <p
                 id="booking-scheduling-gate-message"
-                className={`rounded-xl border px-4 py-3 text-sm font-semibold ${
-                  hasCompletedScheduling
-                    ? 'border-green-400/35 bg-green-400/10 text-ink'
-                    : 'border-burgundy/35 bg-burgundy/10 text-ink'
-                }`}
+                className="rounded-xl border border-burgundy/35 bg-burgundy/10 px-4 py-3 text-sm font-semibold text-ink"
               >
                 {schedulingGateMessage}
               </p>
