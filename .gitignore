@@ -3,6 +3,8 @@
 .env.*
 !.env.schema
 !**/.env.schema
+
+# Build/dependency output
 node_modules/
 .pnpm-store/
 .next/
@@ -11,17 +13,31 @@ out/
 dist/
 coverage/
 *.tsbuildinfo
+
+# OS/runtime junk
 __pycache__/
 *.py[cod]
 .pytest_cache/
 .venv/
 venv/
+
+# Local runtime data
+data/bookings.json
+data/contacts.json
 data/email_failures.json
+
+# Local archives / old app dumps
+_archive/
+**/_archive/
 /DetailFlow App/
 Car Detailing Homepage Design.zip
-.vercel
+.vercel/
 _archive/**/node_modules/
 _archive/**/.next/
 _archive/**/.next*/
 _archive/**/.venv/
 _archive/**/.DS_Store
+
+# Local photo/reference dumps
+photo_refrences/
+photo_references/
