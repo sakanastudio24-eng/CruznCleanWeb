@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import { Providers } from '@/app/providers';
 import { SITE_PROFILE } from '@/lib/site-profile';
 import favicon16 from '../assets/Logos/Cruz-favicon-16x.png';
@@ -68,6 +69,16 @@ export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
   return (
     <html lang="en">
       <body className="bg-ink text-white font-body antialiased">
+        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-MKPPCHFN39" />
+        <Script id="google-tag">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-MKPPCHFN39');
+          `}
+        </Script>
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>
