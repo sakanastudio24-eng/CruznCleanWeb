@@ -1,0 +1,6 @@
+{
+  "ignorePatterns": [
+    "_archive/**",
+    "_archive/DetailFlow App/**"
+  ]
+}
