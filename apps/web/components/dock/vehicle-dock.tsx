@@ -19,6 +19,7 @@ export function VehicleDock(): JSX.Element {
     setActiveVehicleId,
     addVehicle,
     removeVehicle,
+    clearVehicleServices,
     toggleServiceForVehicle,
     getGrandTotal,
     getGrandPricingBreakdown,
@@ -105,6 +106,16 @@ export function VehicleDock(): JSX.Element {
                     <p className="text-xs text-ink/60">Subtotal</p>
                     <p className="font-heading text-lg font-bold text-charcoal">${getVehicleTotal(vehicle.id)}</p>
                   </div>
+                  {active && selectedServices.length > 0 ? (
+                    <button
+                      type="button"
+                      onClick={() => clearVehicleServices(vehicle.id)}
+                      className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/15 px-3 py-2 text-xs font-bold text-white transition hover:border-burgundyAccent hover:bg-burgundy/10"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Clear selected services
+                    </button>
+                  ) : null}
                 </article>
               );
             })}

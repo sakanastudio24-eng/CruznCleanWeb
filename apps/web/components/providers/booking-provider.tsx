@@ -21,7 +21,10 @@ interface BookingContextValue {
   removeVehicle: (vehicleId: string) => void;
   updateVehicle: (vehicleId: string, updates: Partial<VehicleProfile>) => void;
   setVehiclePackage: (vehicleId: string, packageId: string) => void;
+  toggleVehiclePackage: (vehicleId: string, packageId: string) => void;
   toggleServiceForVehicle: (vehicleId: string, service: ServiceOption) => void;
+  clearVehicleServices: (vehicleId: string) => void;
+  clearAllServiceSelections: () => void;
   getVehicleTotal: (vehicleId: string) => number;
   getGrandTotal: () => number;
   getVehiclePricingBreakdown: (vehicleId: string) => VehiclePricingBreakdown;
@@ -227,6 +230,26 @@ export function BookingProvider({ children }: BookingProviderProps): JSX.Element
   }
 
   /**
+   * Toggles one package while preserving non-package services.
+   */
+  function toggleVehiclePackage(vehicleId: string, packageId: string): void {
+    setVehicles((current) =>
+      current.map((vehicle) => {
+        if (vehicle.id !== vehicleId) {
+          return vehicle;
+        }
+
+        const retainedAddons = vehicle.serviceIds.filter((serviceId) => !serviceId.startsWith('pkg-'));
+        const currentPackageId = vehicle.serviceIds.find((serviceId) => serviceId.startsWith('pkg-'));
+        return {
+          ...vehicle,
+          serviceIds: currentPackageId === packageId ? retainedAddons : [packageId, ...retainedAddons],
+        };
+      }),
+    );
+  }
+
+  /**
    * Adds or removes a service selection for one vehicle.
    */
   function toggleServiceForVehicle(vehicleId: string, service: ServiceOption): void {
@@ -247,6 +270,29 @@ export function BookingProvider({ children }: BookingProviderProps): JSX.Element
         };
       }),
     );
+  }
+
+  /**
+   * Removes every selected service from one vehicle while keeping vehicle details.
+   */
+  function clearVehicleServices(vehicleId: string): void {
+    setVehicles((current) =>
+      current.map((vehicle) =>
+        vehicle.id === vehicleId
+          ? {
+              ...vehicle,
+              serviceIds: [],
+            }
+          : vehicle,
+      ),
+    );
+  }
+
+  /**
+   * Removes every selected service from the booking while keeping vehicle details.
+   */
+  function clearAllServiceSelections(): void {
+    setVehicles((current) => current.map((vehicle) => ({ ...vehicle, serviceIds: [] })));
   }
 
   /**
@@ -344,7 +390,10 @@ export function BookingProvider({ children }: BookingProviderProps): JSX.Element
     removeVehicle,
     updateVehicle,
     setVehiclePackage,
+    toggleVehiclePackage,
     toggleServiceForVehicle,
+    clearVehicleServices,
+    clearAllServiceSelections,
     getVehicleTotal,
     getGrandTotal,
     getVehiclePricingBreakdown,

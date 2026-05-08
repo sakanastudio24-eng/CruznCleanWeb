@@ -112,7 +112,7 @@ function ServiceGrid({
   gridClassName?: string;
   framed?: boolean;
 }): JSX.Element {
-  const { vehicles, activeVehicleId, setVehiclePackage, toggleServiceForVehicle, getVehicleServices } = useBooking();
+  const { vehicles, activeVehicleId, toggleVehiclePackage, toggleServiceForVehicle, getVehicleServices } = useBooking();
   const activeVehicle = vehicles.find((vehicle) => vehicle.id === activeVehicleId);
   const services = useMemo(() => getServicesForCategory(category), [category]);
   const selectedIds = getVehicleServices(activeVehicleId).map((service) => service.id);
@@ -122,7 +122,7 @@ function ServiceGrid({
    */
   function handleSelect(service: ServiceOption): void {
     if (category === 'package') {
-      setVehiclePackage(activeVehicleId, service.id);
+      toggleVehiclePackage(activeVehicleId, service.id);
       return;
     }
 

@@ -11,6 +11,7 @@ import {
   Phone,
   ShoppingCart,
   Sparkles,
+  Trash2,
 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
 
@@ -83,6 +84,8 @@ export function SiteHeader(): JSX.Element {
     getGrandTotal,
     getSelectedServiceCount,
     toggleServiceForVehicle,
+    clearVehicleServices,
+    clearAllServiceSelections,
   } = useBooking();
   const selectedServiceCount = getSelectedServiceCount();
   const [cartOpen, setCartOpen] = useState(false);
@@ -277,7 +280,17 @@ export function SiteHeader(): JSX.Element {
                               </button>
                             </div>
                           ) : null}
-                          <p className="mt-2 text-right text-sm font-semibold text-fog">${getVehicleTotal(vehicle.id)}</p>
+                          <div className="mt-3 flex items-center justify-between gap-3">
+                            <button
+                              type="button"
+                              onClick={() => clearVehicleServices(vehicle.id)}
+                              className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-white transition hover:border-burgundyAccent hover:bg-burgundy/10"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              Clear
+                            </button>
+                            <p className="text-sm font-semibold text-fog">${getVehicleTotal(vehicle.id)}</p>
+                          </div>
                         </article>
                       );
                     })}
@@ -299,6 +312,16 @@ export function SiteHeader(): JSX.Element {
                     <span>Total</span>
                     <span className="text-fog">${getGrandTotal()}</span>
                   </div>
+                  {hasCartSelections ? (
+                    <button
+                      type="button"
+                      onClick={clearAllServiceSelections}
+                      className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/20 px-3 py-2 text-xs font-semibold text-white transition hover:border-burgundyAccent hover:bg-burgundy/10"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Clear all services
+                    </button>
+                  ) : null}
                   <div className="mt-3 grid grid-cols-2 gap-2">
                     <Link
                       href="/services"
@@ -366,6 +389,16 @@ export function SiteHeader(): JSX.Element {
                   </div>
                 ) : null}
                 <div className="mt-2 border-t border-white/10 pt-2 text-right text-sm font-semibold text-fog">${getGrandTotal()}</div>
+                {hasCartSelections ? (
+                  <button
+                    type="button"
+                    onClick={clearAllServiceSelections}
+                    className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/20 px-3 py-2 text-xs font-semibold text-white transition hover:border-burgundyAccent hover:bg-burgundy/10"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Clear all services
+                  </button>
+                ) : null}
                 <div className="mt-2 grid grid-cols-2 gap-2">
                   <Link href="/services" onClick={() => setCartOpen(false)} className="rounded-full border border-white/20 px-3 py-2 text-center text-xs font-semibold text-white">
                     {hasCartSelections ? 'Edit' : 'Services'}
