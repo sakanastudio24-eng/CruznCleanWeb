@@ -20,7 +20,7 @@ import { useBooking } from '@/components/providers/booking-provider';
 import { findServiceById } from '@/lib/services-catalog';
 import { SITE_PROFILE } from '@/lib/site-profile';
 import { getVehicleDisplayName } from '@/lib/vehicle-utils';
-import horizontalLogo from '../../assets/Logos/horizontal-nav-logo-1x.png';
+import horizontalLogo from '../../assets/Logos/New-Horizontal-logo/PNG/horizontal-nav-logo- 480x120-1x.png';
 
 interface NavLinkItem {
   href: string;
@@ -165,17 +165,17 @@ export function SiteHeader(): JSX.Element {
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-line bg-ink/98 backdrop-blur-xl">
-        <div className="site-frame grid grid-cols-[auto_1fr_auto] items-center gap-4 py-3">
-          <Link href="/" className="shrink-0" aria-label="Cruizn Clean home">
+        <div className="site-frame grid grid-cols-[auto_1fr_auto] items-center gap-4 py-1.5 lg:grid-cols-[1fr_auto_1fr]">
+          <Link href="/" className="shrink-0 justify-self-start" aria-label="Cruizn Clean home">
             <Image
               src={horizontalLogo}
               alt="Cruizn Clean"
-              className="h-auto max-h-10 w-[156px] object-contain sm:w-[166px] lg:max-h-11 lg:w-[184px]"
-              sizes="(max-width: 640px) 156px, (max-width: 1024px) 166px, 184px"
+              className="h-10 w-auto object-contain md:h-12 lg:h-14 xl:h-[60px]"
+              sizes="(max-width: 768px) 160px, (max-width: 1024px) 192px, (max-width: 1280px) 224px, 240px"
             />
           </Link>
 
-          <nav className="hidden min-w-0 items-center justify-center gap-8 lg:flex" aria-label="Primary">
+          <nav className="hidden min-w-0 items-center justify-center gap-8 lg:flex lg:justify-self-center" aria-label="Primary">
             {links.map((link) => {
               const active = isActivePath(pathname, link.href);
               return (
@@ -195,7 +195,7 @@ export function SiteHeader(): JSX.Element {
             })}
           </nav>
 
-          <div className="hidden shrink-0 items-center justify-end gap-3 lg:flex" ref={desktopCartRef}>
+          <div className="hidden shrink-0 items-center justify-end gap-3 lg:flex lg:justify-self-end" ref={desktopCartRef}>
             <a href={SITE_PROFILE.phoneHref} className="inline-flex items-center gap-2 text-sm font-semibold text-white transition hover:text-burgundyAccent">
               <Phone className="h-4 w-4" />
               {SITE_PROFILE.phoneDisplay}
