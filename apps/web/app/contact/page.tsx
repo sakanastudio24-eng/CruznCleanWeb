@@ -65,6 +65,12 @@ export default function ContactPage(): JSX.Element {
           <p className="mt-4 text-sm text-white/80 sm:text-base">
             Use this form for general questions about service areas, timing, or prep; for appointments, use Book Now
           </p>
+          <a
+            href={`mailto:${SITE_PROFILE.supportEmail}`}
+            className="mt-4 inline-flex text-sm font-semibold text-fog transition hover:text-white"
+          >
+            {SITE_PROFILE.supportEmail}
+          </a>
           <p className="mt-2 text-xs uppercase tracking-[0.16em] text-white/50">{SITE_PROFILE.locationLabel}</p>
         </div>
       </section>

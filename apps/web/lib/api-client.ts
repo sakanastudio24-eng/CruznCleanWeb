@@ -103,7 +103,7 @@ export async function createStripeCheckoutSession(payload: {
  * Submits contact questions to the backend.
  */
 export async function submitContactMessage(payload: ContactForm): Promise<void> {
-  const response = await fetch(`${getApiBaseUrl()}/contact-messages`, {
+  const response = await fetch('/api/contact-messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

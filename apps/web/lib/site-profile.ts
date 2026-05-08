@@ -17,7 +17,7 @@ export const SITE_PROFILE: SiteProfile = {
   locationLabel: 'Yorba Linda, California',
   phoneDisplay: '(951)-434-3767',
   phoneHref: 'tel:+19514343767',
-  supportEmail: 'hello@cruiznclean.com',
+  supportEmail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim() || 'Admin@cruiznclean.com',
   siteUrl: 'https://www.cruiznclean.com',
   hoursLabel: 'Mon-Sat 8:00AM - 6:00PM',
   serviceAreaLabel: 'Yorba Linda, Anaheim Hills, Placentia, and nearby Orange County neighborhoods',

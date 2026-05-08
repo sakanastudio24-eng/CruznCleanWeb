@@ -18,9 +18,14 @@ export function SiteFooter(): JSX.Element {
             Mobile detailing for Yorba Linda drivers who want clearer booking, cleaner service menus, and polished results
           </p>
           <p className="mt-3 text-xs uppercase tracking-[0.14em] text-white/60">{SITE_PROFILE.locationLabel}</p>
-          <a href={SITE_PROFILE.phoneHref} className="mt-4 inline-block text-sm font-semibold text-fog transition hover:text-burgundyAccent">
-            {SITE_PROFILE.phoneDisplay}
-          </a>
+          <div className="mt-4 flex flex-col items-start gap-2">
+            <a href={SITE_PROFILE.phoneHref} className="text-sm font-semibold text-fog transition hover:text-burgundyAccent">
+              {SITE_PROFILE.phoneDisplay}
+            </a>
+            <a href={`mailto:${SITE_PROFILE.supportEmail}`} className="text-sm font-semibold text-fog transition hover:text-burgundyAccent">
+              {SITE_PROFILE.supportEmail}
+            </a>
+          </div>
         </div>
 
         <nav aria-label="Footer navigation">

@@ -159,7 +159,9 @@ export default function QuotePage(): JSX.Element {
               <Mail className="h-5 w-5" />
             </div>
             <p className="mt-3 font-heading text-xl font-semibold text-ink">Email</p>
-            <p className="mt-1 text-ink/75">{SITE_PROFILE.supportEmail}</p>
+            <a href={`mailto:${SITE_PROFILE.supportEmail}`} className="mt-1 block text-ink/75 transition hover:text-charcoal">
+              {SITE_PROFILE.supportEmail}
+            </a>
           </article>
 
           <article className="gray-card p-5">
