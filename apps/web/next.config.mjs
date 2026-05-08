@@ -3,6 +3,21 @@ import { withSentryConfig } from '@sentry/nextjs';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'cruiznclean.com',
+          },
+        ],
+        destination: 'https://www.cruiznclean.com/:path*',
+        permanent: true,
+      },
+    ];
+  },
   experimental: {
     externalDir: true,
   },
