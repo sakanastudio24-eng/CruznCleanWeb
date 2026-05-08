@@ -77,11 +77,11 @@ export function HeroSection(): JSX.Element {
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               <div className="rounded-2xl border border-white/15 bg-white/8 px-4 py-3 backdrop-blur-sm">
                 <p className="text-[11px] uppercase tracking-[0.14em] text-white/60">Location</p>
-                <div
-                  className="mt-1 flex items-start gap-2 text-sm font-semibold text-white"
-                  aria-label="Available service areas include Yorba Linda, Placentia, Fullerton, Anaheim, Brea, Orange, La Habra, Buena Park, Cypress, Irvine, Huntington Beach, Costa Mesa, Tustin, Garden Grove, and Santa Ana"
-                >
+                <div className="mt-1 flex items-start gap-2 text-sm font-semibold text-white">
                   <MapPin className="h-4 w-4 text-fog" />
+                  <span className="sr-only">
+                    Available service areas include Yorba Linda, Placentia, Fullerton, Anaheim, Brea, Orange, La Habra, Buena Park, Cypress, Irvine, Huntington Beach, Costa Mesa, Tustin, Garden Grove, and Santa Ana
+                  </span>
                   <span aria-hidden="true" className="service-area-cycle relative inline-grid min-h-[4.45rem] min-w-0 flex-1 overflow-hidden align-top">
                     {SERVICE_AREA_FRAMES.map((frame, index) => (
                       <span

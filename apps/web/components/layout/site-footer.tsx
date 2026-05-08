@@ -24,7 +24,7 @@ export function SiteFooter(): JSX.Element {
         </div>
 
         <nav aria-label="Footer navigation">
-          <h3 className="font-heading text-sm font-semibold uppercase tracking-[0.14em] text-burgundyAccent">Navigate</h3>
+          <h3 className="font-heading text-sm font-semibold uppercase tracking-[0.14em] text-fog">Navigate</h3>
           <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
             <Link href="/" className="text-white/80 transition hover:text-burgundyAccent">Home</Link>
             <Link href="/services" className="text-white/80 transition hover:text-burgundyAccent">Services</Link>
@@ -40,12 +40,12 @@ export function SiteFooter(): JSX.Element {
 
         <div>
           <div className="rounded-xl border border-burgundy/25 bg-burgundy/10 px-4 py-3">
-            <p className="text-xs uppercase tracking-[0.14em] text-burgundyAccent">Service Area</p>
+            <p className="text-xs uppercase tracking-[0.14em] text-fog">Service Area</p>
             <p className="mt-2 text-sm leading-6 text-white/80">{getServiceAreaCitySummary()}</p>
           </div>
 
           <div className="mt-4 rounded-xl border border-burgundy/25 bg-burgundy/10 px-4 py-3">
-            <p className="text-xs uppercase tracking-[0.14em] text-burgundyAccent">Business Hours</p>
+            <p className="text-xs uppercase tracking-[0.14em] text-fog">Business Hours</p>
             <p className="mt-1 text-sm text-white/80">{SITE_PROFILE.hoursLabel}</p>
           </div>
         </div>
