@@ -20,7 +20,7 @@ export default function PrivacyPage(): JSX.Element {
             <ul className="list-disc space-y-2 pl-5 text-sm text-ink/80">
               <li>Booking details (name, email, phone, ZIP code, vehicle details, selected services, intake notes).</li>
               <li>Contact-form details (name, email, phone, message content).</li>
-              <li>Communication preferences (email confirmations, SMS preference, SMS consent acknowledgment).</li>
+              <li>Communication preferences, including email confirmation preference.</li>
               <li>Operational metadata (submission timestamps and booking identifiers).</li>
             </ul>
           </section>
@@ -29,6 +29,7 @@ export default function PrivacyPage(): JSX.Element {
             <h2 className="font-heading text-2xl font-semibold text-ink">2. Why We Process Data</h2>
             <ul className="list-disc space-y-2 pl-5 text-sm text-ink/80">
               <li>To process booking requests and prepare service operations.</li>
+              <li>To use phone numbers for booking coordination, service questions, payment verification, and customer support.</li>
               <li>To send transactional confirmations and owner notifications.</li>
               <li>To respond to customer questions submitted through the contact form.</li>
               <li>To maintain service reliability through operational logging and troubleshooting.</li>
@@ -41,13 +42,15 @@ export default function PrivacyPage(): JSX.Element {
               We use third-party processors to run business operations. Current processors include:
             </p>
             <p className="text-sm text-ink/80">
-              We use third-party service providers, including Resend (email delivery) and Cal.com (scheduling),
-              to process bookings and send confirmations. These providers process data solely to deliver our services.
+              We use third-party service providers to process bookings, schedule appointments, send confirmations,
+              support payment verification, and operate the website. These providers process data solely to deliver our services.
             </p>
             <ul className="list-disc space-y-2 pl-5 text-sm text-ink/80">
+              <li>Stripe (payment processing, payment verification, and security review).</li>
               <li>Resend (transactional email delivery and template management).</li>
               <li>Cal.com (appointment scheduling).</li>
-              <li>Hosting provider(s) for frontend and backend infrastructure (for example, Vercel/local infrastructure).</li>
+              <li>Vercel (website hosting and infrastructure).</li>
+              <li>Namecheap (domain and DNS services).</li>
             </ul>
           </section>
 
@@ -77,8 +80,8 @@ export default function PrivacyPage(): JSX.Element {
             <h2 className="font-heading text-2xl font-semibold text-ink">5. Communications and Consent</h2>
             <ul className="list-disc space-y-2 pl-5 text-sm text-ink/80">
               <li>Email confirmations are transactional and sent when selected by the customer.</li>
-              <li>SMS is currently preference-and-consent capture only for V1 (no SMS delivery in this phase).</li>
-              <li>SMS consent is required before SMS confirmation preference can be submitted.</li>
+              <li>Phone numbers may be used for booking coordination, service questions, payment verification, and support.</li>
+              <li>SMS booking confirmations are not promised unless that feature is active and clearly disclosed.</li>
             </ul>
           </section>
 
