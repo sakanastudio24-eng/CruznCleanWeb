@@ -1,7 +1,7 @@
 import { getHomeTestimonials } from '@/lib/site-data';
 
 /**
- * Renders customer quote highlights with service context.
+ * Renders customer quote highlights with real review ratings.
  */
 export function TestimonialsSection(): JSX.Element {
   const testimonials = getHomeTestimonials();
@@ -19,17 +19,11 @@ export function TestimonialsSection(): JSX.Element {
               className="fade-in-up rounded-2xl border border-line bg-[#141414] p-6 transition duration-300 hover:-translate-y-1 hover:border-burgundyAccent/45 hover:bg-burgundy/10 hover:shadow-[0_18px_36px_rgba(0,0,0,0.35)]"
               style={{ animationDelay: `${index * 140}ms` }}
             >
-              <div className="flex items-center justify-between gap-3">
-                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/65">
-                  Verified Client
-                </span>
-                <span className="text-2xl leading-none text-white/15">”</span>
+              <div className="flex items-start justify-between gap-3">
+                <p className="font-heading text-xl font-semibold text-white">{item.name}</p>
+                <p className="shrink-0 text-xs font-bold uppercase tracking-[0.15em] text-white">{item.rating}</p>
               </div>
               <p className="mt-5 text-base leading-7 text-white/82">“{item.quote}”</p>
-              <div className="mt-6 border-t border-white/10 pt-4">
-                <p className="font-heading text-xl font-semibold text-white">{item.name}</p>
-                <p className="mt-1 text-xs font-semibold uppercase tracking-[0.15em] text-fog">{item.service}</p>
-              </div>
             </article>
           ))}
         </div>

@@ -19,8 +19,8 @@ export interface ProcessItem {
 
 export interface TestimonialItem {
   name: string;
+  rating: string;
   quote: string;
-  service: string;
 }
 
 /**
@@ -87,19 +87,21 @@ export function getHomeProcess(): ProcessItem[] {
 export function getHomeTestimonials(): TestimonialItem[] {
   return [
     {
-      name: 'Jordan R.',
-      quote: 'The sedan looked sharper the same afternoon, and the booking flow stayed simple from phone to calendar.',
-      service: 'Maintenance Detail',
+      name: 'Jay Davis',
+      rating: '5 star rating',
+      quote:
+        'I’ve had my car detailed a few times in the past but haven’t had the attentiveness and level of detail from Brian. Will def recommend and utilize his services in the future.',
     },
     {
-      name: 'Amanda T.',
-      quote: 'Clear pricing, quick scheduling, and the SUV came back looking noticeably cleaner than expected.',
-      service: 'Full Exterior + 3 Year Ceramic Coating',
+      name: 'Shannon Kirkland',
+      rating: '5 star rating',
+      quote:
+        'Brian has done an amazing job detailing my cars and I recommend him to everyone I know! He’s reliable, on time and offers fair pricing with monthly packages! He’s extremely knowledgeable and my referred friends and family have also been very happy.',
     },
     {
-      name: 'Chris M.',
-      quote: 'Setting up two vehicles in one booking felt organized instead of messy.',
-      service: 'Two-Vehicle Booking',
+      name: 'Randy H',
+      rating: '5 star rating',
+      quote: 'Excellent service and results. Highly satisfied.',
     },
   ];
 }
