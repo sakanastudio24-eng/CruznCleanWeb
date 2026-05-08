@@ -71,6 +71,13 @@ export interface GrandPricingBreakdown {
   total: number;
 }
 
+// -----------------------------------------------------------------------------
+// Savings + Discount Rules
+// -----------------------------------------------------------------------------
+// Size modifiers apply per vehicle before savings. Correction and coating
+// discounts are order-sensitive: bundle savings take precedence over correction
+// coating savings. Future refactors should map these outputs to BookingPricing.
+
 export const PAINT_COATING_SERVICE_IDS = ['coat-ceramic-3y', 'coat-ceramic-6y'] as const;
 export const GLASS_COATING_SERVICE_IDS = ['coat-glass-basic', 'coat-glass-polish'] as const;
 export const WHEEL_COATING_SERVICE_IDS = ['coat-wheel-face', 'coat-wheel-complete'] as const;

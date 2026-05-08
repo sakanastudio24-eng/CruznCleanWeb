@@ -4,6 +4,12 @@ export interface ServiceAreaZipRange {
   end: number;
 }
 
+// -----------------------------------------------------------------------------
+// Online Booking Coverage
+// -----------------------------------------------------------------------------
+// City and ZIP coverage controls whether customers can continue through online
+// booking. Update these lists carefully when the service area changes.
+
 export const SERVICE_AREA_CITIES = [
   'Yorba Linda',
   'Placentia',

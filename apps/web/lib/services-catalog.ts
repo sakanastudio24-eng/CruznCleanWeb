@@ -1,5 +1,12 @@
 import type { ServiceOption } from '@/lib/booking-types';
 
+// -----------------------------------------------------------------------------
+// Service Catalog Source
+// -----------------------------------------------------------------------------
+// Service IDs and prices are business-critical. This catalog is currently
+// mirrored to the API service catalog; a future refactor should create one
+// canonical catalog source before pricing or checkout logic is changed.
+
 export const SERVICES: ServiceOption[] = [
   {
     id: 'pkg-mini',

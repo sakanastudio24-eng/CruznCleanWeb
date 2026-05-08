@@ -196,6 +196,13 @@ export async function POST(request: Request): Promise<NextResponse> {
     return NextResponse.json({ detail: 'Select at least one service before payment' }, { status: 422 });
   }
 
+  // ---------------------------------------------------------------------------
+  // Stripe Metadata Contract
+  // ---------------------------------------------------------------------------
+  // Webhook normalization and receipt emails depend on these metadata keys.
+  // Do not rename them casually; future refactors should map these values from
+  // the canonical Booking object instead of rebuilding them inside this route.
+
   const stripePayload = new URLSearchParams();
   appendStripeField(stripePayload, 'mode', 'payment');
   appendStripeField(stripePayload, 'customer_email', customerEmail);
