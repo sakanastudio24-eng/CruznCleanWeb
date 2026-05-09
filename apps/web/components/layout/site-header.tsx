@@ -91,6 +91,7 @@ export function SiteHeader(): JSX.Element {
   const [cartOpen, setCartOpen] = useState(false);
   const desktopCartRef = useRef<HTMLDivElement>(null);
   const mobileCartRef = useRef<HTMLDivElement>(null);
+  const mobileCartPanelRef = useRef<HTMLDivElement>(null);
   const desktopCartSummaryId = 'desktop-cart-summary';
   const mobileCartSummaryId = 'mobile-cart-summary';
 
@@ -134,8 +135,9 @@ export function SiteHeader(): JSX.Element {
       const target = event.target as Node;
       const clickedInsideDesktop = desktopCartRef.current?.contains(target) ?? false;
       const clickedInsideMobile = mobileCartRef.current?.contains(target) ?? false;
+      const clickedInsideMobilePanel = mobileCartPanelRef.current?.contains(target) ?? false;
 
-      if (!clickedInsideDesktop && !clickedInsideMobile) {
+      if (!clickedInsideDesktop && !clickedInsideMobile && !clickedInsideMobilePanel) {
         setCartOpen(false);
       }
     }
@@ -369,50 +371,6 @@ export function SiteHeader(): JSX.Element {
               ) : null}
             </button>
 
-            {cartOpen ? (
-              <div
-                id={mobileCartSummaryId}
-                role="region"
-                aria-label="Cart summary"
-                className="fixed inset-x-3 bottom-[calc(5.75rem+env(safe-area-inset-bottom))] z-[95] rounded-2xl border border-line bg-[#141414] p-4 text-white shadow-2xl"
-              >
-                <h3 className="font-heading text-lg font-semibold text-white">Cart Summary</h3>
-                <p className="mt-1 text-xs text-white/60">{vehiclesWithSelections.length} vehicles selected</p>
-                {!hasCartSelections ? (
-                  <p className="mt-2 rounded-xl bg-white/5 p-3 text-sm text-white/70">
-                    No services selected yet. Choose services before booking.
-                  </p>
-                ) : null}
-                {grandPricingBreakdown.savingsTotal > 0 ? (
-                  <div className="mt-2 rounded-xl border border-burgundy/35 bg-burgundy/10 p-2 text-xs font-semibold text-white">
-                    Savings applied -${grandPricingBreakdown.savingsTotal}
-                  </div>
-                ) : null}
-                <div className="mt-2 border-t border-white/10 pt-2 text-right text-sm font-semibold text-fog">${getGrandTotal()}</div>
-                {hasCartSelections ? (
-                  <button
-                    type="button"
-                    onClick={clearAllServiceSelections}
-                    className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/20 px-3 py-2 text-xs font-semibold text-white transition hover:border-burgundyAccent hover:bg-burgundy/10"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                    Clear all services
-                  </button>
-                ) : null}
-                <div className="mt-2 grid grid-cols-2 gap-2">
-                  <Link href="/services" onClick={() => setCartOpen(false)} className="rounded-full border border-white/20 px-3 py-2 text-center text-xs font-semibold text-white">
-                    {hasCartSelections ? 'Edit' : 'Services'}
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={handleCartBookNow}
-                    className="rounded-full bg-burgundy px-3 py-2 text-center text-xs font-semibold text-white transition hover:bg-burgundyAccent"
-                  >
-                    {hasCartSelections ? 'Book Now' : 'Select Services'}
-                  </button>
-                </div>
-              </div>
-            ) : null}
           </div>
         </div>
       </header>
@@ -449,6 +407,89 @@ export function SiteHeader(): JSX.Element {
           })}
         </div>
       </nav>
+
+      {cartOpen ? (
+        <div
+          id={mobileCartSummaryId}
+          ref={mobileCartPanelRef}
+          role="region"
+          aria-label="Cart summary"
+          className="fixed inset-x-3 bottom-[calc(5.75rem+env(safe-area-inset-bottom))] z-[95] max-h-[calc(100svh-8.5rem)] overflow-y-auto rounded-2xl border border-line bg-[#141414] p-4 text-white shadow-2xl lg:hidden"
+        >
+          <h3 className="font-heading text-lg font-semibold text-white">Cart Summary</h3>
+          <p className="mt-1 text-xs text-white/60">{vehiclesWithSelections.length} vehicles selected</p>
+          {!hasCartSelections ? (
+            <p className="mt-2 rounded-xl bg-white/5 p-3 text-sm text-white/70">
+              No services selected yet. Choose services before booking.
+            </p>
+          ) : (
+            <div className="mt-3 space-y-3">
+              {vehiclesWithSelections.map((vehicle) => {
+                const breakdown = getVehiclePricingBreakdown(vehicle.id);
+                const items = breakdown.serviceLines;
+
+                return (
+                  <article key={vehicle.id} className="rounded-xl border border-white/10 bg-white/5 p-3">
+                    <p className="font-semibold text-white">{getVehicleDisplayName(vehicle)}</p>
+                    <ul className="mt-2 space-y-1">
+                      {items.map((item) => (
+                        <li key={item.service.id} className="flex items-center justify-between gap-2 text-xs">
+                          <span className="text-white/70">{item.service.name}</span>
+                          <span className="font-semibold text-white">
+                            {item.discountAmount > 0 ? (
+                              <span className="mr-1 text-[10px] text-white/35 line-through">${item.originalPrice}</span>
+                            ) : null}
+                            ${item.finalPrice}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="mt-3 flex items-center justify-between gap-3">
+                      <button
+                        type="button"
+                        onClick={() => clearVehicleServices(vehicle.id)}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-white transition hover:border-burgundyAccent hover:bg-burgundy/10"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                        Clear
+                      </button>
+                      <p className="text-sm font-semibold text-fog">${getVehicleTotal(vehicle.id)}</p>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+          {grandPricingBreakdown.savingsTotal > 0 ? (
+            <div className="mt-2 rounded-xl border border-burgundy/35 bg-burgundy/10 p-2 text-xs font-semibold text-white">
+              Savings applied -${grandPricingBreakdown.savingsTotal}
+            </div>
+          ) : null}
+          <div className="mt-2 border-t border-white/10 pt-2 text-right text-sm font-semibold text-fog">${getGrandTotal()}</div>
+          {hasCartSelections ? (
+            <button
+              type="button"
+              onClick={clearAllServiceSelections}
+              className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/20 px-3 py-2 text-xs font-semibold text-white transition hover:border-burgundyAccent hover:bg-burgundy/10"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Clear all services
+            </button>
+          ) : null}
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <Link href="/services" onClick={() => setCartOpen(false)} className="rounded-full border border-white/20 px-3 py-2 text-center text-xs font-semibold text-white">
+              {hasCartSelections ? 'Edit' : 'Services'}
+            </Link>
+            <button
+              type="button"
+              onClick={handleCartBookNow}
+              className="rounded-full bg-burgundy px-3 py-2 text-center text-xs font-semibold text-white transition hover:bg-burgundyAccent"
+            >
+              {hasCartSelections ? 'Book Now' : 'Select Services'}
+            </button>
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }
