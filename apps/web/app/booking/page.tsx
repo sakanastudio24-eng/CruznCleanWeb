@@ -399,8 +399,10 @@ export default function BookingPage(): JSX.Element {
   const [paymentSubmitting, setPaymentSubmitting] = useState(false);
   const plannerTopRef = useRef<HTMLDivElement>(null);
   const schedulingSectionRef = useRef<HTMLElement>(null);
+  const depositSectionRef = useRef<HTMLDivElement>(null);
   const previousBookingDraftSignatureRef = useRef<string | null>(null);
   const checkoutRequestInFlightRef = useRef(false);
+  const hasScrolledToDepositRef = useRef(false);
 
   const steps = getBookingSteps();
   const sizes = getVehicleSizes();
@@ -475,6 +477,7 @@ export default function BookingPage(): JSX.Element {
     setScheduledAppointment(null);
     setPaymentSubmitting(false);
     checkoutRequestInFlightRef.current = false;
+    hasScrolledToDepositRef.current = false;
   }, [bookingDraftSignature]);
 
   /**
@@ -486,6 +489,7 @@ export default function BookingPage(): JSX.Element {
     setScheduledAppointment(null);
     setPaymentSubmitting(false);
     checkoutRequestInFlightRef.current = false;
+    hasScrolledToDepositRef.current = false;
   }
 
   /**
@@ -601,6 +605,32 @@ export default function BookingPage(): JSX.Element {
   }, []);
 
   /**
+   * Guides narrow-screen customers from completed scheduling to the required deposit CTA.
+   */
+  const scrollDepositSectionIntoView = useCallback((): void => {
+    window.setTimeout(() => {
+      const target = depositSectionRef.current;
+      if (!target) {
+        return;
+      }
+
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const isNarrowViewport = window.matchMedia('(max-width: 1023px)').matches;
+      const targetRect = target.getBoundingClientRect();
+      const targetFullyVisible = targetRect.top >= 0 && targetRect.bottom <= window.innerHeight;
+
+      if (!isNarrowViewport && targetFullyVisible) {
+        return;
+      }
+
+      target.scrollIntoView({
+        behavior: prefersReducedMotion ? 'auto' : 'smooth',
+        block: 'start',
+      });
+    }, 150);
+  }, []);
+
+  /**
    * Moves back to the previous booking step.
    */
   function goBack(): void {
@@ -691,6 +721,7 @@ export default function BookingPage(): JSX.Element {
 
     setFieldErrors({});
     setScheduledAppointment(null);
+    hasScrolledToDepositRef.current = false;
     setSubmittedBookingContext({
       bookingId: `web-${Date.now()}`,
       customer: {
@@ -713,8 +744,7 @@ export default function BookingPage(): JSX.Element {
 
     setScheduledAppointment(details);
     setStatusMessage('');
-    scrollSchedulingSectionIntoView();
-  }, [scrollSchedulingSectionIntoView, submittedBookingContext]);
+  }, [submittedBookingContext]);
 
   useEffect(() => {
     if (step !== 2 || !submittedBookingContext) {
@@ -723,6 +753,15 @@ export default function BookingPage(): JSX.Element {
 
     scrollSchedulingSectionIntoView();
   }, [scrollSchedulingSectionIntoView, step, submittedBookingContext]);
+
+  useEffect(() => {
+    if (!hasCompletedScheduling || hasScrolledToDepositRef.current) {
+      return;
+    }
+
+    hasScrolledToDepositRef.current = true;
+    scrollDepositSectionIntoView();
+  }, [hasCompletedScheduling, scrollDepositSectionIntoView]);
 
   /**
    * Adds the missing services suggested by the active vehicle savings helper.
@@ -1383,6 +1422,30 @@ export default function BookingPage(): JSX.Element {
               </div>
               <p className="mt-1 text-xs text-ink/60">Final price confirmed on-site</p>
             </div>
+
+            {hasCompletedScheduling ? (
+              <div
+                id="deposit-section"
+                ref={depositSectionRef}
+                className="scroll-mt-28 rounded-xl border border-burgundy/45 bg-burgundy/10 p-3 shadow-[0_14px_30px_rgb(140_28_44_/_0.18)]"
+              >
+                <p className="font-heading text-lg font-semibold text-ink">Deposit required to lock in your appointment</p>
+                <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/55">Due today</p>
+                    <p className="font-heading text-2xl font-extrabold text-charcoal">{formatPaymentCurrency(depositDueToday)}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => void handleCreateCheckoutSession()}
+                    disabled={paymentSubmitting || Boolean(incompleteSelectedVehicle)}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-burgundy px-5 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                  >
+                    {paymentSubmitting ? 'Opening secure checkout' : 'Pay Deposit to Lock Appointment'} <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            ) : null}
 
             <div className="rounded-xl border border-black/10 p-3">
               <div className="mb-2 flex items-center justify-between text-xs text-ink/60">
