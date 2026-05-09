@@ -87,6 +87,7 @@ const INITIAL_FORM: CustomerBookingForm = {
 const BOOKING_FORM_STORAGE_KEY = 'cruizn-clean-booking-form-v1';
 // Legacy pre-rename keys are intentionally retained for one-time draft migration after brand spelling updates.
 const LEGACY_BOOKING_FORM_STORAGE_KEYS = ['cruzin-clean-booking-form-v1', 'cruzn-clean-booking-form-v1'];
+const DEPOSIT_HANDOFF_SCROLL_DELAY_MS = 900;
 
 /**
  * Returns the booking step sequence used by the progress header.
@@ -608,26 +609,24 @@ export default function BookingPage(): JSX.Element {
    * Guides narrow-screen customers from completed scheduling to the required deposit CTA.
    */
   const scrollDepositSectionIntoView = useCallback((): void => {
-    window.setTimeout(() => {
-      const target = depositSectionRef.current;
-      if (!target) {
-        return;
-      }
+    const target = depositSectionRef.current;
+    if (!target) {
+      return;
+    }
 
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const isNarrowViewport = window.matchMedia('(max-width: 1023px)').matches;
-      const targetRect = target.getBoundingClientRect();
-      const targetFullyVisible = targetRect.top >= 0 && targetRect.bottom <= window.innerHeight;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isNarrowViewport = window.matchMedia('(max-width: 1023px)').matches;
+    const targetRect = target.getBoundingClientRect();
+    const targetFullyVisible = targetRect.top >= 0 && targetRect.bottom <= window.innerHeight;
 
-      if (!isNarrowViewport && targetFullyVisible) {
-        return;
-      }
+    if (!isNarrowViewport && targetFullyVisible) {
+      return;
+    }
 
-      target.scrollIntoView({
-        behavior: prefersReducedMotion ? 'auto' : 'smooth',
-        block: 'start',
-      });
-    }, 150);
+    target.scrollIntoView({
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      block: 'center',
+    });
   }, []);
 
   /**
@@ -759,8 +758,12 @@ export default function BookingPage(): JSX.Element {
       return;
     }
 
-    hasScrolledToDepositRef.current = true;
-    scrollDepositSectionIntoView();
+    const timeoutId = window.setTimeout(() => {
+      hasScrolledToDepositRef.current = true;
+      scrollDepositSectionIntoView();
+    }, DEPOSIT_HANDOFF_SCROLL_DELAY_MS);
+
+    return () => window.clearTimeout(timeoutId);
   }, [hasCompletedScheduling, scrollDepositSectionIntoView]);
 
   /**
@@ -1282,18 +1285,7 @@ export default function BookingPage(): JSX.Element {
                 </button>
               )
             ) : step === 2 ? (
-              hasCompletedScheduling ? (
-                <button
-                  type="button"
-                  onClick={() => void handleCreateCheckoutSession()}
-                  disabled={paymentSubmitting || Boolean(incompleteSelectedVehicle)}
-                  className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-2 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {paymentSubmitting ? 'Opening secure checkout' : `Pay ${formatPaymentCurrency(depositDueToday)} Deposit`} <ArrowRight className="h-4 w-4" />
-                </button>
-              ) : (
-                <span />
-              )
+              <span />
             ) : (
               <span />
             )}
@@ -1413,7 +1405,11 @@ export default function BookingPage(): JSX.Element {
               ) : null}
             </article>
 
-            <div className="rounded-xl bg-canvas p-3">
+            <div
+              id="receipt-deposit-cta"
+              ref={depositSectionRef}
+              className="scroll-mt-28 rounded-xl bg-canvas p-3"
+            >
               <div className="flex items-center justify-between">
                 <span className="text-sm font-semibold text-ink">Vehicle Subtotal</span>
                 <span className="font-heading text-2xl font-extrabold text-charcoal">
@@ -1422,30 +1418,6 @@ export default function BookingPage(): JSX.Element {
               </div>
               <p className="mt-1 text-xs text-ink/60">Final price confirmed on-site</p>
             </div>
-
-            {hasCompletedScheduling ? (
-              <div
-                id="deposit-section"
-                ref={depositSectionRef}
-                className="scroll-mt-28 rounded-xl border border-burgundy/45 bg-burgundy/10 p-3 shadow-[0_14px_30px_rgb(140_28_44_/_0.18)]"
-              >
-                <p className="font-heading text-lg font-semibold text-ink">Deposit required to lock in your appointment</p>
-                <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/55">Due today</p>
-                    <p className="font-heading text-2xl font-extrabold text-charcoal">{formatPaymentCurrency(depositDueToday)}</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => void handleCreateCheckoutSession()}
-                    disabled={paymentSubmitting || Boolean(incompleteSelectedVehicle)}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-burgundy px-5 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-                  >
-                    {paymentSubmitting ? 'Opening secure checkout' : 'Pay Deposit to Lock Appointment'} <ArrowRight className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            ) : null}
 
             <div className="rounded-xl border border-black/10 p-3">
               <div className="mb-2 flex items-center justify-between text-xs text-ink/60">
@@ -1474,6 +1446,20 @@ export default function BookingPage(): JSX.Element {
           </div>
         </aside>
       </section>
+
+      {hasCompletedScheduling ? (
+        <div className="fixed inset-x-3 bottom-[calc(5.75rem+env(safe-area-inset-bottom))] z-40 rounded-2xl border border-burgundy/45 bg-[#141414]/95 p-3 text-white shadow-2xl backdrop-blur-md lg:hidden">
+          <p className="text-xs font-semibold text-white/75">Deposit required to lock appointment</p>
+          <button
+            type="button"
+            onClick={() => void handleCreateCheckoutSession()}
+            disabled={paymentSubmitting || Boolean(incompleteSelectedVehicle)}
+            className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full bg-burgundy px-5 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {paymentSubmitting ? 'Opening secure checkout' : `Pay ${formatPaymentCurrency(depositDueToday)} deposit`} <ArrowRight className="h-4 w-4" />
+          </button>
+        </div>
+      ) : null}
     </SiteShell>
   );
 }
