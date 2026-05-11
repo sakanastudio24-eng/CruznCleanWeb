@@ -109,6 +109,7 @@ export function VehicleSizeGuideLookup({
 
   const hasVehicleDetails = Boolean(activeVehicle.make.trim() || activeVehicle.model.trim() || activeVehicle.customLabel?.trim());
   const isCustomVehicle = Boolean(activeVehicle.customLabel?.trim());
+  const hasTypedQuery = Boolean(searchQuery.trim());
   const showSupportLinks = ambiguousVehicleMatch || isCustomVehicle || (hasVehicleDetails && !matchedByVehicleFields) || activeVehicle.size === 'oversized';
 
   /**
@@ -144,7 +145,7 @@ export function VehicleSizeGuideLookup({
     }
 
     onApplyTypedVehicle(typedVehicleDetails);
-    setSearchQuery(typedVehicleDetails.label);
+    setSearchQuery('');
   }
 
   /**
@@ -227,7 +228,7 @@ export function VehicleSizeGuideLookup({
               className="gray-field w-full rounded-lg py-2 pl-8 pr-3 text-sm"
             />
           </div>
-          {onApplyTypedVehicle ? (
+          {onApplyTypedVehicle && hasTypedQuery ? (
             <span className="mt-1 hidden text-[11px] font-medium text-white/68 sm:block">
               Press Enter to use typed vehicle details.
             </span>
@@ -244,7 +245,7 @@ export function VehicleSizeGuideLookup({
           </button>
         ) : null}
 
-        {searchQuery.trim() ? (
+        {hasTypedQuery ? (
           <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-30 max-h-56 overflow-y-auto rounded-lg border border-line bg-[#141414] p-2 shadow-2xl">
             {searchResults.length > 0 ? (
               <div className="space-y-1">
