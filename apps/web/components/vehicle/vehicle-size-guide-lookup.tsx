@@ -171,9 +171,9 @@ export function VehicleSizeGuideLookup({
 
   return (
     <div className={`rounded-xl border border-line bg-transparent p-3 ${className}`}>
-      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/55">Vehicle Lookup</p>
+      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/70">Vehicle Lookup</p>
 
-      <label className="mt-2 block text-xs font-semibold text-ink/70">
+      <label className="mt-2 block text-xs font-semibold text-white/78">
         Quick Pick (Dropdown)
         <select
           value={selectedDropdownEntry && !ambiguousVehicleMatch ? getEntryValue(selectedDropdownEntry) : ''}
@@ -214,7 +214,7 @@ export function VehicleSizeGuideLookup({
         </select>
       </label>
 
-      <label className="mt-3 block text-xs font-semibold text-ink/70">
+      <label className="mt-3 block text-xs font-semibold text-white/78">
         Type Finder
         <div className="relative mt-1">
           <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-ink/45" />
@@ -227,11 +227,21 @@ export function VehicleSizeGuideLookup({
           />
         </div>
         {onApplyTypedVehicle ? (
-          <span className="mt-1 block text-[11px] font-medium text-ink/55">
+          <span className="mt-1 hidden text-[11px] font-medium text-white/68 sm:block">
             Press Enter to use typed vehicle details.
           </span>
         ) : null}
       </label>
+
+      {onApplyTypedVehicle && typedVehicleDetails && searchResults.length === 0 ? (
+        <button
+          type="button"
+          onClick={handleApplyTypedVehicle}
+          className="mt-2 rounded-full bg-burgundy px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-burgundyAccent"
+        >
+          Use typed vehicle
+        </button>
+      ) : null}
 
       {searchQuery.trim() ? (
         <div className="mt-2 rounded-lg border border-line bg-[#141414] p-2">
@@ -250,7 +260,7 @@ export function VehicleSizeGuideLookup({
               ))}
             </div>
           ) : (
-            <p className="text-xs text-ink/65">Vehicle not in guide yet. Press Enter to use typed vehicle details.</p>
+            <p className="text-xs text-white/72">Vehicle not in guide yet. Press Enter to use typed vehicle details.</p>
           )}
         </div>
       ) : null}
@@ -282,10 +292,8 @@ export function VehicleSizeGuideLookup({
       </div>
 
       {showSupportLinks ? (
-        <div className="mt-3 rounded-lg border border-line bg-[#141414] px-3 py-3 text-xs text-ink/75">
-          <p className="mt-1">
-            For lifted, modified, or specialty vehicles, final pricing may be confirmed after inspection.
-          </p>
+        <div className="mt-3 rounded-lg border border-line bg-[#141414] px-3 py-3 text-xs text-white/76">
+          <p>For lifted, modified, or specialty vehicles, final pricing may be confirmed after inspection.</p>
           <div className="mt-3 flex flex-wrap gap-2">
             <Link href="/quote" className="rounded-full bg-burgundy px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-burgundyAccent">
               Request a Quote
@@ -296,10 +304,6 @@ export function VehicleSizeGuideLookup({
           </div>
         </div>
       ) : null}
-
-      <p className="mt-2 text-[11px] text-ink/55">
-        Model-level matching only in v1; when your exact vehicle is not listed, confirm fitment through Quote or FAQ before submitting
-      </p>
     </div>
   );
 }

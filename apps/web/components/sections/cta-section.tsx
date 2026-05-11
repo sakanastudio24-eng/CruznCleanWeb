@@ -15,10 +15,10 @@ export function CtaSection(): JSX.Element {
               Final Step
             </p>
             <h2 className="mt-4 font-heading text-3xl font-semibold leading-tight sm:text-5xl">
-              Ready to lock in your detail?
+              Ready to get your detail booked?
             </h2>
             <p className="mt-3 max-w-2xl text-sm text-white/85 sm:text-base">
-              Submit your vehicle and service details first, then finish appointment scheduling in Cal.com with a clean handoff
+              Send your vehicle details, pick a time, and pay your deposit to hold the appointment.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
