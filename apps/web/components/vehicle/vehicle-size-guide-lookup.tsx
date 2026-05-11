@@ -144,7 +144,7 @@ export function VehicleSizeGuideLookup({
     }
 
     onApplyTypedVehicle(typedVehicleDetails);
-    setSearchQuery('');
+    setSearchQuery(typedVehicleDetails.label);
   }
 
   /**
@@ -214,56 +214,58 @@ export function VehicleSizeGuideLookup({
         </select>
       </label>
 
-      <label className="mt-3 block text-xs font-semibold text-white/78">
-        Type Finder
-        <div className="relative mt-1">
-          <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-ink/45" />
-          <input
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-            onKeyDown={handleTypedVehicleKeyDown}
-            placeholder="Type make or model (e.g. Camry, Model Y)"
-            className="gray-field w-full rounded-lg py-2 pl-8 pr-3 text-sm"
-          />
-        </div>
-        {onApplyTypedVehicle ? (
-          <span className="mt-1 hidden text-[11px] font-medium text-white/68 sm:block">
-            Press Enter to use typed vehicle details.
-          </span>
+      <div className="relative mt-3">
+        <label className="block text-xs font-semibold text-white/78">
+          Type Finder
+          <div className="relative mt-1">
+            <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-ink/45" />
+            <input
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              onKeyDown={handleTypedVehicleKeyDown}
+              placeholder="Type make or model (e.g. Camry, Model Y)"
+              className="gray-field w-full rounded-lg py-2 pl-8 pr-3 text-sm"
+            />
+          </div>
+          {onApplyTypedVehicle ? (
+            <span className="mt-1 hidden text-[11px] font-medium text-white/68 sm:block">
+              Press Enter to use typed vehicle details.
+            </span>
+          ) : null}
+        </label>
+
+        {onApplyTypedVehicle && typedVehicleDetails && searchResults.length === 0 ? (
+          <button
+            type="button"
+            onClick={handleApplyTypedVehicle}
+            className="mt-2 rounded-full bg-burgundy px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-burgundyAccent"
+          >
+            Use typed vehicle
+          </button>
         ) : null}
-      </label>
 
-      {onApplyTypedVehicle && typedVehicleDetails && searchResults.length === 0 ? (
-        <button
-          type="button"
-          onClick={handleApplyTypedVehicle}
-          className="mt-2 rounded-full bg-burgundy px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-burgundyAccent"
-        >
-          Use typed vehicle
-        </button>
-      ) : null}
-
-      {searchQuery.trim() ? (
-        <div className="mt-2 rounded-lg border border-line bg-[#141414] p-2">
-          {searchResults.length > 0 ? (
-            <div className="space-y-1">
-              {searchResults.map((entry) => (
-                <button
-                  key={getEntryValue(entry)}
-                  type="button"
-                  onClick={() => applyLookupEntry(entry)}
-                  className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm transition hover:bg-burgundy/10"
-                >
-                  <span className="text-ink">{entry.make} {entry.model}</span>
-                  <span className="text-xs font-semibold text-ink/60">{SIZE_LABELS[entry.size]}</span>
-                </button>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-white/72">Vehicle not in guide yet. Press Enter to use typed vehicle details.</p>
-          )}
-        </div>
-      ) : null}
+        {searchQuery.trim() ? (
+          <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-30 max-h-56 overflow-y-auto rounded-lg border border-line bg-[#141414] p-2 shadow-2xl">
+            {searchResults.length > 0 ? (
+              <div className="space-y-1">
+                {searchResults.map((entry) => (
+                  <button
+                    key={getEntryValue(entry)}
+                    type="button"
+                    onClick={() => applyLookupEntry(entry)}
+                    className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-sm transition hover:bg-burgundy/10"
+                  >
+                    <span className="text-ink">{entry.make} {entry.model}</span>
+                    <span className="text-xs font-semibold text-ink/60">{SIZE_LABELS[entry.size]}</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-white/72">Vehicle not in guide yet. Press Enter to use typed vehicle details.</p>
+            )}
+          </div>
+        ) : null}
+      </div>
 
       <div className={`mt-3 rounded-lg border px-3 py-2 text-xs ${
         ambiguousVehicleMatch

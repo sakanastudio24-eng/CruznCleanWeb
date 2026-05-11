@@ -78,6 +78,7 @@ export function HeroSection(): JSX.Element {
   const selectedPackageId = getSelectedPackageId(activeVehicle);
   const selectedPackage = getSelectedPackage(packages, selectedPackageId);
   const vehicleNeedsSize = activeVehicle ? needsManualVehicleSize(activeVehicle) : false;
+  const customVehicleNeedsSize = Boolean(activeVehicle?.customLabel?.trim() && vehicleNeedsSize);
   const vehicleHasStarterDetails = activeVehicle
     ? Boolean(activeVehicle.customLabel?.trim() || activeVehicle.make.trim() || activeVehicle.model.trim() || activeVehicle.sizeSource)
     : false;
@@ -157,10 +158,10 @@ export function HeroSection(): JSX.Element {
       <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.86)_0%,rgba(0,0,0,0.68)_42%,rgba(0,0,0,0.38)_100%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_16%,rgba(255,255,255,0.18),transparent_34%)]" />
 
-      <div className="relative mx-auto flex min-h-[calc(100svh-var(--site-header-height))] w-full max-w-6xl flex-col justify-center px-4 py-8 sm:px-6 sm:py-10">
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_380px] lg:items-center">
-          <div className="fade-in-up max-w-3xl">
-            <h1 className="font-heading text-5xl font-extrabold leading-[0.92] sm:text-6xl lg:text-7xl">
+      <div className="relative mx-auto flex min-h-[calc(100svh-var(--site-header-height))] w-full max-w-7xl flex-col justify-center px-4 py-8 sm:px-6 sm:py-10">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,390px)_minmax(620px,1fr)] lg:items-center xl:grid-cols-[minmax(0,440px)_minmax(720px,1.1fr)] xl:gap-12 2xl:gap-16">
+          <div className="fade-in-up max-w-3xl lg:max-w-[390px] xl:max-w-[440px]">
+            <h1 className="font-heading text-5xl font-extrabold leading-[0.92] sm:text-6xl lg:text-6xl xl:text-7xl">
               Transparent detailing without the guesswork
             </h1>
             <p className="mt-4 max-w-2xl text-lg text-white/82 sm:text-xl">
@@ -229,125 +230,136 @@ export function HeroSection(): JSX.Element {
               First, pick your vehicle and choose a package.
             </p>
 
-            {activeVehicle ? (
-              <VehicleSizeGuideLookup
-                activeVehicle={activeVehicle}
-                includeOversized={false}
-                onApplyLookupMatch={applyLookupMatch}
-                onApplyTypedVehicle={applyTypedVehicle}
-                className="gray-card mt-4"
-              />
-            ) : null}
+            <div className="mt-4 space-y-4">
+              <div className="space-y-4">
+                {activeVehicle ? (
+                  <VehicleSizeGuideLookup
+                    activeVehicle={activeVehicle}
+                    includeOversized={false}
+                    onApplyLookupMatch={applyLookupMatch}
+                    onApplyTypedVehicle={applyTypedVehicle}
+                    className="gray-card"
+                  />
+                ) : null}
 
-            <div className="mt-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/70">Closest Size Category</p>
-              <div className="mt-2 grid gap-2 sm:grid-cols-3">
-                {VEHICLE_SIZE_OPTIONS.map((option) => {
-                  const selected = activeVehicle?.size === option.id && (activeVehicle.sizeSource === 'manual' || isVehicleGuideSizeLocked(activeVehicle));
-                  const sizeLocked = activeVehicle ? isVehicleGuideSizeLocked(activeVehicle) : false;
-                  return (
-                  <button
-                    key={option.id}
-                    type="button"
-                    onClick={() => selectVehicleSize(option.id)}
-                    disabled={sizeLocked}
-                    aria-pressed={selected}
-                    className={`min-h-12 rounded-xl border px-3 py-3 text-left text-sm transition sm:min-h-20 ${
-                      selected
-                        ? 'border-burgundyAccent bg-burgundy/30 text-white'
-                        : 'border-white/10 bg-white/5 text-white/85 hover:border-burgundyAccent/45 hover:bg-burgundy/10'
-                    } ${sizeLocked ? 'cursor-not-allowed opacity-75' : ''}`}
-                  >
-                    <span className="block font-semibold">{option.label}</span>
-                    <span className="mt-1 hidden text-xs text-white/70 sm:block">{option.hint}</span>
-                  </button>
-                  );
-                })}
-              </div>
-              {vehicleNeedsSize ? (
-                <p className="mt-3 rounded-xl border border-burgundy/35 bg-burgundy/10 px-3 py-2 text-xs font-semibold text-white">
-                  Vehicle not listed yet? Choose the closest size category to continue.
-                </p>
-              ) : null}
-              <p className="mt-2 text-xs font-medium text-white/75">
-                For lifted, modified, or specialty vehicles, final pricing may be confirmed after inspection.
-              </p>
-            </div>
-
-            <div className="mt-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/70">Step 2 • Package</p>
-              <div className="mt-2 space-y-2">
-                {packages.map((service) => {
-                  const selected = selectedPackageId === service.id;
-                  const adjustedPrice = activeVehicle ? getAdjustedServicePrice(service.price, activeVehicle.size) : service.price;
-                  return (
-                  <button
-                    key={service.id}
-                    type="button"
-                    disabled={!canPickPackage}
-                    onClick={() => handlePackageSelect(service.id)}
-                    aria-pressed={selected}
-                    className={`flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-3 text-left text-sm transition sm:items-start ${
-                      selected
-                        ? 'border-burgundyAccent bg-burgundy/30 text-white'
-                        : 'border-white/10 bg-white/5 text-white/85'
-                    } ${canPickPackage ? 'hover:border-burgundyAccent/45 hover:bg-burgundy/10' : 'cursor-not-allowed opacity-45'}`}
-                  >
-                    <span>
-                      <span className="block font-semibold">{service.name}</span>
-                      <span className="mt-1 hidden text-xs text-white/70 sm:block">{service.description}</span>
-                    </span>
-                    <span className="shrink-0 text-right">
-                      <span className="block text-sm font-bold">{formatCurrency(adjustedPrice)}</span>
-                      <span className="hidden text-[11px] text-white/65 sm:block">Base {formatCurrency(service.price)}</span>
-                    </span>
-                  </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="mt-4 rounded-2xl border border-white/10 bg-white/6 px-3 py-3 text-xs text-white/70">
-              {activeVehicle && vehicleHasStarterDetails ? (
-                <>
-                  Vehicle: <span className="font-semibold text-white">{getVehicleDisplayName(activeVehicle)}</span>
-                  <span className="block pt-1">
-                    Size: <span className="font-semibold text-white">{SIZE_LABELS[activeVehicle.size]}</span>
-                    <span className="text-white/70"> ({formatSizeAdjustmentLabel(activeVehicle.size)})</span>
-                  </span>
-                  {selectedPackage && !vehicleNeedsSize ? (
-                    <>
-                      <span className="block pt-1">
-                        Package: <span className="font-semibold text-white">{selectedPackage.name}</span>
-                      </span>
-                      <span className="block pt-1">
-                        Estimated package price:{' '}
-                        <span className="font-semibold text-white">
-                          {formatCurrency(getAdjustedServicePrice(selectedPackage.price, activeVehicle.size))}
-                        </span>
-                      </span>
-                    </>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/70">Closest Size Category</p>
+                  {customVehicleNeedsSize ? (
+                    <p className="mt-2 rounded-xl border border-burgundyAccent/55 bg-burgundy/20 px-3 py-2 text-xs font-bold text-white">
+                      Please select a car size.
+                    </p>
                   ) : null}
-                </>
-              ) : (
-                'Pick a vehicle or closest size category first, then choose the package that fits the job.'
-              )}
-            </div>
+                  <div className="mt-2 grid gap-2 sm:grid-cols-3">
+                    {VEHICLE_SIZE_OPTIONS.map((option) => {
+                      const selected = activeVehicle?.size === option.id && (activeVehicle.sizeSource === 'manual' || isVehicleGuideSizeLocked(activeVehicle));
+                      const sizeLocked = activeVehicle ? isVehicleGuideSizeLocked(activeVehicle) : false;
+                      return (
+                        <button
+                          key={option.id}
+                          type="button"
+                          onClick={() => selectVehicleSize(option.id)}
+                          disabled={sizeLocked}
+                          aria-pressed={selected}
+                          className={`min-h-12 rounded-xl border px-3 py-3 text-left text-sm transition sm:min-h-20 md:min-h-14 ${
+                            selected
+                              ? 'border-burgundyAccent bg-burgundy/30 text-white'
+                              : 'border-white/10 bg-white/5 text-white/85 hover:border-burgundyAccent/45 hover:bg-burgundy/10'
+                          } ${sizeLocked ? 'cursor-not-allowed opacity-75' : ''}`}
+                        >
+                          <span className="block font-semibold">{option.label}</span>
+                          <span className="mt-1 hidden text-xs text-white/70 sm:block">{option.hint}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {vehicleNeedsSize ? (
+                    <p className="mt-3 rounded-xl border border-burgundy/35 bg-burgundy/10 px-3 py-2 text-xs font-semibold text-white">
+                      Vehicle not listed yet? Choose the closest size category to continue.
+                    </p>
+                  ) : null}
+                  <p className="mt-2 text-xs font-medium text-white/75">
+                    For lifted, modified, or specialty vehicles, final pricing may be confirmed after inspection.
+                  </p>
+                </div>
+              </div>
 
-            <div className="mt-4 space-y-2">
-              <Link
-                href={continueHref}
-                className="flex items-center justify-center gap-2 rounded-full bg-burgundy px-4 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent"
-              >
-                {selectedPackageId && !vehicleNeedsSize ? 'Continue to Booking' : 'Build Service Plan'}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/faq"
-                className="flex items-center justify-center gap-2 rounded-full border border-burgundy bg-white/5 px-4 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-burgundy/10"
-              >
-                Need Help First?
-              </Link>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/70">Step 2 • Package</p>
+                <div className="mt-2 grid gap-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
+                  {packages.map((service) => {
+                    const selected = selectedPackageId === service.id;
+                    const adjustedPrice = activeVehicle ? getAdjustedServicePrice(service.price, activeVehicle.size) : service.price;
+                    return (
+                      <button
+                        key={service.id}
+                        type="button"
+                        disabled={!canPickPackage}
+                        onClick={() => handlePackageSelect(service.id)}
+                        aria-pressed={selected}
+                        className={`flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border px-3 py-3 text-left text-sm transition md:min-h-24 md:flex-col md:items-start md:justify-between xl:min-h-28 ${
+                          selected
+                            ? 'border-burgundyAccent bg-burgundy/30 text-white'
+                            : 'border-white/10 bg-white/5 text-white/85'
+                        } ${canPickPackage ? 'hover:border-burgundyAccent/45 hover:bg-burgundy/10' : 'cursor-not-allowed opacity-45'}`}
+                      >
+                        <span>
+                          <span className="block font-semibold">{service.name}</span>
+                          <span className="mt-1 hidden text-xs leading-snug text-white/70 2xl:block">{service.description}</span>
+                        </span>
+                        <span className="shrink-0 text-right md:text-left">
+                          <span className="block text-sm font-bold">{formatCurrency(adjustedPrice)}</span>
+                          <span className="hidden text-[11px] text-white/65 sm:block">Base {formatCurrency(service.price)}</span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(220px,0.44fr)] md:items-stretch">
+                <div className="rounded-2xl border border-white/10 bg-white/6 px-3 py-3 text-xs text-white/70">
+                  {activeVehicle && vehicleHasStarterDetails ? (
+                    <>
+                      Vehicle: <span className="font-semibold text-white">{getVehicleDisplayName(activeVehicle)}</span>
+                      <span className="block pt-1">
+                        Size: <span className="font-semibold text-white">{SIZE_LABELS[activeVehicle.size]}</span>
+                        <span className="text-white/70"> ({formatSizeAdjustmentLabel(activeVehicle.size)})</span>
+                      </span>
+                      {selectedPackage && !vehicleNeedsSize ? (
+                        <>
+                          <span className="block pt-1">
+                            Package: <span className="font-semibold text-white">{selectedPackage.name}</span>
+                          </span>
+                          <span className="block pt-1">
+                            Estimated package price:{' '}
+                            <span className="font-semibold text-white">
+                              {formatCurrency(getAdjustedServicePrice(selectedPackage.price, activeVehicle.size))}
+                            </span>
+                          </span>
+                        </>
+                      ) : null}
+                    </>
+                  ) : (
+                    'Pick a vehicle or closest size category first, then choose the package that fits the job.'
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Link
+                    href={continueHref}
+                    className="flex items-center justify-center gap-2 rounded-full bg-burgundy px-4 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent"
+                  >
+                    {selectedPackageId && !vehicleNeedsSize ? 'Continue to Booking' : 'Build Service Plan'}
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <Link
+                    href="/faq"
+                    className="flex items-center justify-center gap-2 rounded-full border border-burgundy bg-white/5 px-4 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-burgundy/10"
+                  >
+                    Need Help First?
+                  </Link>
+                </div>
+              </div>
             </div>
           </aside>
         </div>
