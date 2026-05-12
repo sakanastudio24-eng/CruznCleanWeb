@@ -231,7 +231,7 @@ function VehicleSelectSection(): JSX.Element {
     <section className="gray-card gray-card-hover p-5">
       <h2 className="font-heading text-2xl font-semibold text-ink">Select Your Vehicle</h2>
       <p className="mt-2 text-sm text-ink/60">
-        Pick the active vehicle from the dock, then match it to the closest standard category before selecting services
+        Choose the closest vehicle category before scheduling.
       </p>
 
       <VehicleSizeGuideLookup
@@ -285,7 +285,7 @@ function VehicleSelectSection(): JSX.Element {
       </div>
       {needsManualVehicleSize(activeVehicle) ? (
         <p className="mt-3 rounded-xl border border-burgundy/35 bg-burgundy/10 px-4 py-3 text-sm font-semibold text-ink">
-          Custom vehicle. Choose a size category to continue.
+          Vehicle not in the guide yet? Choose the closest size category to continue. Final pricing may be confirmed after inspection.
         </p>
       ) : null}
     </section>
@@ -303,7 +303,7 @@ export default function ServicesPage(): JSX.Element {
         <div className="relative mx-auto max-w-6xl text-center">
           <h1 className="font-heading text-4xl font-semibold sm:text-5xl">Cruizn Clean Services</h1>
           <p className="mx-auto mt-4 max-w-3xl text-base text-white/75 sm:text-xl">
-            Review package and add-on options for Yorba Linda mobile detailing with live size-based pricing and clearer routing for specialty vehicles
+            Pick the service that fits your vehicle and review the starting price before booking. Pricing adjusts by vehicle size, and some vehicles may need final pricing after inspection.
           </p>
           <p className="mt-3 text-sm font-semibold text-fog">Maintenance Detail is the most balanced option for regularly cared-for vehicles</p>
         </div>
@@ -318,7 +318,7 @@ export default function ServicesPage(): JSX.Element {
               <div>
                 <h2 className="font-heading text-2xl font-semibold text-ink">Add-Ons</h2>
                 <p className="mt-2 max-w-2xl text-sm text-ink/65">
-                  Standalone premium work for vehicles that need coating, correction, or more specialized protection without forcing a package
+                  Not sure what your vehicle needs? Send a quote request and we’ll help point you in the right direction.
                 </p>
               </div>
               <Link href="/quote" className="text-sm font-semibold text-white transition hover:text-burgundyAccent">

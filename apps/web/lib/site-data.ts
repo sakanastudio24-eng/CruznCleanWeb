@@ -28,9 +28,9 @@ export interface TestimonialItem {
  */
 export function getHomeServices(): ServiceItem[] {
   const descriptionById: Record<string, string> = {
-    'pkg-mini': 'Quick exterior wash, vacuum, and light reset for vehicles that just need to look presentable again',
+    'pkg-mini': 'Quick exterior wash, vacuum, and light cleanup for vehicles that just need to look presentable again',
     'pkg-maintenance': 'Our most balanced upkeep detail for maintained vehicles that need consistent care',
-    'pkg-full-reset': 'Full interior and exterior coverage when the vehicle needs the full day reset',
+    'pkg-full-reset': 'Full interior and exterior coverage when the vehicle needs the complete treatment',
   };
 
   return getPackageServices().map((service) => ({
@@ -75,8 +75,8 @@ export function getHomeProcess(): ProcessItem[] {
       detail: 'Send vehicle details, contact info, and service notes in one intake flow',
     },
     {
-      title: 'Make Your Downpayment',
-      detail: 'Choose the final appointment time and pay the deposit inside Cal.com after the intake is saved',
+      title: 'Pay Your Deposit',
+      detail: 'Choose the appointment time and pay the deposit through Stripe after the intake is saved',
     },
   ];
 }

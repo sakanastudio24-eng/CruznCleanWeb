@@ -31,7 +31,7 @@ function getQuickFaqs(): FaqItem[] {
     },
     {
       question: 'How should I prepare before service?',
-      answer: 'Remove loose items, park with at least 8 feet of clearance from other vehicles, be ready for key handoff, and stay clear of the vehicle while work is active.',
+      answer: 'Remove loose items, park with at least 8 feet of clearance from other vehicles, have the keys ready, and stay clear of the vehicle while work is active.',
       icon: Car,
     },
     {
@@ -41,7 +41,7 @@ function getQuickFaqs(): FaqItem[] {
     },
     {
       question: 'What forms of payment do you accept?',
-      answer: 'Cash, Zelle, Venmo, Cash App, and PayPal are accepted after service completion. Debit and credit card support is planned next.',
+      answer: 'Deposits are paid online through Stripe. Any remaining balance can be handled through the accepted payment options confirmed by Cruizn Clean.',
       icon: CreditCard,
     },
     {
@@ -197,7 +197,7 @@ export function QuickHelpModal(): JSX.Element {
                       <li>• Loose items removed before arrival</li>
                       <li>• Accessible parking with 8 feet of clearance</li>
                       <li>• Stay clear of the vehicle during active service</li>
-                      <li>• Key handoff ready at scheduled time</li>
+                      <li>• Keys ready at the scheduled time</li>
                       <li>• Deposit confirmed before service is locked in</li>
                     </ul>
                   </section>

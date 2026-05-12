@@ -48,7 +48,7 @@ function getFaqRecords(): FaqRecord[] {
     },
     {
       q: 'What should I do while the service is being completed?',
-      a: 'Please stay clear of the vehicle during active service to help prevent accidents or injury. Be ready for key handoff at the scheduled time and available for any needed approval.',
+      a: 'Please stay clear of the vehicle during active service to help prevent accidents or injury. Have the keys ready at the scheduled time and be available for any needed approval.',
       category: 'preparation',
     },
     {
@@ -67,7 +67,7 @@ function getFaqRecords(): FaqRecord[] {
       category: 'preparation',
     },
     { q: 'How often should I book a maintenance detail?', a: 'Most maintained vehicles benefit from recurring service every 4 to 8 weeks, depending on driving conditions and storage habits.', category: 'maintenance' },
-    { q: 'What payment methods do you accept?', a: 'Cash, Zelle, Venmo, Cash App, and PayPal are accepted. Debit and credit support may be added later through the booking site.', category: 'maintenance' },
+    { q: 'What payment methods do you accept?', a: 'Deposits are paid online through Stripe. Any remaining balance can be handled through the accepted payment options confirmed by Cruizn Clean.', category: 'maintenance' },
   ];
 }
 
@@ -136,9 +136,9 @@ export default function FaqPage(): JSX.Element {
               </p>
             </article>
             <article className="rounded-xl border border-white/10 bg-[#111111] p-4">
-              <p className="text-sm font-semibold text-ink">3. Handoff</p>
+              <p className="text-sm font-semibold text-ink">3. Keys</p>
               <p className="mt-1 text-sm text-ink/75">
-                Be ready for key handoff at the scheduled time and stay clear of the vehicle during service to prevent accidents or injury.
+                Be ready with the keys at the scheduled time and stay clear of the vehicle during service to prevent accidents or injury.
               </p>
             </article>
             <article className="rounded-xl border border-white/10 bg-[#111111] p-4">

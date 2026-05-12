@@ -803,8 +803,8 @@ export default function BookingPage(): JSX.Element {
       <section className="relative overflow-hidden bg-ink px-4 py-10 text-white sm:px-6 sm:py-12 md:py-14">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#8c1c2c44,transparent_65%)]" />
         <div className="relative mx-auto max-w-6xl rounded-[28px] border border-line bg-[#141414]/80 px-4 py-6 backdrop-blur-md sm:rounded-[30px] sm:px-8 sm:py-8 md:px-10 md:py-9">
-          <h1 className="text-center font-heading text-2xl font-semibold sm:text-4xl md:text-5xl">Book Your Appointment</h1>
-          <p className="mt-2 text-center text-sm text-white/75 sm:text-base">Details, schedule, deposit, and confirmation</p>
+          <h1 className="text-center font-heading text-2xl font-semibold sm:text-4xl md:text-5xl">Book your detail</h1>
+          <p className="mt-2 text-center text-sm text-white/75 sm:text-base">Add your details, choose a time, and pay the deposit to hold your spot.</p>
 
           <div className="mx-auto mt-6 max-w-4xl">
             <div className="h-2 rounded-full bg-black/30">
@@ -847,7 +847,9 @@ export default function BookingPage(): JSX.Element {
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/60">Vehicle Deck</p>
-                <p className="text-sm text-ink/70">Manage multiple cars in one booking</p>
+                <p className="text-sm text-ink/70">
+                  We currently support up to 4 vehicles per customer per day, and actual capacity depends on the length of the selected services.
+                </p>
               </div>
               <button
                 type="button"
@@ -906,14 +908,14 @@ export default function BookingPage(): JSX.Element {
               <div>
                 <h2 className="font-heading text-2xl font-semibold text-ink">Your Details</h2>
                 <p className="mt-1 text-sm text-ink/65">
-                  Review the active vehicle, complete contact details, and keep your selected services attached before calendar handoff
+                  Review your vehicle, add your contact details, and keep your selected services attached before scheduling.
                 </p>
               </div>
 
               <div className="space-y-4">
                 <h3 className="font-heading text-xl font-semibold text-ink">Select Your Vehicle</h3>
                 <p className="mt-1 text-sm text-ink/60">
-                  Match the active vehicle to the closest standard category
+                  Choose the closest vehicle category before scheduling.
                 </p>
                 {activeVehicle ? (
                   <VehicleSizeGuideLookup
@@ -970,7 +972,7 @@ export default function BookingPage(): JSX.Element {
                 ) : null}
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-[#141414] px-4 py-3">
                   <p className="text-sm text-ink/70">
-                    Oversized, lifted, modified, specialty, or unlisted vehicles should get a custom quote before scheduling
+                    Oversized, lifted, modified, specialty, or unlisted vehicles should request a quote before scheduling.
                   </p>
                   <Link href="/quote" className="rounded-full bg-burgundy px-4 py-2 text-xs font-bold text-white transition hover:bg-burgundyAccent">
                     Request a Quote
@@ -1324,7 +1326,7 @@ export default function BookingPage(): JSX.Element {
           {fieldErrors.selectedVehicleDetails ? <p className="a11y-error text-xs font-medium">{fieldErrors.selectedVehicleDetails}</p> : null}
           {fieldErrors.selectedVehicleLimit ? <p className="a11y-error text-xs font-medium">{fieldErrors.selectedVehicleLimit}</p> : null}
           <p className="mt-4 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-xs font-medium text-ink/60">
-            {BOOKING_LIMIT_DISCLAIMER.replace(/\.$/, '')} Booking window: Monday-Saturday 8am - 6pm
+            Maximum 4 vehicles per customer per day. Booking window: Monday-Saturday, 8am - 6pm.
           </p>
 
           {statusMessage ? (
@@ -1431,7 +1433,8 @@ export default function BookingPage(): JSX.Element {
                   {formatCurrency(activeVehicle ? getVehicleTotal(activeVehicle.id) : 0)}
                 </span>
               </div>
-              <p className="mt-1 text-xs text-ink/60">Final price confirmed on-site</p>
+              <p className="mt-1 text-xs text-ink/60">Final pricing may be confirmed after inspection.</p>
+              <p className="mt-1 text-xs text-ink/60">Pay the deposit to hold your appointment.</p>
             </div>
 
             <div className="rounded-xl border border-black/10 p-3">
@@ -1464,7 +1467,7 @@ export default function BookingPage(): JSX.Element {
 
       {hasCompletedScheduling ? (
         <div className="fixed inset-x-3 bottom-[calc(5.75rem+env(safe-area-inset-bottom))] z-40 rounded-2xl border border-burgundy/45 bg-[#141414]/95 p-3 text-white shadow-2xl backdrop-blur-md lg:hidden">
-          <p className="text-xs font-semibold text-white/75">Deposit required to lock appointment</p>
+          <p className="text-xs font-semibold text-white/75">Pay the deposit to hold your appointment.</p>
           <button
             type="button"
             onClick={() => void handleCreateCheckoutSession()}

@@ -175,13 +175,13 @@ export function VehicleSizeGuideLookup({
       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/70">Vehicle Lookup</p>
 
       <label className="mt-2 block text-xs font-semibold text-white/78">
-        Quick Pick (Dropdown)
+        Quick Pick
         <select
           value={selectedDropdownEntry && !ambiguousVehicleMatch ? getEntryValue(selectedDropdownEntry) : ''}
           onChange={(event) => handleSelectChange(event.target.value)}
           className="gray-field mt-1 w-full rounded-lg px-3 py-2 text-sm"
         >
-          <option value="">Select from top 50 vehicles</option>
+          <option value="">Select from common vehicles</option>
           <optgroup label="Sedan / Coupe">
             {groupedEntries.sedan_coupe.map((entry) => (
               <option key={getEntryValue(entry)} value={getEntryValue(entry)}>
@@ -217,14 +217,14 @@ export function VehicleSizeGuideLookup({
 
       <div className="relative mt-3">
         <label className="block text-xs font-semibold text-white/78">
-          Type Finder
+          Type your vehicle
           <div className="relative mt-1">
             <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-ink/45" />
             <input
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               onKeyDown={handleTypedVehicleKeyDown}
-              placeholder="Type make or model (e.g. Camry, Model Y)"
+              placeholder="Type the make or model."
               className="gray-field w-full rounded-lg py-2 pl-8 pr-3 text-sm"
             />
           </div>
@@ -262,7 +262,7 @@ export function VehicleSizeGuideLookup({
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-white/72">Vehicle not in guide yet. Press Enter to use typed vehicle details.</p>
+              <p className="text-xs text-white/72">Vehicle not listed yet? Press Enter to use typed vehicle details.</p>
             )}
           </div>
         ) : null}
@@ -289,14 +289,14 @@ export function VehicleSizeGuideLookup({
           </>
         ) : (
           hasVehicleDetails
-            ? 'Vehicle not in guide yet. Choose the closest size category to continue.'
+            ? 'Vehicle not listed yet? Choose the closest size category to continue.'
             : 'Select from the guide or type your vehicle.'
         )}
       </div>
 
       {showSupportLinks ? (
         <div className="mt-3 rounded-lg border border-line bg-[#141414] px-3 py-3 text-xs text-white/76">
-          <p>For lifted, modified, or specialty vehicles, final pricing may be confirmed after inspection.</p>
+          <p>Oversized, lifted, modified, specialty, or unlisted vehicles should request a quote before scheduling.</p>
           <div className="mt-3 flex flex-wrap gap-2">
             <Link href="/quote" className="rounded-full bg-burgundy px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-burgundyAccent">
               Request a Quote

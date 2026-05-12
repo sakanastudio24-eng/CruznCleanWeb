@@ -43,9 +43,7 @@ export function SiteFooter(): JSX.Element {
           <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
             <Link href="/" className="text-white/80 transition hover:text-burgundyAccent">Home</Link>
             <Link href="/services" className="text-white/80 transition hover:text-burgundyAccent">Services</Link>
-            <Link href="/privacy" className="text-white/80 transition hover:text-burgundyAccent">Privacy Policy</Link>
             <Link href="/gallery" className="text-white/80 transition hover:text-burgundyAccent">Gallery</Link>
-            <Link href="/terms" className="text-white/80 transition hover:text-burgundyAccent">Terms of Service</Link>
             <Link href="/quote" className="text-white/80 transition hover:text-burgundyAccent">Quote</Link>
             <Link
               href="/booking"
@@ -56,6 +54,8 @@ export function SiteFooter(): JSX.Element {
             </Link>
             <Link href="/contact" className="text-white/80 transition hover:text-burgundyAccent">Contact</Link>
             <Link href="/faq" className="text-white/80 transition hover:text-burgundyAccent">FAQ</Link>
+            <Link href="/terms" className="text-white/80 transition hover:text-burgundyAccent">Terms of Service</Link>
+            <Link href="/privacy" className="text-white/80 transition hover:text-burgundyAccent">Privacy Policy</Link>
           </div>
         </nav>
 

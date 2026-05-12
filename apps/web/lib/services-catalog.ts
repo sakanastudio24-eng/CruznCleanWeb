@@ -11,7 +11,7 @@ export const SERVICES: ServiceOption[] = [
   {
     id: 'pkg-mini',
     name: 'Mini Detail',
-    description: 'Friendly reset for vehicles that do not need a perfection-level detail',
+    description: 'Good for cars that need a quick cleanup without going into a full detail.',
     price: 60,
     category: 'package',
     duration: 'About 60-90 mins',
@@ -26,7 +26,7 @@ export const SERVICES: ServiceOption[] = [
   {
     id: 'pkg-maintenance',
     name: 'Maintenance Detail',
-    description: 'Built for maintained cars that need a dependable inside-out reset',
+    description: 'Built for maintained cars that need a dependable, thorough clean.',
     price: 99,
     category: 'package',
     duration: 'About 90 mins',
@@ -42,7 +42,7 @@ export const SERVICES: ServiceOption[] = [
   {
     id: 'pkg-full-interior',
     name: 'Full Interior',
-    description: 'Deep interior service for fabric, leather, odor, and full touchpoint reset',
+    description: 'A deep interior service for fabric, leather, odor, and the areas that need a real reset.',
     price: 179,
     category: 'package',
     duration: 'About 3 hrs',
@@ -76,7 +76,7 @@ export const SERVICES: ServiceOption[] = [
   {
     id: 'pkg-full-reset',
     name: 'The Full Reset',
-    description: 'Full interior and exterior coverage for a complete vehicle reset',
+    description: 'The full inside-and-out reset for vehicles that need the complete treatment.',
     price: 399,
     category: 'package',
     duration: 'About 6-8 hrs',
@@ -88,7 +88,7 @@ export const SERVICES: ServiceOption[] = [
   {
     id: 'coat-ceramic-3y',
     name: '3 Year Ceramic Coating',
-    description: 'Longer-term coating for painted surfaces after required prep',
+    description: 'Long-term hardened protection for exterior painted and plastic surfaces.',
     price: 499,
     category: 'protection',
     duration: 'Requires prep',
@@ -99,7 +99,7 @@ export const SERVICES: ServiceOption[] = [
   {
     id: 'coat-ceramic-6y',
     name: '6 Year Ceramic Coating',
-    description: 'Extended coating package for painted surfaces after prep and inspection',
+    description: 'Long-term hardened protection for exterior painted and plastic surfaces.',
     price: 799,
     category: 'protection',
     duration: 'Requires prep',
@@ -158,7 +158,7 @@ export const SERVICES: ServiceOption[] = [
   {
     id: 'corr-1-step',
     name: '1 Step Paint Correction',
-    description: 'Single-step gloss enhancement for defect reduction after prep',
+    description: 'A single-step polish that improves gloss and helps reduce lighter paint defects.',
     price: 449,
     category: 'correction',
     duration: 'Correction service',

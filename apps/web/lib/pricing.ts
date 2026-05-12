@@ -117,11 +117,11 @@ export function isWheelCoatingService(serviceId: string): boolean {
  */
 export function getServiceSavingsTags(serviceId: string): string[] {
   if (isPaintCoatingService(serviceId)) {
-    return ['20% with Paint Correction', 'Bundle Savings'];
+    return ['20% with paint correction', 'Bundle savings'];
   }
 
   if (isGlassCoatingService(serviceId) || isWheelCoatingService(serviceId)) {
-    return ['Bundle Savings'];
+    return ['Bundle savings'];
   }
 
   return [];
@@ -142,7 +142,7 @@ export function getVehiclePricingBreakdown(services: ServiceOption[], size: Vehi
   const eligibleForBundle = (serviceId: string) =>
     isPaintCoatingService(serviceId) || isGlassCoatingService(serviceId) || isWheelCoatingService(serviceId);
   const eligibleForCorrection = (serviceId: string) => hasCorrection && isPaintCoatingService(serviceId);
-  const savingsLabel = bundleQualified ? 'Bundle Savings Applied' : 'Correction Coating Savings Applied';
+  const savingsLabel = bundleQualified ? 'Bundle savings applied' : 'Coating savings applied';
   const shouldDiscount = (serviceId: string) => (bundleQualified ? eligibleForBundle(serviceId) : eligibleForCorrection(serviceId));
 
   const serviceLines = services.map((service) => {
@@ -173,8 +173,8 @@ export function getVehiclePricingBreakdown(services: ServiceOption[], size: Vehi
   if (hasCorrection && !hasPaintCoating) {
     suggestion = {
       id: 'add-paint-coating',
-      title: 'Unlock paint coating savings',
-      detail: 'Add a 3 Year or 6 Year Ceramic Coating to optimize this correction package',
+      title: 'Add ceramic coating to make this correction last',
+      detail: 'Add a 3 Year or 6 Year Ceramic Coating to protect the corrected finish.',
       actionLabel: 'Add Ceramic Coating',
       serviceIds: ['coat-ceramic-3y'],
     };
