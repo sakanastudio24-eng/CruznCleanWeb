@@ -3,6 +3,7 @@
 import { useState } from 'react';
 
 import { SiteShell } from '@/components/layout/site-shell';
+import { trackAnalyticsEvent } from '@/lib/analytics';
 import type { ContactForm } from '@/lib/booking-types';
 import { submitContactMessage } from '@/lib/api-client';
 import { SITE_PROFILE } from '@/lib/site-profile';
@@ -47,6 +48,11 @@ export default function ContactPage(): JSX.Element {
 
     try {
       await submitContactMessage(form);
+      trackAnalyticsEvent('generate_lead', {
+        page: '/contact',
+        form_name: 'contact',
+        lead_type: 'general_question',
+      });
       clearForm();
       setStatusMessage('Message sent We will respond as soon as possible');
     } catch {

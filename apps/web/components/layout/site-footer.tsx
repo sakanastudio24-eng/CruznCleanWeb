@@ -1,5 +1,9 @@
-import Link from 'next/link';
+'use client';
 
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+import { trackAnalyticsEvent } from '@/lib/analytics';
 import { getServiceAreaCitySummary } from '@/lib/service-area';
 import { SITE_PROFILE } from '@/lib/site-profile';
 
@@ -7,6 +11,8 @@ import { SITE_PROFILE } from '@/lib/site-profile';
  * Renders a polished footer with clear navigation and contact details.
  */
 export function SiteFooter(): JSX.Element {
+  const pathname = usePathname();
+
   return (
     <footer className="mobile-footer-fullscreen border-t border-burgundy/25 bg-ink text-white">
       <div className="site-frame grid gap-8 py-12 md:grid-cols-[1.2fr_1fr_1fr]">
@@ -19,7 +25,11 @@ export function SiteFooter(): JSX.Element {
           </p>
           <p className="mt-3 text-xs uppercase tracking-[0.14em] text-white/60">{SITE_PROFILE.locationLabel}</p>
           <div className="mt-4 flex flex-col items-start gap-2">
-            <a href={SITE_PROFILE.phoneHref} className="text-sm font-semibold text-fog transition hover:text-burgundyAccent">
+            <a
+              href={SITE_PROFILE.phoneHref}
+              onClick={() => trackAnalyticsEvent('click_call', { page: pathname, location: 'footer_contact' })}
+              className="text-sm font-semibold text-fog transition hover:text-burgundyAccent"
+            >
               {SITE_PROFILE.phoneDisplay}
             </a>
             <a href={`mailto:${SITE_PROFILE.supportEmail}`} className="text-sm font-semibold text-fog transition hover:text-burgundyAccent">
@@ -37,7 +47,13 @@ export function SiteFooter(): JSX.Element {
             <Link href="/gallery" className="text-white/80 transition hover:text-burgundyAccent">Gallery</Link>
             <Link href="/terms" className="text-white/80 transition hover:text-burgundyAccent">Terms of Service</Link>
             <Link href="/quote" className="text-white/80 transition hover:text-burgundyAccent">Quote</Link>
-            <Link href="/booking" className="text-white/80 transition hover:text-burgundyAccent">Book Now</Link>
+            <Link
+              href="/booking"
+              onClick={() => trackAnalyticsEvent('click_book_now', { page: pathname, location: 'footer_navigation' })}
+              className="text-white/80 transition hover:text-burgundyAccent"
+            >
+              Book Now
+            </Link>
             <Link href="/contact" className="text-white/80 transition hover:text-burgundyAccent">Contact</Link>
             <Link href="/faq" className="text-white/80 transition hover:text-burgundyAccent">FAQ</Link>
           </div>

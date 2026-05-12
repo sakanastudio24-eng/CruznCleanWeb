@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import { useBooking } from '@/components/providers/booking-provider';
+import { trackAnalyticsEvent } from '@/lib/analytics';
 import { getHomeServices } from '@/lib/site-data';
 
 /**
@@ -27,6 +28,13 @@ export function ServicesSection(): JSX.Element {
 
     setActiveVehicleId(targetVehicle.id);
     setVehiclePackage(targetVehicle.id, packageId);
+    const service = services.find((homeService) => homeService.id === packageId);
+    trackAnalyticsEvent('select_service', {
+      page: '/',
+      location: 'home_services_preview',
+      service_interest: 'package',
+      service_name: service?.title,
+    });
     router.push('/services');
   }
 

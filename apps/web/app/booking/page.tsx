@@ -19,6 +19,7 @@ import { CalInlineEmbed, type CalBookingSuccessDetails } from '@/components/book
 import { SiteShell } from '@/components/layout/site-shell';
 import { useBooking } from '@/components/providers/booking-provider';
 import { VehicleSizeGuideLookup } from '@/components/vehicle/vehicle-size-guide-lookup';
+import { trackAnalyticsEvent } from '@/lib/analytics';
 import { BOOKING_LIMIT_DISCLAIMER, MAX_BOOKED_VEHICLES_PER_DAY, countSelectedVehicles } from '@/lib/booking-policy';
 import type { CustomerBookingForm, ServiceOption, VehicleProfile, VehicleSize } from '@/lib/booking-types';
 import { createStripeCheckoutSession, getCalendarBookingLink, getCalendarBookingUrl } from '@/lib/api-client';
@@ -688,6 +689,14 @@ export default function BookingPage(): JSX.Element {
         vehicles,
       });
 
+      trackAnalyticsEvent('begin_checkout', {
+        page: '/booking',
+        location: 'deposit_cta',
+        checkout_type: 'stripe_deposit',
+        currency: 'USD',
+        value: checkoutSession.depositCents / 100,
+        selected_total: checkoutSession.estimatedTotalCents / 100,
+      });
       window.location.href = checkoutSession.checkoutUrl;
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message.replace(/\.$/, '') : 'Unable to open Stripe checkout');
@@ -721,6 +730,12 @@ export default function BookingPage(): JSX.Element {
     setFieldErrors({});
     setScheduledAppointment(null);
     hasScrolledToDepositRef.current = false;
+    trackAnalyticsEvent('start_booking', {
+      page: '/booking',
+      location: 'booking_form',
+      currency: 'USD',
+      selected_total: getGrandTotal(),
+    });
     setSubmittedBookingContext({
       bookingId: `web-${Date.now()}`,
       customer: {

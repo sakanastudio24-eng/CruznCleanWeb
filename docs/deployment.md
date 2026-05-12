@@ -16,6 +16,9 @@ This is the compact operational reference for Vercel, API email delivery, and bo
   - `NEXT_PUBLIC_API_BASE_URL`
   - `NEXT_PUBLIC_CAL_COM_URL`
   - `NEXT_PUBLIC_CAL_COM_LINK`
+  - `NEXT_PUBLIC_GA_ID` for GA4 tracking
+
+GA4 should be tested with Realtime or DebugView before launch. Recommended GA4 key events: `generate_lead`, `click_call`, and `purchase`. Only mark `purchase` after payment confirmation tracking is implemented safely.
 
 If Vercel says `No Next.js version detected`, verify the root project setting, root `vercel.json`, and `apps/web/package.json` dependency on `next`.
 

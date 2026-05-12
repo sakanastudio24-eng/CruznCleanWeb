@@ -17,6 +17,7 @@ import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react'
 
 import { QuickHelpModal } from '@/components/help/quick-help-modal';
 import { useBooking } from '@/components/providers/booking-provider';
+import { trackAnalyticsEvent } from '@/lib/analytics';
 import { findServiceById } from '@/lib/services-catalog';
 import { SITE_PROFILE } from '@/lib/site-profile';
 import { getVehicleDisplayName } from '@/lib/vehicle-utils';
@@ -124,6 +125,10 @@ export function SiteHeader(): JSX.Element {
    */
   function handleCartBookNow(): void {
     setCartOpen(false);
+    trackAnalyticsEvent('click_book_now', {
+      page: pathname,
+      location: hasCartSelections ? 'cart_summary' : 'cart_empty_state',
+    });
     router.push(hasCartSelections ? '/booking' : '/services');
   }
 
@@ -198,13 +203,18 @@ export function SiteHeader(): JSX.Element {
           </nav>
 
           <div className="hidden shrink-0 items-center justify-end gap-3 lg:flex lg:justify-self-end" ref={desktopCartRef}>
-            <a href={SITE_PROFILE.phoneHref} className="inline-flex items-center gap-2 text-sm font-semibold text-white transition hover:text-burgundyAccent">
+            <a
+              href={SITE_PROFILE.phoneHref}
+              onClick={() => trackAnalyticsEvent('click_call', { page: pathname, location: 'desktop_header' })}
+              className="inline-flex items-center gap-2 text-sm font-semibold text-white transition hover:text-burgundyAccent"
+            >
               <Phone className="h-4 w-4" />
               {SITE_PROFILE.phoneDisplay}
             </a>
 
             <Link
               href="/booking"
+              onClick={() => trackAnalyticsEvent('click_book_now', { page: pathname, location: 'desktop_header' })}
               className="group relative overflow-hidden rounded-full bg-burgundy px-7 py-2.5 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent"
             >
               <span className="relative z-10">Book Now</span>
@@ -348,6 +358,7 @@ export function SiteHeader(): JSX.Element {
           <div className="flex items-center justify-end gap-1 lg:hidden" ref={mobileCartRef}>
             <a
               href={SITE_PROFILE.phoneHref}
+              onClick={() => trackAnalyticsEvent('click_call', { page: pathname, location: 'mobile_header' })}
               className="inline-flex h-11 w-11 items-center justify-center rounded-full text-white transition duration-300 hover:bg-burgundy/10 hover:text-burgundyAccent"
               aria-label="Call us"
             >

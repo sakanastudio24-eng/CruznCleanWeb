@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { CircleHelp, ChevronDown, ChevronUp, Clock3, Droplets, CreditCard, Car, MapPin } from 'lucide-react';
 
+import { trackAnalyticsEvent } from '@/lib/analytics';
 import { getServiceAreaCitySummary, getServiceAreaZipSummary } from '@/lib/service-area';
 
 interface FaqItem {
@@ -243,7 +244,10 @@ export function QuickHelpModal(): JSX.Element {
                       </Link>
                       <Link
                         href="/booking"
-                        onClick={() => setOpen(false)}
+                        onClick={() => {
+                          trackAnalyticsEvent('click_book_now', { location: 'quick_help_modal' });
+                          setOpen(false);
+                        }}
                         className="rounded-full border border-fog px-4 py-2 text-center text-sm font-semibold text-fog transition hover:bg-fog/10"
                       >
                         Book Now

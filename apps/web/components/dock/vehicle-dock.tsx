@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Car, ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react';
 
 import { useBooking } from '@/components/providers/booking-provider';
+import { trackAnalyticsEvent } from '@/lib/analytics';
 import { BOOKING_LIMIT_DISCLAIMER, MAX_BOOKED_VEHICLES_PER_DAY } from '@/lib/booking-policy';
 import { findServiceById } from '@/lib/services-catalog';
 import { getVehicleDisplayName } from '@/lib/vehicle-utils';
@@ -174,6 +175,7 @@ export function VehicleDock(): JSX.Element {
         {hasSelections ? (
           <Link
             href="/booking"
+            onClick={() => trackAnalyticsEvent('click_book_now', { page: '/services', location: 'vehicle_dock' })}
             className="block rounded-full bg-charcoal px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-ink"
           >
             Book All Vehicles

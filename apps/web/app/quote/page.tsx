@@ -5,6 +5,7 @@ import { Clock3, Mail, Phone } from 'lucide-react';
 import { useState } from 'react';
 
 import { SiteShell } from '@/components/layout/site-shell';
+import { trackAnalyticsEvent } from '@/lib/analytics';
 import type { ContactForm } from '@/lib/booking-types';
 import { submitContactMessage } from '@/lib/api-client';
 import { SITE_PROFILE } from '@/lib/site-profile';
@@ -54,6 +55,11 @@ export default function QuotePage(): JSX.Element {
         message: `[QUOTE REQUEST] Address: ${form.address}\n${form.message}`,
       };
       await submitContactMessage(payload);
+      trackAnalyticsEvent('generate_lead', {
+        page: '/quote',
+        form_name: 'quote',
+        lead_type: 'custom_quote',
+      });
       setStatusMessage('Quote request sent We will reply within 24 hours');
       clearForm();
     } catch {
@@ -151,7 +157,13 @@ export default function QuotePage(): JSX.Element {
               <Phone className="h-5 w-5" />
             </div>
             <p className="mt-3 font-heading text-xl font-semibold text-ink">Call us</p>
-            <a href={SITE_PROFILE.phoneHref} className="mt-1 block text-charcoal">{SITE_PROFILE.phoneDisplay}</a>
+            <a
+              href={SITE_PROFILE.phoneHref}
+              onClick={() => trackAnalyticsEvent('click_call', { page: '/quote', location: 'quote_side_panel' })}
+              className="mt-1 block text-charcoal"
+            >
+              {SITE_PROFILE.phoneDisplay}
+            </a>
           </article>
 
           <article className="gray-card p-5">

@@ -66,19 +66,26 @@ interface RootLayoutProps {
  * Renders the top-level HTML shell for all web routes.
  */
 export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
-  return (
-    <html lang="en">
-      <body className="bg-ink text-white font-body antialiased">
-        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-MKPPCHFN39" />
-        <Script id="google-tag">
-          {`
+  const gaId = process.env.NEXT_PUBLIC_GA_ID?.trim();
+  const gaConfigScript = gaId
+    ? `
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
 
-            gtag('config', 'G-MKPPCHFN39');
-          `}
-        </Script>
+            gtag('config', ${JSON.stringify(gaId)});
+          `
+    : '';
+
+  return (
+    <html lang="en">
+      <body className="bg-ink text-white font-body antialiased">
+        {gaId ? (
+          <>
+            <Script async src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gaId)}`} />
+            <Script id="google-tag">{gaConfigScript}</Script>
+          </>
+        ) : null}
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>

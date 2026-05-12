@@ -1,7 +1,10 @@
+'use client';
+
 import Link from 'next/link';
 import { ArrowRight, CarFront, MailCheck, ShieldCheck } from 'lucide-react';
 
 import { SiteShell } from '@/components/layout/site-shell';
+import { trackAnalyticsEvent } from '@/lib/analytics';
 import { SITE_PROFILE } from '@/lib/site-profile';
 
 /**
@@ -65,6 +68,7 @@ export default function ThankYouPage(): JSX.Element {
             </Link>
             <a
               href={SITE_PROFILE.phoneHref}
+              onClick={() => trackAnalyticsEvent('click_call', { page: '/thank-you', location: 'thank_you_cta' })}
               className="inline-flex items-center gap-2 rounded-full border border-white/25 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
             >
               Call {SITE_PROFILE.phoneDisplay}

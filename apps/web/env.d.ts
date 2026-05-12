@@ -37,6 +37,12 @@ export type CoercedEnvSchema = {
   NEXT_PUBLIC_SITE_URL: string;
   
   /**
+   * **NEXT_PUBLIC_GA_ID**
+   * ![icon](data:image/svg+xml;utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20fill%3D%22%23808080%22%20d%3D%22M29%2022h-5a2.003%202.003%200%200%201-2-2v-6a2%202%200%200%201%202-2h5v2h-5v6h5ZM18%2012h-4V8h-2v14h6a2.003%202.003%200%200%200%202-2v-6a2%202%200%200%200-2-2m-4%208v-6h4v6Zm-6-8H3v2h5v2H4a2%202%200%200%200-2%202v2a2%202%200%200%200%202%202h6v-8a2%202%200%200%200-2-2m0%208H4v-2h4Z%22%2F%3E%3C%2Fsvg%3E)
+   */
+  NEXT_PUBLIC_GA_ID?: string;
+
+  /**
    * **NEXT_PUBLIC_BUSINESS_NAME**  
    * ![icon](data:image/svg+xml;utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20fill%3D%22%23808080%22%20d%3D%22M29%2022h-5a2.003%202.003%200%200%201-2-2v-6a2%202%200%200%201%202-2h5v2h-5v6h5ZM18%2012h-4V8h-2v14h6a2.003%202.003%200%200%200%202-2v-6a2%202%200%200%200-2-2m-4%208v-6h4v6Zm-6-8H3v2h5v2H4a2%202%200%200%200-2%202v2a2%202%200%200%200%202%202h6v-8a2%202%200%200%200-2-2m0%208H4v-2h4Z%22%2F%3E%3C%2Fsvg%3E)   
    */
@@ -158,11 +164,11 @@ export type CoercedEnvSchema = {
   
 };
 
-type _CoercedEnvSchema_a1c72b40 = CoercedEnvSchema;
+type _CoercedEnvSchema_fa399eb1 = CoercedEnvSchema;
 
 declare module 'varlock/env' {
-  export interface TypedEnvSchema extends Readonly<_CoercedEnvSchema_a1c72b40> {}
-  export interface PublicTypedEnvSchema extends Readonly<Pick<_CoercedEnvSchema_a1c72b40, 'APP_ENV' | 'NEXT_PUBLIC_API_BASE_URL' | 'NEXT_PUBLIC_CAL_COM_URL' | 'NEXT_PUBLIC_CAL_COM_LINK' | 'NEXT_PUBLIC_SITE_URL' | 'NEXT_PUBLIC_BUSINESS_NAME' | 'NEXT_PUBLIC_LOCATION_LABEL' | 'NEXT_PUBLIC_SUPPORT_EMAIL' | 'NEXT_PUBLIC_PHONE_DISPLAY' | 'NEXT_PUBLIC_MARKETING_MENU_ENABLED' | 'NEXT_PUBLIC_STORAGE_BACKEND' | 'NEXT_PUBLIC_SUPABASE_URL' | 'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY' | 'NEXT_PUBLIC_SENTRY_DSN' | 'NEXT_PUBLIC_SENTRY_TEST_PAGE_ENABLED' | 'SENTRY_ORG' | 'SENTRY_PROJECT' | 'SENTRY_UPLOAD_SOURCE_MAPS' | 'STRIPE_DEPOSIT_PERCENT' | 'STRIPE_DEPOSIT_MIN_CENTS' | 'STRIPE_DEPOSIT_MAX_CENTS' | 'STRIPE_SUCCESS_URL' | 'STRIPE_CANCEL_URL'>> {}
+  export interface TypedEnvSchema extends Readonly<_CoercedEnvSchema_fa399eb1> {}
+  export interface PublicTypedEnvSchema extends Readonly<Pick<_CoercedEnvSchema_fa399eb1, 'APP_ENV' | 'NEXT_PUBLIC_API_BASE_URL' | 'NEXT_PUBLIC_CAL_COM_URL' | 'NEXT_PUBLIC_CAL_COM_LINK' | 'NEXT_PUBLIC_SITE_URL' | 'NEXT_PUBLIC_GA_ID' | 'NEXT_PUBLIC_BUSINESS_NAME' | 'NEXT_PUBLIC_LOCATION_LABEL' | 'NEXT_PUBLIC_SUPPORT_EMAIL' | 'NEXT_PUBLIC_PHONE_DISPLAY' | 'NEXT_PUBLIC_MARKETING_MENU_ENABLED' | 'NEXT_PUBLIC_STORAGE_BACKEND' | 'NEXT_PUBLIC_SUPABASE_URL' | 'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY' | 'NEXT_PUBLIC_SENTRY_DSN' | 'NEXT_PUBLIC_SENTRY_TEST_PAGE_ENABLED' | 'SENTRY_ORG' | 'SENTRY_PROJECT' | 'SENTRY_UPLOAD_SOURCE_MAPS' | 'STRIPE_DEPOSIT_PERCENT' | 'STRIPE_DEPOSIT_MIN_CENTS' | 'STRIPE_DEPOSIT_MAX_CENTS' | 'STRIPE_SUCCESS_URL' | 'STRIPE_CANCEL_URL'>> {}
 }
 
 
@@ -172,17 +178,17 @@ export type EnvSchemaAsStrings = {
       : (CoercedEnvSchema[Property] extends boolean ? ('true' | 'false') : string)
 };
 
-type _EnvSchemaAsStrings_a1c72b40 = EnvSchemaAsStrings;
+type _EnvSchemaAsStrings_fa399eb1 = EnvSchemaAsStrings;
 declare global {
 
   // add types for global import.meta.env
-  interface ImportMetaEnv extends _EnvSchemaAsStrings_a1c72b40 {}
+  interface ImportMetaEnv extends _EnvSchemaAsStrings_fa399eb1 {}
   interface ImportMeta {
     readonly env: ImportMetaEnv;
   }
 
   // add types for global process.env
   namespace NodeJS {
-    interface ProcessEnv extends _EnvSchemaAsStrings_a1c72b40 {}
+    interface ProcessEnv extends _EnvSchemaAsStrings_fa399eb1 {}
   }
 }

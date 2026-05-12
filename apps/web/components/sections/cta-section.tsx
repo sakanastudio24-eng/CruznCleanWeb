@@ -1,5 +1,9 @@
+'use client';
+
 import Link from 'next/link';
 import { ArrowRight, CalendarClock, ShieldCheck, Sparkles } from 'lucide-react';
+
+import { trackAnalyticsEvent } from '@/lib/analytics';
 
 /**
  * Renders the homepage closing call-to-action block.
@@ -23,6 +27,7 @@ export function CtaSection(): JSX.Element {
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
                 href="/booking"
+                onClick={() => trackAnalyticsEvent('click_book_now', { page: '/', location: 'home_cta' })}
                 className="inline-flex items-center gap-2 rounded-full bg-burgundy px-6 py-3 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-burgundyAccent"
               >
                 Continue to Booking <ArrowRight className="h-4 w-4" />

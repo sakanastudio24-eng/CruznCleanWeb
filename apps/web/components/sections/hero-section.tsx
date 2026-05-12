@@ -9,6 +9,7 @@ import type { ServiceOption, VehicleProfile, VehicleSize } from '@/lib/booking-t
 import { formatSizeAdjustmentLabel, getAdjustedServicePrice } from '@/lib/pricing';
 import { getPackageServices } from '@/lib/services-catalog';
 import { SITE_PROFILE } from '@/lib/site-profile';
+import { trackAnalyticsEvent } from '@/lib/analytics';
 import { getVehicleDisplayName, isVehicleGuideSizeLocked, needsManualVehicleSize } from '@/lib/vehicle-utils';
 import heroImage from '../../../../photo_refrences/Full Exterior Detail.jpg';
 
@@ -143,6 +144,15 @@ export function HeroSection(): JSX.Element {
 
     setActiveVehicleId(activeVehicle.id);
     toggleVehiclePackage(activeVehicle.id, serviceId);
+    const service = packages.find((packageService) => packageService.id === serviceId);
+    trackAnalyticsEvent('select_service', {
+      page: '/',
+      location: 'hero_package_picker',
+      service_interest: 'package',
+      service_name: service?.name,
+      currency: 'USD',
+      value: service ? getAdjustedServicePrice(service.price, activeVehicle.size) : undefined,
+    });
   }
 
   return (
@@ -171,6 +181,7 @@ export function HeroSection(): JSX.Element {
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
                 href="/booking"
+                onClick={() => trackAnalyticsEvent('click_book_now', { page: '/', location: 'hero' })}
                 className="inline-flex items-center gap-2 rounded-full bg-burgundy px-5 py-3 text-sm font-bold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-burgundyAccent"
               >
                 Book an Appointment
@@ -178,6 +189,7 @@ export function HeroSection(): JSX.Element {
               </Link>
               <a
                 href={SITE_PROFILE.phoneHref}
+                onClick={() => trackAnalyticsEvent('click_call', { page: '/', location: 'hero' })}
                 className="inline-flex items-center gap-2 rounded-full border border-burgundy px-5 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-burgundy/10"
               >
                 <PhoneCall className="h-4 w-4" />

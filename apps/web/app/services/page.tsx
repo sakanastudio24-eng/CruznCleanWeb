@@ -7,6 +7,7 @@ import { VehicleDock } from '@/components/dock/vehicle-dock';
 import { SiteShell } from '@/components/layout/site-shell';
 import { useBooking } from '@/components/providers/booking-provider';
 import { VehicleSizeGuideLookup } from '@/components/vehicle/vehicle-size-guide-lookup';
+import { trackAnalyticsEvent } from '@/lib/analytics';
 import type { ServiceCategory, ServiceOption, VehicleProfile, VehicleSize } from '@/lib/booking-types';
 import { formatSizeAdjustmentLabel, getAdjustedServicePrice, getServiceSavingsTags } from '@/lib/pricing';
 import { getCorrectionServices, getPackageServices, getProtectionServices } from '@/lib/services-catalog';
@@ -123,10 +124,18 @@ function ServiceGrid({
   function handleSelect(service: ServiceOption): void {
     if (category === 'package') {
       toggleVehiclePackage(activeVehicleId, service.id);
-      return;
+    } else {
+      toggleServiceForVehicle(activeVehicleId, service);
     }
 
-    toggleServiceForVehicle(activeVehicleId, service);
+    trackAnalyticsEvent('select_service', {
+      page: '/services',
+      location: 'services_grid',
+      service_interest: category,
+      service_name: service.name,
+      currency: 'USD',
+      value: activeVehicle ? getAdjustedServicePrice(service.price, activeVehicle.size) : service.price,
+    });
   }
 
   const content = (
