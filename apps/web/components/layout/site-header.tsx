@@ -206,10 +206,11 @@ export function SiteHeader(): JSX.Element {
             <a
               href={SITE_PROFILE.phoneHref}
               onClick={() => trackAnalyticsEvent('click_call', { page: pathname, location: 'desktop_header' })}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-white transition hover:text-burgundyAccent"
+              aria-label={`Call ${SITE_PROFILE.phoneDisplay}`}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-sm font-semibold text-white transition hover:bg-white/10 hover:text-burgundyAccent xl:h-auto xl:w-auto xl:justify-start xl:gap-2 xl:rounded-none xl:bg-transparent"
             >
               <Phone className="h-4 w-4" />
-              {SITE_PROFILE.phoneDisplay}
+              <span className="hidden xl:inline">{SITE_PROFILE.phoneDisplay}</span>
             </a>
 
             <Link
