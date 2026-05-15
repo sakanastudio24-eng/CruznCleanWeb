@@ -24,6 +24,7 @@ export interface StripeCustomerReceiptInput {
   customerEmail: string | null;
   customerName: string | null;
   customerPhone: string | null;
+  serviceAddress: string | null;
   vehicleSummary: string | null;
   servicesSummary: string | null;
   estimatedServiceTotalCents: number | null;
@@ -303,6 +304,7 @@ function buildOwnerNotificationEmail(input: StripeCustomerReceiptInput): { subje
   const customerName = formatOptionalValue(input.customerName, 'Customer name unavailable');
   const customerPhone = formatOptionalValue(input.customerPhone, 'Customer phone unavailable');
   const customerEmail = formatOptionalValue(input.customerEmail, 'Customer email unavailable');
+  const serviceAddress = formatOptionalValue(input.serviceAddress, 'Service address unavailable');
   const displayAmounts = calculateReceiptDisplayAmounts(input);
   const promotionApplied = isValidCents(displayAmounts.serviceDiscountCents) && displayAmounts.serviceDiscountCents > 0;
   const promotionPercentLabel = promotionApplied
@@ -315,6 +317,7 @@ function buildOwnerNotificationEmail(input: StripeCustomerReceiptInput): { subje
     `Customer name: ${customerName}`,
     `Customer phone: ${customerPhone}`,
     `Customer email: ${customerEmail}`,
+    `Service address: ${serviceAddress}`,
     `Vehicle summary: ${formatOptionalValue(input.vehicleSummary, 'Vehicle to be confirmed')}`,
     `Services summary: ${formatOptionalValue(input.servicesSummary, 'Services to be confirmed')}`,
     `Estimated service total: ${formatCurrency(input.estimatedServiceTotalCents)}`,
@@ -368,6 +371,7 @@ function buildOwnerNotificationEmail(input: StripeCustomerReceiptInput): { subje
     `${buildInfoRow('Customer name', customerName)}` +
     `${buildInfoRow('Customer phone', customerPhone)}` +
     `${buildInfoRow('Customer email', customerEmail)}` +
+    `${buildInfoRow('Service address', serviceAddress)}` +
     '</div>' +
     '<div style="margin-top:14px;padding:14px;border:1px solid #e5e7eb;border-radius:10px;">' +
     '<p style="margin:0;font-size:16px;font-weight:800;color:#111111;">Vehicle and services</p>' +

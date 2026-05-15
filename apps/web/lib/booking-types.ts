@@ -30,6 +30,7 @@ export interface CustomerBookingForm {
   email: string;
   phone: string;
   zipCode: string;
+  serviceAddress: string;
   sendEmailConfirmation: boolean;
   sendSmsConfirmation: boolean;
   acceptedSmsConsent: boolean;

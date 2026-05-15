@@ -17,6 +17,7 @@ interface CheckoutSessionRequest {
     email?: unknown;
     fullName?: unknown;
     phone?: unknown;
+    serviceAddress?: unknown;
   };
   vehicles?: unknown;
 }
@@ -185,11 +186,12 @@ export async function POST(request: Request): Promise<NextResponse> {
   const customerEmail = getString(payload.customer?.email);
   const customerName = getString(payload.customer?.fullName);
   const customerPhone = getString(payload.customer?.phone);
+  const serviceAddress = getString(payload.customer?.serviceAddress);
   const vehicles = normalizeVehicles(payload.vehicles).filter((vehicle) => vehicle.serviceIds.length > 0);
 
-  if (!bookingReference || !bookingSessionId || !calBookingUid || !customerEmail || vehicles.length === 0) {
+  if (!bookingReference || !bookingSessionId || !calBookingUid || !customerEmail || !serviceAddress || vehicles.length === 0) {
     return NextResponse.json(
-      { detail: 'Booking reference, booking session, calendar confirmation, customer email, and selected services are required' },
+      { detail: 'Booking reference, booking session, calendar confirmation, customer email, service address, and selected services are required' },
       { status: 422 },
     );
   }
@@ -241,6 +243,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   appendStripeField(stripePayload, 'metadata[customerName]', customerName);
   appendStripeField(stripePayload, 'metadata[customerEmail]', customerEmail);
   appendStripeField(stripePayload, 'metadata[customerPhone]', customerPhone);
+  appendStripeField(stripePayload, 'metadata[serviceAddress]', serviceAddress.slice(0, 500));
   appendStripeField(stripePayload, 'metadata[vehicle]', vehicles.map(formatVehicleDetail).join(' | ').slice(0, 500));
   appendStripeField(stripePayload, 'metadata[vehicleCount]', vehicles.length);
   appendStripeField(stripePayload, 'metadata[estimatedTotalCents]', totals.estimatedTotalCents);

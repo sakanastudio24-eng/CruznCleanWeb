@@ -7,11 +7,13 @@ import {
   Calendar,
   CarFront,
   CheckCircle2,
+  CircleMinus,
   CreditCard,
   Plus,
   ShieldCheck,
   Trash2,
   User,
+  XCircle,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
 
@@ -59,6 +61,7 @@ interface BookingFieldErrors {
   email?: string;
   phone?: string;
   zipCode?: string;
+  serviceAddress?: string;
   year?: string;
   make?: string;
   model?: string;
@@ -71,9 +74,11 @@ interface BookingFieldErrors {
   acceptedConsent?: string;
 }
 
+type VehicleCheckerStatus = 'complete' | 'almost' | 'missing' | 'empty';
+
 interface SubmittedBookingCalendarContext {
   bookingId: string;
-  customer: Pick<CustomerBookingForm, 'email' | 'fullName' | 'phone'>;
+  customer: Pick<CustomerBookingForm, 'email' | 'fullName' | 'phone' | 'serviceAddress'>;
   estimatedTotal: number;
   servicesSummary: string;
   vehicleCount: number;
@@ -86,6 +91,7 @@ const INITIAL_FORM: CustomerBookingForm = {
   email: '',
   phone: '',
   zipCode: '',
+  serviceAddress: '',
   sendEmailConfirmation: true,
   sendSmsConfirmation: false,
   acceptedSmsConsent: false,
@@ -164,6 +170,13 @@ function sanitizeVehicleYearInput(value: string): string {
 }
 
 /**
+ * Keeps older persisted drafts safe after adding required address collection.
+ */
+function getServiceAddress(form: CustomerBookingForm): string {
+  return typeof form.serviceAddress === 'string' ? form.serviceAddress : '';
+}
+
+/**
  * Appends shared customer/contact validation errors to one error object.
  */
 function appendCustomerValidationErrors(
@@ -188,6 +201,10 @@ function appendCustomerValidationErrors(
     errors.zipCode = 'Enter a valid ZIP code';
   } else if (!isZipInServiceArea(form.zipCode)) {
     errors.zipCode = 'This ZIP is outside the current online booking service area Request a quote so we can review travel and availability';
+  }
+
+  if (!getServiceAddress(form).trim()) {
+    errors.serviceAddress = 'Enter the service address';
   }
 
   if (!hasValidConfirmationPreference(form)) {
@@ -327,6 +344,66 @@ function hasRequiredVehicleDetails(vehicle: VehicleProfile): boolean {
 }
 
 /**
+ * Returns the vehicle-specific required details still needed for scheduling.
+ */
+function getMissingVehicleDetailCount(vehicle: VehicleProfile): number {
+  return [
+    vehicle.year.trim(),
+    vehicle.make.trim(),
+    vehicle.model.trim(),
+    vehicle.color.trim(),
+    vehicle.size && !getVehicleSizeGuardMessage(vehicle) ? 'size-ready' : '',
+  ].filter((value) => !value).length;
+}
+
+/**
+ * Resolves the compact checker status for one vehicle slot.
+ */
+function getVehicleCheckerStatus(vehicle: VehicleProfile | undefined): VehicleCheckerStatus {
+  if (!vehicle) {
+    return 'empty';
+  }
+
+  const missingCount = getMissingVehicleDetailCount(vehicle);
+  if (missingCount === 0) {
+    return 'complete';
+  }
+
+  return missingCount === 1 ? 'almost' : 'missing';
+}
+
+/**
+ * Renders a visible status that is not color-only.
+ */
+function VehicleCheckerStatusBadge({ status }: { status: VehicleCheckerStatus }): JSX.Element {
+  if (status === 'complete') {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-bold text-green-300">
+        <CheckCircle2 className="h-4 w-4" aria-hidden="true" /> Complete
+      </span>
+    );
+  }
+
+  if (status === 'almost') {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-bold text-yellow-300">
+        <CircleMinus className="h-4 w-4" aria-hidden="true" /> Almost
+      </span>
+    );
+  }
+
+  if (status === 'missing') {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-bold text-burgundyAccent">
+        <XCircle className="h-4 w-4" aria-hidden="true" /> Missing
+      </span>
+    );
+  }
+
+  return <span className="text-xs font-bold text-ink/45">Empty</span>;
+}
+
+/**
  * Finds the first selected vehicle that still needs details before scheduling or payment.
  */
 function getIncompleteSelectedVehicle(selectedVehicles: VehicleProfile[]): VehicleProfile | undefined {
@@ -433,6 +510,10 @@ export default function BookingPage(): JSX.Element {
     () => vehicles.filter((vehicle) => getVehicleServices(vehicle.id).length > 0),
     [getVehicleServices, vehicles],
   );
+  const vehicleCheckerSlots = useMemo(
+    () => Array.from({ length: MAX_BOOKED_VEHICLES_PER_DAY }, (_, index) => vehicles[index]),
+    [vehicles],
+  );
   const incompleteSelectedVehicle = useMemo(
     () => getIncompleteSelectedVehicle(selectedVehicles),
     [selectedVehicles],
@@ -440,9 +521,11 @@ export default function BookingPage(): JSX.Element {
   const activeVehicleSizeGuardMessage = activeVehicle
     ? getVehicleSizeGuardMessage(activeVehicle)
     : '';
+  const serviceAddress = getServiceAddress(form);
   const bookingDraftSignature = useMemo(
     () => JSON.stringify({
       form,
+      serviceAddress,
       vehicles: selectedVehicles.map((vehicle) => ({
         id: vehicle.id,
         year: vehicle.year,
@@ -455,7 +538,7 @@ export default function BookingPage(): JSX.Element {
         serviceIds: vehicle.serviceIds,
       })),
     }),
-    [form, selectedVehicles],
+    [form, selectedVehicles, serviceAddress],
   );
   const bookingDraftFingerprint = useMemo(
     () => getBookingDraftFingerprint(bookingDraftSignature),
@@ -484,12 +567,13 @@ export default function BookingPage(): JSX.Element {
         email: form.email,
         fullName: form.fullName,
         phone: form.phone,
+        serviceAddress,
       },
       estimatedTotal: snapshot.estimatedTotal,
       servicesSummary: snapshot.servicesSummary,
       vehicleCount: snapshot.vehicleCount,
     }),
-    [form.email, form.fullName, form.phone],
+    [form.email, form.fullName, form.phone, serviceAddress],
   );
 
   const buildBookingContextSnapshot = useCallback(
@@ -802,6 +886,7 @@ export default function BookingPage(): JSX.Element {
           email: submittedBookingContext.customer.email,
           fullName: submittedBookingContext.customer.fullName,
           phone: submittedBookingContext.customer.phone,
+          serviceAddress: submittedBookingContext.customer.serviceAddress,
         },
         vehicles,
       });
@@ -1268,6 +1353,73 @@ export default function BookingPage(): JSX.Element {
                     </span>
                   ) : null}
                 </label>
+                <label className="text-sm font-semibold text-ink/75 sm:col-span-2">
+                  Service address *
+                  <input
+                    value={serviceAddress}
+                    onChange={(event) => updateCustomerField('serviceAddress', event.target.value)}
+                    autoComplete="street-address"
+                    aria-invalid={Boolean(fieldErrors.serviceAddress)}
+                    aria-describedby={[
+                      'booking-service-address-help',
+                      fieldErrors.serviceAddress ? 'booking-service-address-error' : '',
+                    ].filter(Boolean).join(' ')}
+                    className={`mt-1 w-full rounded-lg border px-3 py-2 transition duration-300 focus:outline-none ${
+                      fieldErrors.serviceAddress ? 'border-charcoal focus:border-charcoal' : 'border-black/15 focus:border-fog'
+                    }`}
+                    placeholder="123 Main St, Yorba Linda, CA"
+                  />
+                  <span id="booking-service-address-help" className="mt-1 block text-xs font-medium text-ink/55">
+                    Where should the vehicle be serviced?
+                  </span>
+                  {fieldErrors.serviceAddress ? (
+                    <span id="booking-service-address-error" className="a11y-error mt-1 block text-xs font-medium">{fieldErrors.serviceAddress}</span>
+                  ) : null}
+                </label>
+              </div>
+
+              <div className="rounded-xl border border-line bg-[#141414] p-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ink/60">Vehicle checker</p>
+                  <p className="mt-1 text-xs text-ink/55">Tap a vehicle to edit its details.</p>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  {vehicleCheckerSlots.map((vehicle, index) => {
+                    const active = vehicle?.id === activeVehicleId;
+                    const status = getVehicleCheckerStatus(vehicle);
+                    const vehicleName = vehicle ? getVehicleDisplayName(vehicle) : `Vehicle ${index + 1}`;
+
+                    return vehicle ? (
+                      <button
+                        key={vehicle.id}
+                        type="button"
+                        onClick={() => setActiveVehicleId(vehicle.id)}
+                        aria-pressed={active}
+                        aria-label={`Edit ${vehicleName}. Status: ${status}`}
+                        className={`min-h-16 rounded-xl border px-3 py-2 text-left transition ${
+                          active
+                            ? 'border-burgundyAccent bg-burgundy/20 shadow-sm'
+                            : 'border-white/10 bg-white/[0.04] hover:border-burgundyAccent/45 hover:bg-burgundy/10'
+                        }`}
+                      >
+                        <span className="block truncate text-sm font-bold text-ink">{vehicleName}</span>
+                        <span className="mt-1 block">
+                          <VehicleCheckerStatusBadge status={status} />
+                        </span>
+                      </button>
+                    ) : (
+                      <div
+                        key={`empty-vehicle-checker-slot-${index}`}
+                        className="min-h-16 rounded-xl border border-dashed border-white/10 bg-white/[0.025] px-3 py-2 text-left"
+                      >
+                        <span className="block text-sm font-bold text-ink/45">{vehicleName}</span>
+                        <span className="mt-1 block">
+                          <VehicleCheckerStatusBadge status="empty" />
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

@@ -37,6 +37,7 @@ export interface BookingCustomer {
   email: string;
   phone: string;
   zipCode: string;
+  serviceAddress: string;
   notes?: string;
 }
 

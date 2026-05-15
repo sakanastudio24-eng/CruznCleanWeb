@@ -270,6 +270,7 @@ async function handleCheckoutSessionCompleted(
     customerEmail,
     customerName,
     customerPhone,
+    serviceAddress: getMetadataString(session.metadata, 'serviceAddress'),
     vehicleSummary: getMetadataString(session.metadata, 'vehicle'),
     servicesSummary: getMetadataString(session.metadata, 'servicesSummary'),
     estimatedServiceTotalCents,

@@ -66,7 +66,7 @@ export async function createStripeCheckoutSession(payload: {
   bookingReference: string;
   calBookingUid: string;
   scheduledStartTime?: string;
-  customer: Pick<CustomerBookingForm, 'email' | 'fullName' | 'phone'>;
+  customer: Pick<CustomerBookingForm, 'email' | 'fullName' | 'phone' | 'serviceAddress'>;
   vehicles: VehicleProfile[];
 }): Promise<{ checkoutUrl: string; checkoutSessionId: string; depositCents: number; estimatedTotalCents: number }> {
   const vehicles: BookingVehicleRequest[] = payload.vehicles
