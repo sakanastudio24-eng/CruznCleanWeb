@@ -13,14 +13,6 @@ import { trackAnalyticsEvent } from '@/lib/analytics';
 import { getVehicleDisplayName, isVehicleGuideSizeLocked, needsManualVehicleSize } from '@/lib/vehicle-utils';
 import heroImage from '../../../../photo_refrences/Full Exterior Detail.jpg';
 
-const SERVICE_AREA_FRAMES = [
-  ['Yorba Linda', 'Placentia', 'Fullerton'],
-  ['Anaheim', 'Brea', 'Orange'],
-  ['La Habra', 'Buena Park', 'Cypress'],
-  ['Irvine', 'Huntington Beach', 'Costa Mesa'],
-  ['Tustin', 'Garden Grove', 'Santa Ana'],
-];
-
 const VEHICLE_SIZE_OPTIONS: Array<{ id: VehicleSize; label: string; hint: string }> = [
   { id: 'sedan_coupe', label: 'Sedan / Coupe', hint: 'Base listed pricing' },
   { id: 'small_suv_truck', label: 'Small SUV / Truck', hint: '+20% by size' },
@@ -169,8 +161,8 @@ export function HeroSection(): JSX.Element {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_16%,rgba(255,255,255,0.18),transparent_34%)]" />
 
       <div className="relative mx-auto flex min-h-[calc(100svh-var(--site-header-height))] w-full max-w-7xl flex-col justify-center px-4 py-8 sm:px-6 sm:py-10">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,390px)_minmax(620px,1fr)] lg:items-center xl:grid-cols-[minmax(0,440px)_minmax(720px,1.1fr)] xl:gap-12 2xl:gap-16">
-          <div className="fade-in-up max-w-3xl lg:max-w-[390px] xl:max-w-[440px]">
+        <div className="grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-10 xl:gap-12">
+          <div className="fade-in-up max-w-3xl lg:mx-auto lg:w-full lg:max-w-[560px] xl:max-w-[600px]">
             <h1 className="font-heading text-5xl font-extrabold leading-[0.92] sm:text-6xl lg:text-6xl xl:text-7xl">
               Transparent detailing without the guesswork
             </h1>
@@ -197,7 +189,7 @@ export function HeroSection(): JSX.Element {
               </a>
             </div>
 
-            <div className="mt-8 grid gap-3 sm:grid-cols-3">
+            <div className="mt-8 grid gap-3 sm:grid-cols-2">
               <div className="rounded-2xl border border-white/15 bg-white/8 px-4 py-3 backdrop-blur-sm">
                 <p className="text-[11px] uppercase tracking-[0.14em] text-white/60">Location</p>
                 <div className="mt-1 flex items-start gap-2 text-sm font-semibold text-white">
@@ -205,42 +197,24 @@ export function HeroSection(): JSX.Element {
                   <span className="sr-only">
                     Available service areas include Yorba Linda, Placentia, Fullerton, Anaheim, Brea, Orange, La Habra, Buena Park, Cypress, Irvine, Huntington Beach, Costa Mesa, Tustin, Garden Grove, and Santa Ana
                   </span>
-                  <span aria-hidden="true" className="service-area-cycle relative inline-grid min-h-[4.45rem] min-w-0 flex-1 overflow-hidden align-top">
-                    {SERVICE_AREA_FRAMES.map((frame, index) => (
-                      <span
-                        key={frame.join('-')}
-                        className="service-area-frame col-start-1 row-start-1 flex flex-col gap-1"
-                        style={{ animationDelay: `${index * 3}s` }}
-                      >
-                        {frame.map((city) => (
-                          <span key={city} className="leading-tight text-white/90">
-                            {city}
-                          </span>
-                        ))}
-                      </span>
-                    ))}
-                  </span>
+                  <span aria-hidden="true" className="leading-tight text-white/90">Yorba Linda + nearby OC</span>
                 </div>
               </div>
               <div className="rounded-2xl border border-white/15 bg-white/8 px-4 py-3 backdrop-blur-sm">
                 <p className="text-[11px] uppercase tracking-[0.14em] text-white/60">Availability</p>
-                <p className="mt-1 inline-flex items-center gap-2 text-sm font-semibold text-white">
+                <p className="mt-1 flex items-start gap-2 text-sm font-semibold text-white">
                   <Clock3 className="h-4 w-4 text-fog" />
-                  Monday-Saturday 8am - 6pm
+                  <span>
+                    Mon-Sat
+                    <span className="block text-white/85">8am-6pm</span>
+                  </span>
                 </p>
-              </div>
-              <div className="rounded-2xl border border-white/15 bg-white/8 px-4 py-3 backdrop-blur-sm">
-                <p className="text-[11px] uppercase tracking-[0.14em] text-white/60">Good for</p>
-                <p className="mt-1 text-sm font-semibold text-white">Maintenance, coatings, and multi-car scheduling</p>
               </div>
             </div>
           </div>
 
-          <aside className="fade-in-up rounded-[28px] border border-line bg-[#141414]/82 p-4 backdrop-blur-md sm:p-5 lg:p-6">
-            <h2 className="mt-3 font-heading text-3xl font-bold leading-tight text-white">What kind of car do you have?</h2>
-            <p className="mt-2 text-sm text-white/78">
-              First, pick your vehicle and choose a package.
-            </p>
+          <aside className="fade-in-up w-full rounded-[28px] border border-line bg-[#141414]/82 p-4 backdrop-blur-md sm:p-5 lg:mx-auto lg:max-w-[600px] lg:p-6 xl:max-w-[620px]">
+            <h2 className="font-heading text-3xl font-bold leading-tight text-white">Start with your vehicle</h2>
 
             <div className="mt-4 space-y-4">
               <div className="space-y-4">
@@ -297,7 +271,7 @@ export function HeroSection(): JSX.Element {
 
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/70">Step 2 • Package</p>
-                <div className="mt-2 grid gap-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
+                <div className="mt-2 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
                   {packages.map((service) => {
                     const selected = selectedPackageId === service.id;
                     const adjustedPrice = activeVehicle ? getAdjustedServicePrice(service.price, activeVehicle.size) : service.price;
@@ -308,7 +282,7 @@ export function HeroSection(): JSX.Element {
                         disabled={!canPickPackage}
                         onClick={() => handlePackageSelect(service.id)}
                         aria-pressed={selected}
-                        className={`flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border px-3 py-3 text-left text-sm transition md:min-h-24 md:flex-col md:items-start md:justify-between xl:min-h-28 ${
+                        className={`flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border px-3 py-3 text-left text-sm transition ${
                           selected
                             ? 'border-burgundyAccent bg-burgundy/30 text-white'
                             : 'border-white/10 bg-white/5 text-white/85'
@@ -316,11 +290,9 @@ export function HeroSection(): JSX.Element {
                       >
                         <span>
                           <span className="block font-semibold">{service.name}</span>
-                          <span className="mt-1 hidden text-xs leading-snug text-white/70 2xl:block">{service.description}</span>
                         </span>
                         <span className="shrink-0 text-right md:text-left">
                           <span className="block text-sm font-bold">{formatCurrency(adjustedPrice)}</span>
-                          <span className="hidden text-[11px] text-white/65 sm:block">Base {formatCurrency(service.price)}</span>
                         </span>
                       </button>
                     );
