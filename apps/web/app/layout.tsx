@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
 import { Providers } from '@/app/providers';
+import { buildIndexRobots, SITE_METADATA_DESCRIPTION, SITE_METADATA_TITLE } from '@/lib/seo';
 import { SITE_PROFILE } from '@/lib/site-profile';
 import favicon16 from '../assets/Logos/Cruz-favicon-16x.png';
 import favicon48 from '../assets/Logos/Cruz-favicon-48x.png';
@@ -12,10 +13,10 @@ import './globals.css';
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_PROFILE.siteUrl),
   title: {
-    default: 'Cruizn Clean | Yorba Linda Mobile Auto Detailing',
+    default: SITE_METADATA_TITLE,
     template: '%s | Cruizn Clean',
   },
-  description: 'Mobile auto detailing in Yorba Linda with service packages, add-ons, quote requests, and Cal.com booking',
+  description: SITE_METADATA_DESCRIPTION,
   applicationName: SITE_PROFILE.businessName,
   authors: [{ name: 'Zward Studio', url: 'https://zward.com' }],
   creator: 'Zward Studio',
@@ -37,25 +38,29 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: '/',
     siteName: SITE_PROFILE.businessName,
-    title: 'Cruizn Clean | Yorba Linda Mobile Auto Detailing',
-    description: 'Book mobile detailing, request custom quotes, and review service packages for Yorba Linda-area vehicles',
+    title: SITE_METADATA_TITLE,
+    description: SITE_METADATA_DESCRIPTION,
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'Cruizn Clean Yorba Linda mobile auto detailing social preview',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Cruizn Clean | Yorba Linda Mobile Auto Detailing',
-    description: 'Mobile auto detailing in Yorba Linda with clear booking, packages, add-ons, and quote requests',
+    title: SITE_METADATA_TITLE,
+    description: SITE_METADATA_DESCRIPTION,
+    images: [
+      {
+        url: '/twitter-image',
+        alt: 'Cruizn Clean Yorba Linda mobile auto detailing social preview',
+      },
+    ],
   },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-      'max-video-preview': -1,
-    },
-  },
+  robots: buildIndexRobots(),
 };
 
 interface RootLayoutProps {

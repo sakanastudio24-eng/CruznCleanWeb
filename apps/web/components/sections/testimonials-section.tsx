@@ -9,7 +9,7 @@ export function TestimonialsSection(): JSX.Element {
   return (
     <section className="bg-ink py-16">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-fog">Client Feedback</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-fog">Real Client Feedback</p>
         <h2 className="mt-2 font-heading text-3xl font-semibold text-white sm:text-4xl">What clients notice after the work is done</h2>
 
         <div className="mt-8 grid gap-4 lg:grid-cols-3">

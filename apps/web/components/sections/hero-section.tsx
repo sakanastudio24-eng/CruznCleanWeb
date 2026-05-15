@@ -175,7 +175,7 @@ export function HeroSection(): JSX.Element {
               Transparent detailing without the guesswork
             </h1>
             <p className="mt-4 max-w-2xl text-lg text-white/82 sm:text-xl">
-              A cleaner booking experience for OC clients who want transparent pricing, polished results, and real quotes.
+              A cleaner booking experience for Yorba Linda and nearby Orange County clients who want transparent pricing, polished results, and real quotes.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">

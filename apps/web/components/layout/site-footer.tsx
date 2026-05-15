@@ -21,7 +21,7 @@ export function SiteFooter(): JSX.Element {
             <span>{SITE_PROFILE.businessName}</span>
           </h2>
           <p className="mt-3 max-w-sm text-sm text-white/70">
-            Mobile detailing for Yorba Linda drivers who want clearer booking, cleaner service menus, and polished results
+            Mobile detailing for Yorba Linda and nearby Orange County drivers who want clearer booking, cleaner service menus, and polished results
           </p>
           <p className="mt-3 text-xs uppercase tracking-[0.14em] text-white/60">{SITE_PROFILE.locationLabel}</p>
           <div className="mt-4 flex flex-col items-start gap-2">

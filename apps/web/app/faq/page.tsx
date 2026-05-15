@@ -100,7 +100,7 @@ export default function FaqPage(): JSX.Element {
         <div className="relative mx-auto max-w-6xl text-center">
           <h1 className="font-heading text-4xl font-semibold sm:text-5xl">Frequently Asked Questions</h1>
           <p className="mx-auto mt-4 max-w-3xl text-base text-white/75 sm:text-xl">
-            Get answers to common questions about our mobile detailing services.
+            Get answers to common questions about Cruizn Clean mobile auto detailing services, booking, pricing, and appointment prep.
           </p>
         </div>
       </section>
