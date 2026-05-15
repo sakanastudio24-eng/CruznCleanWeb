@@ -3,16 +3,20 @@
 export type AnalyticsEventName =
   | 'click_book_now'
   | 'click_call'
-  | 'click_instagram'
+  | 'click_social'
   | 'select_service'
   | 'start_booking'
   | 'generate_lead'
   | 'begin_checkout'
   | 'purchase';
 
+export type AnalyticsSocialPlatform = 'facebook' | 'instagram' | 'tiktok';
+
 export interface AnalyticsEventParams {
   page?: string;
   location?: string;
+  platform?: AnalyticsSocialPlatform;
+  url?: string;
   form_name?: string;
   lead_type?: string;
   service_interest?: string;

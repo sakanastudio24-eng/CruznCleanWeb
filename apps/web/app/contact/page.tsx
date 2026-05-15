@@ -78,6 +78,31 @@ export default function ContactPage(): JSX.Element {
             {SITE_PROFILE.supportEmail}
           </a>
           <p className="mt-2 text-xs uppercase tracking-[0.16em] text-white/50">{SITE_PROFILE.locationLabel}</p>
+          <div className="mt-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/50">Follow Cruizn Clean</p>
+            <div className="mt-3 flex flex-wrap justify-center gap-2">
+              {SITE_PROFILE.socialLinks.map((link) => (
+                <a
+                  key={link.platform}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={link.ariaLabel}
+                  onClick={() =>
+                    trackAnalyticsEvent('click_social', {
+                      page: '/contact',
+                      platform: link.platform,
+                      location: 'contact_page',
+                      url: link.href,
+                    })
+                  }
+                  className="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white/80 transition hover:border-burgundyAccent hover:bg-burgundy/15 hover:text-white"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 

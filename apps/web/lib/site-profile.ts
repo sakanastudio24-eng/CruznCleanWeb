@@ -1,3 +1,12 @@
+export type SocialPlatform = 'facebook' | 'instagram' | 'tiktok';
+
+export interface SiteSocialLink {
+  platform: SocialPlatform;
+  label: string;
+  href: string;
+  ariaLabel: string;
+}
+
 export interface SiteProfile {
   businessName: string;
   locationLabel: string;
@@ -7,6 +16,7 @@ export interface SiteProfile {
   siteUrl: string;
   hoursLabel: string;
   serviceAreaLabel: string;
+  socialLinks: SiteSocialLink[];
 }
 
 const PUBLIC_SUPPORT_EMAIL = 'hello@cruiznclean.com';
@@ -36,4 +46,24 @@ export const SITE_PROFILE: SiteProfile = {
   siteUrl: 'https://www.cruiznclean.com',
   hoursLabel: 'Mon-Sat 8:00AM - 6:00PM',
   serviceAreaLabel: 'Yorba Linda, Anaheim Hills, Placentia, and nearby Orange County neighborhoods',
+  socialLinks: [
+    {
+      platform: 'facebook',
+      label: 'Facebook',
+      href: 'https://www.facebook.com/CruiznClean/videos/',
+      ariaLabel: 'Visit Cruizn Clean on Facebook',
+    },
+    {
+      platform: 'instagram',
+      label: 'Instagram',
+      href: 'https://www.instagram.com/cruiznclean/reels/',
+      ariaLabel: 'Visit Cruizn Clean on Instagram',
+    },
+    {
+      platform: 'tiktok',
+      label: 'TikTok',
+      href: 'https://www.tiktok.com/@cruiznclean',
+      ariaLabel: 'Visit Cruizn Clean on TikTok',
+    },
+  ],
 };

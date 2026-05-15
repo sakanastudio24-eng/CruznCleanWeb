@@ -36,6 +36,31 @@ export function SiteFooter(): JSX.Element {
               {SITE_PROFILE.supportEmail}
             </a>
           </div>
+          <div className="mt-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/55">Follow us on</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {SITE_PROFILE.socialLinks.map((link) => (
+                <a
+                  key={link.platform}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={link.ariaLabel}
+                  onClick={() =>
+                    trackAnalyticsEvent('click_social', {
+                      page: pathname,
+                      platform: link.platform,
+                      location: 'footer',
+                      url: link.href,
+                    })
+                  }
+                  className="rounded-full border border-white/15 px-3 py-1.5 text-xs font-semibold text-white/80 transition hover:border-burgundyAccent hover:bg-burgundy/10 hover:text-white"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
 
         <nav aria-label="Footer navigation">
