@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 
+import { buildCheckoutIdempotencyKey } from '@/lib/booking-session';
 import type { BookingVehicleRequest, VehicleSize, VehicleSizeSource } from '@/lib/booking-types';
 import { getVehiclePricingBreakdown } from '@/lib/pricing';
 import { findServiceById } from '@/lib/services-catalog';
@@ -8,6 +9,10 @@ export const runtime = 'nodejs';
 
 interface CheckoutSessionRequest {
   bookingId?: unknown;
+  bookingSessionId?: unknown;
+  bookingReference?: unknown;
+  calBookingUid?: unknown;
+  scheduledStartTime?: unknown;
   customer?: {
     email?: unknown;
     fullName?: unknown;
@@ -173,13 +178,20 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
 
   const bookingId = getString(payload.bookingId);
+  const bookingSessionId = getString(payload.bookingSessionId);
+  const bookingReference = getString(payload.bookingReference) || bookingId;
+  const calBookingUid = getString(payload.calBookingUid);
+  const scheduledStartTime = getString(payload.scheduledStartTime);
   const customerEmail = getString(payload.customer?.email);
   const customerName = getString(payload.customer?.fullName);
   const customerPhone = getString(payload.customer?.phone);
   const vehicles = normalizeVehicles(payload.vehicles).filter((vehicle) => vehicle.serviceIds.length > 0);
 
-  if (!bookingId || !customerEmail || vehicles.length === 0) {
-    return NextResponse.json({ detail: 'Booking id, customer email, and selected services are required' }, { status: 422 });
+  if (!bookingReference || !bookingSessionId || !calBookingUid || !customerEmail || vehicles.length === 0) {
+    return NextResponse.json(
+      { detail: 'Booking reference, booking session, calendar confirmation, customer email, and selected services are required' },
+      { status: 422 },
+    );
   }
 
   let totals: CheckoutTotals;
@@ -206,7 +218,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   const stripePayload = new URLSearchParams();
   appendStripeField(stripePayload, 'mode', 'payment');
   appendStripeField(stripePayload, 'customer_email', customerEmail);
-  appendStripeField(stripePayload, 'client_reference_id', bookingId);
+  appendStripeField(stripePayload, 'client_reference_id', bookingReference);
   appendStripeField(stripePayload, 'allow_promotion_codes', 'true');
   appendStripeField(stripePayload, 'success_url', getStripeSuccessUrl());
   appendStripeField(stripePayload, 'cancel_url', getStripeCancelUrl());
@@ -219,8 +231,13 @@ export async function POST(request: Request): Promise<NextResponse> {
   );
   appendStripeField(stripePayload, 'line_items[0][price_data][unit_amount]', totals.depositCents);
   appendStripeField(stripePayload, 'line_items[0][quantity]', 1);
-  appendStripeField(stripePayload, 'metadata[bookingId]', bookingId);
-  appendStripeField(stripePayload, 'metadata[orderId]', bookingId);
+  appendStripeField(stripePayload, 'metadata[bookingId]', bookingReference);
+  appendStripeField(stripePayload, 'metadata[orderId]', bookingReference);
+  appendStripeField(stripePayload, 'metadata[bookingSessionId]', bookingSessionId);
+  appendStripeField(stripePayload, 'metadata[calBookingUid]', calBookingUid);
+  if (scheduledStartTime) {
+    appendStripeField(stripePayload, 'metadata[scheduledStartTime]', scheduledStartTime);
+  }
   appendStripeField(stripePayload, 'metadata[customerName]', customerName);
   appendStripeField(stripePayload, 'metadata[customerEmail]', customerEmail);
   appendStripeField(stripePayload, 'metadata[customerPhone]', customerPhone);
@@ -237,17 +254,19 @@ export async function POST(request: Request): Promise<NextResponse> {
     formatMetadataDollars(totals.estimatedTotalCents - totals.depositCents),
   );
   appendStripeField(stripePayload, 'metadata[servicesSummary]', totals.servicesSummary.slice(0, 500));
+  const checkoutIdempotencyKey = buildCheckoutIdempotencyKey(bookingReference, calBookingUid);
 
   const stripeResponse = await fetch(STRIPE_CHECKOUT_SESSIONS_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${stripeSecretKey}`,
       'Content-Type': 'application/x-www-form-urlencoded',
+      'Idempotency-Key': checkoutIdempotencyKey,
     },
     body: stripePayload,
   });
 
-  const stripeJson = (await stripeResponse.json()) as { url?: string; error?: { message?: string } };
+  const stripeJson = (await stripeResponse.json()) as { id?: string; url?: string; error?: { message?: string } };
   if (!stripeResponse.ok || !stripeJson.url) {
     return NextResponse.json(
       { detail: `Stripe checkout failed: ${stripeJson.error?.message || 'No checkout URL returned'}` },
@@ -257,6 +276,7 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   return NextResponse.json({
     checkoutUrl: stripeJson.url,
+    checkoutSessionId: stripeJson.id ?? '',
     depositCents: totals.depositCents,
     estimatedTotalCents: totals.estimatedTotalCents,
   });

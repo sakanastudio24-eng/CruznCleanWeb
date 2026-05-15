@@ -21,6 +21,14 @@ import { useBooking } from '@/components/providers/booking-provider';
 import { VehicleSizeGuideLookup } from '@/components/vehicle/vehicle-size-guide-lookup';
 import { trackAnalyticsEvent } from '@/lib/analytics';
 import { BOOKING_LIMIT_DISCLAIMER, MAX_BOOKED_VEHICLES_PER_DAY, countSelectedVehicles } from '@/lib/booking-policy';
+import {
+  buildCheckoutIdempotencyKey,
+  ensureBookingSession,
+  getBookingDraftFingerprint,
+  writeStoredBookingSession,
+  type BookingContextSnapshot,
+  type StoredBookingSession,
+} from '@/lib/booking-session';
 import type { CustomerBookingForm, ServiceOption, VehicleProfile, VehicleSize } from '@/lib/booking-types';
 import { createStripeCheckoutSession, getCalendarBookingLink, getCalendarBookingUrl } from '@/lib/api-client';
 import { getServiceAreaZipSummary, isZipInServiceArea, normalizeZipCode } from '@/lib/service-area';
@@ -399,6 +407,7 @@ export default function BookingPage(): JSX.Element {
   const [scheduledAppointment, setScheduledAppointment] = useState<CalBookingSuccessDetails | null>(null);
   const [statusMessage, setStatusMessage] = useState('');
   const [paymentSubmitting, setPaymentSubmitting] = useState(false);
+  const [bookingSession, setBookingSession] = useState<StoredBookingSession | null>(null);
   const plannerTopRef = useRef<HTMLDivElement>(null);
   const schedulingSectionRef = useRef<HTMLElement>(null);
   const depositSectionRef = useRef<HTMLDivElement>(null);
@@ -448,6 +457,10 @@ export default function BookingPage(): JSX.Element {
     }),
     [form, selectedVehicles],
   );
+  const bookingDraftFingerprint = useMemo(
+    () => getBookingDraftFingerprint(bookingDraftSignature),
+    [bookingDraftSignature],
+  );
   const vehicleGuardMessage = incompleteSelectedVehicle
     ? getVehicleDetailGuardMessage(incompleteSelectedVehicle)
     : '';
@@ -459,12 +472,68 @@ export default function BookingPage(): JSX.Element {
   const normalizedZipCode = normalizeZipCode(form.zipCode);
   const showServiceAreaQuoteHelp = normalizedZipCode.length === 5 && !isZipInServiceArea(normalizedZipCode);
   const hasCompletedScheduling = Boolean(
-    submittedBookingContext && scheduledAppointment?.bookingId === submittedBookingContext.bookingId,
+    submittedBookingContext && scheduledAppointment?.bookingId === submittedBookingContext.bookingId && scheduledAppointment.uid,
   );
   const schedulingGateMessage = 'Finish scheduling to continue.';
   const progressStep = step === 2 && hasCompletedScheduling ? 3 : step;
 
+  const buildSubmittedBookingContext = useCallback(
+    (snapshot: BookingContextSnapshot): SubmittedBookingCalendarContext => ({
+      bookingId: snapshot.bookingId,
+      customer: {
+        email: form.email,
+        fullName: form.fullName,
+        phone: form.phone,
+      },
+      estimatedTotal: snapshot.estimatedTotal,
+      servicesSummary: snapshot.servicesSummary,
+      vehicleCount: snapshot.vehicleCount,
+    }),
+    [form.email, form.fullName, form.phone],
+  );
+
+  const buildBookingContextSnapshot = useCallback(
+    (bookingId: string): BookingContextSnapshot => ({
+      bookingId,
+      estimatedTotal: getGrandTotal(),
+      servicesSummary: getSelectedServicesSummary(selectedVehicles, getVehiclePricingBreakdown),
+      vehicleCount: selectedVehicles.length,
+    }),
+    [getGrandTotal, getVehiclePricingBreakdown, selectedVehicles],
+  );
+
+  const persistBookingSession = useCallback((session: StoredBookingSession): StoredBookingSession => {
+    writeStoredBookingSession(session);
+    setBookingSession(session);
+    return session;
+  }, []);
+
   useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      const session = ensureBookingSession(bookingDraftFingerprint);
+      setBookingSession(session);
+
+      if (!session.submittedBookingContext) {
+        return;
+      }
+
+      const restoredContext = buildSubmittedBookingContext(session.submittedBookingContext);
+      setSubmittedBookingContext(restoredContext);
+
+      if (session.scheduledAppointment?.bookingId === restoredContext.bookingId) {
+        setScheduledAppointment(session.scheduledAppointment);
+        setStep(2);
+      }
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [bookingDraftFingerprint, buildSubmittedBookingContext]);
+
+  useEffect(() => {
+    if (!bookingSession) {
+      return;
+    }
+
     if (previousBookingDraftSignatureRef.current === null) {
       previousBookingDraftSignatureRef.current = bookingDraftSignature;
       return;
@@ -475,12 +544,17 @@ export default function BookingPage(): JSX.Element {
     }
 
     previousBookingDraftSignatureRef.current = bookingDraftSignature;
+    const hadScheduledState = bookingSession.bookingStatus === 'scheduled' || bookingSession.bookingStatus === 'payment_started';
+    setBookingSession(ensureBookingSession(bookingDraftFingerprint));
     setSubmittedBookingContext(null);
     setScheduledAppointment(null);
     setPaymentSubmitting(false);
     checkoutRequestInFlightRef.current = false;
     hasScrolledToDepositRef.current = false;
-  }, [bookingDraftSignature]);
+    if (hadScheduledState) {
+      setStatusMessage('Booking details changed. Please schedule again before payment.');
+    }
+  }, [bookingDraftFingerprint, bookingDraftSignature, bookingSession]);
 
   /**
    * Clears field-level errors and optimistic confirmation state before new edits.
@@ -674,13 +748,56 @@ export default function BookingPage(): JSX.Element {
       return;
     }
 
+    if (!scheduledAppointment?.uid) {
+      setStatusMessage('Calendar confirmation was incomplete. Please schedule again before payment.');
+      setStep(2);
+      scrollPlannerToTop();
+      return;
+    }
+
+    const activeSession = bookingSession ?? ensureBookingSession(bookingDraftFingerprint);
+    if (activeSession.bookingReference !== submittedBookingContext.bookingId) {
+      setStatusMessage('Booking session changed. Please schedule again before payment.');
+      setSubmittedBookingContext(null);
+      setScheduledAppointment(null);
+      setStep(1);
+      scrollPlannerToTop();
+      return;
+    }
+
+    if (
+      activeSession.bookingStatus === 'payment_started'
+      && activeSession.checkoutUrl
+      && activeSession.draftSignature === bookingDraftFingerprint
+      && activeSession.scheduledAppointment?.uid === scheduledAppointment.uid
+    ) {
+      window.location.href = activeSession.checkoutUrl;
+      return;
+    }
+
+    const checkoutIdempotencyKey = buildCheckoutIdempotencyKey(activeSession.bookingReference, scheduledAppointment.uid);
+    const bookingContextSnapshot = buildBookingContextSnapshot(activeSession.bookingReference);
+
     checkoutRequestInFlightRef.current = true;
     setPaymentSubmitting(true);
     setStatusMessage('Opening secure Stripe checkout');
+    persistBookingSession({
+      ...activeSession,
+      bookingStatus: 'payment_started',
+      draftSignature: bookingDraftFingerprint,
+      submittedBookingContext: bookingContextSnapshot,
+      scheduledAppointment,
+      checkoutIdempotencyKey,
+      updatedAt: new Date().toISOString(),
+    });
 
     try {
       const checkoutSession = await createStripeCheckoutSession({
-        bookingId: submittedBookingContext.bookingId,
+        bookingId: activeSession.bookingReference,
+        bookingSessionId: activeSession.bookingSessionId,
+        bookingReference: activeSession.bookingReference,
+        calBookingUid: scheduledAppointment.uid,
+        scheduledStartTime: scheduledAppointment.startTime,
         customer: {
           email: submittedBookingContext.customer.email,
           fullName: submittedBookingContext.customer.fullName,
@@ -697,11 +814,30 @@ export default function BookingPage(): JSX.Element {
         value: checkoutSession.depositCents / 100,
         selected_total: checkoutSession.estimatedTotalCents / 100,
       });
+      persistBookingSession({
+        ...activeSession,
+        bookingStatus: 'payment_started',
+        draftSignature: bookingDraftFingerprint,
+        submittedBookingContext: bookingContextSnapshot,
+        scheduledAppointment,
+        checkoutSessionId: checkoutSession.checkoutSessionId,
+        checkoutUrl: checkoutSession.checkoutUrl,
+        checkoutIdempotencyKey,
+        updatedAt: new Date().toISOString(),
+      });
       window.location.href = checkoutSession.checkoutUrl;
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message.replace(/\.$/, '') : 'Unable to open Stripe checkout');
       checkoutRequestInFlightRef.current = false;
       setPaymentSubmitting(false);
+      persistBookingSession({
+        ...activeSession,
+        bookingStatus: 'scheduled',
+        draftSignature: bookingDraftFingerprint,
+        submittedBookingContext: bookingContextSnapshot,
+        scheduledAppointment,
+        updatedAt: new Date().toISOString(),
+      });
     }
   }
 
@@ -730,23 +866,24 @@ export default function BookingPage(): JSX.Element {
     setFieldErrors({});
     setScheduledAppointment(null);
     hasScrolledToDepositRef.current = false;
+    const activeSession = ensureBookingSession(bookingDraftFingerprint);
+    const bookingContextSnapshot = buildBookingContextSnapshot(activeSession.bookingReference);
+    const submittedContext = buildSubmittedBookingContext(bookingContextSnapshot);
+    persistBookingSession({
+      bookingSessionId: activeSession.bookingSessionId,
+      bookingReference: activeSession.bookingReference,
+      bookingStatus: 'details_complete',
+      draftSignature: bookingDraftFingerprint,
+      submittedBookingContext: bookingContextSnapshot,
+      updatedAt: new Date().toISOString(),
+    });
     trackAnalyticsEvent('start_booking', {
       page: '/booking',
       location: 'booking_form',
       currency: 'USD',
       selected_total: getGrandTotal(),
     });
-    setSubmittedBookingContext({
-      bookingId: `web-${Date.now()}`,
-      customer: {
-        email: form.email,
-        fullName: form.fullName,
-        phone: form.phone,
-      },
-      estimatedTotal: getGrandTotal(),
-      servicesSummary: getSelectedServicesSummary(selectedVehicles, getVehiclePricingBreakdown),
-      vehicleCount: selectedVehicles.length,
-    });
+    setSubmittedBookingContext(submittedContext);
     setStatusMessage('Your booking details will be included with your payment request.');
     setStep(2);
   }
@@ -756,9 +893,24 @@ export default function BookingPage(): JSX.Element {
       return;
     }
 
+    const activeSession = bookingSession ?? ensureBookingSession(bookingDraftFingerprint);
+    if (activeSession.bookingReference !== submittedBookingContext.bookingId) {
+      setStatusMessage('Calendar confirmation did not match this booking session. Please schedule again.');
+      return;
+    }
+
+    const bookingContextSnapshot = buildBookingContextSnapshot(activeSession.bookingReference);
+    persistBookingSession({
+      ...activeSession,
+      bookingStatus: 'scheduled',
+      draftSignature: bookingDraftFingerprint,
+      submittedBookingContext: bookingContextSnapshot,
+      scheduledAppointment: details,
+      updatedAt: new Date().toISOString(),
+    });
     setScheduledAppointment(details);
     setStatusMessage('');
-  }, [submittedBookingContext]);
+  }, [bookingDraftFingerprint, bookingSession, buildBookingContextSnapshot, persistBookingSession, submittedBookingContext]);
 
   useEffect(() => {
     if (step !== 2 || !submittedBookingContext) {

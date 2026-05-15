@@ -62,9 +62,13 @@ async function getApiErrorMessage(response: Response, fallbackMessage: string): 
  */
 export async function createStripeCheckoutSession(payload: {
   bookingId: string;
+  bookingSessionId: string;
+  bookingReference: string;
+  calBookingUid: string;
+  scheduledStartTime?: string;
   customer: Pick<CustomerBookingForm, 'email' | 'fullName' | 'phone'>;
   vehicles: VehicleProfile[];
-}): Promise<{ checkoutUrl: string; depositCents: number; estimatedTotalCents: number }> {
+}): Promise<{ checkoutUrl: string; checkoutSessionId: string; depositCents: number; estimatedTotalCents: number }> {
   const vehicles: BookingVehicleRequest[] = payload.vehicles
     .filter((vehicle) => vehicle.serviceIds.length > 0)
     .map((vehicle) => ({
@@ -87,6 +91,10 @@ export async function createStripeCheckoutSession(payload: {
     },
     body: JSON.stringify({
       bookingId: payload.bookingId,
+      bookingSessionId: payload.bookingSessionId,
+      bookingReference: payload.bookingReference,
+      calBookingUid: payload.calBookingUid,
+      scheduledStartTime: payload.scheduledStartTime,
       customer: payload.customer,
       vehicles,
     }),
@@ -96,7 +104,7 @@ export async function createStripeCheckoutSession(payload: {
     throw new Error(await getApiErrorMessage(response, 'Stripe checkout session creation failed.'));
   }
 
-  return (await response.json()) as { checkoutUrl: string; depositCents: number; estimatedTotalCents: number };
+  return (await response.json()) as { checkoutUrl: string; checkoutSessionId: string; depositCents: number; estimatedTotalCents: number };
 }
 
 /**
