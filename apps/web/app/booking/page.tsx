@@ -78,7 +78,7 @@ type VehicleCheckerStatus = 'complete' | 'almost' | 'missing' | 'empty';
 
 interface SubmittedBookingCalendarContext {
   bookingId: string;
-  customer: Pick<CustomerBookingForm, 'email' | 'fullName' | 'phone' | 'serviceAddress'>;
+  customer: Pick<CustomerBookingForm, 'email' | 'fullName' | 'phone' | 'zipCode' | 'serviceAddress'>;
   estimatedTotal: number;
   servicesSummary: string;
   vehicleCount: number;
@@ -645,13 +645,14 @@ export default function BookingPage(): JSX.Element {
         email: form.email,
         fullName: form.fullName,
         phone: form.phone,
+        zipCode: normalizeZipCode(form.zipCode),
         serviceAddress,
       },
       estimatedTotal: snapshot.estimatedTotal,
       servicesSummary: snapshot.servicesSummary,
       vehicleCount: snapshot.vehicleCount,
     }),
-    [form.email, form.fullName, form.phone, serviceAddress],
+    [form.email, form.fullName, form.phone, form.zipCode, serviceAddress],
   );
 
   const buildBookingContextSnapshot = useCallback(
@@ -977,6 +978,7 @@ export default function BookingPage(): JSX.Element {
           email: submittedBookingContext.customer.email,
           fullName: submittedBookingContext.customer.fullName,
           phone: submittedBookingContext.customer.phone,
+          zipCode: submittedBookingContext.customer.zipCode,
           serviceAddress: submittedBookingContext.customer.serviceAddress,
         },
         vehicles,

@@ -256,6 +256,7 @@ async function handleCheckoutSessionCompleted(
     session.customer_details?.email || session.customer_email || getMetadataString(session.metadata, 'customerEmail');
   const customerName = session.customer_details?.name || getMetadataString(session.metadata, 'customerName');
   const customerPhone = session.customer_details?.phone || getMetadataString(session.metadata, 'customerPhone');
+  const customerZipCode = getMetadataString(session.metadata, 'customerZipCode');
   const bookingId = getBookingId(session.metadata, session.client_reference_id);
   const orderId = getMetadataString(session.metadata, 'orderId') || session.client_reference_id || null;
   const depositSubtotalBeforeDiscountCents = coalesceCents(session.amount_subtotal);
@@ -270,6 +271,7 @@ async function handleCheckoutSessionCompleted(
     customerEmail,
     customerName,
     customerPhone,
+    zipCode: customerZipCode,
     serviceAddress: getMetadataString(session.metadata, 'serviceAddress'),
     vehicleSummary: getMetadataString(session.metadata, 'vehicle'),
     servicesSummary: getMetadataString(session.metadata, 'servicesSummary'),

@@ -24,6 +24,7 @@ export interface StripeCustomerReceiptInput {
   customerEmail: string | null;
   customerName: string | null;
   customerPhone: string | null;
+  zipCode: string | null;
   serviceAddress: string | null;
   vehicleSummary: string | null;
   servicesSummary: string | null;
@@ -148,6 +149,15 @@ function buildInfoRow(label: string, value: string): string {
     `<p style="margin:0;font-size:12px;font-weight:700;color:#4b5563;">${escapeHtml(label)}</p>` +
     `<p style="margin:4px 0 0 0;font-size:14px;line-height:1.45;color:#111111;">${escapeHtml(value)}</p>` +
     '</div>'
+  );
+}
+
+function buildCompactInfoRow(label: string, value: string): string {
+  return (
+    '<tr>' +
+    `<td style="padding:7px 0;border-top:1px solid #e5e7eb;font-size:13px;font-weight:800;color:#374151;vertical-align:top;width:150px;">${escapeHtml(label)}</td>` +
+    `<td style="padding:7px 0;border-top:1px solid #e5e7eb;font-size:14px;line-height:1.45;color:#111111;vertical-align:top;">${escapeHtml(value)}</td>` +
+    '</tr>'
   );
 }
 
@@ -304,6 +314,7 @@ function buildOwnerNotificationEmail(input: StripeCustomerReceiptInput): { subje
   const customerName = formatOptionalValue(input.customerName, 'Customer name unavailable');
   const customerPhone = formatOptionalValue(input.customerPhone, 'Customer phone unavailable');
   const customerEmail = formatOptionalValue(input.customerEmail, 'Customer email unavailable');
+  const zipCode = formatOptionalValue(input.zipCode, 'ZIP code unavailable');
   const serviceAddress = formatOptionalValue(input.serviceAddress, 'Service address unavailable');
   const displayAmounts = calculateReceiptDisplayAmounts(input);
   const promotionApplied = isValidCents(displayAmounts.serviceDiscountCents) && displayAmounts.serviceDiscountCents > 0;
@@ -314,9 +325,11 @@ function buildOwnerNotificationEmail(input: StripeCustomerReceiptInput): { subje
   const textRows = [
     `Booking/order reference: ${bookingReference}`,
     `Paid status: Paid`,
-    `Customer name: ${customerName}`,
-    `Customer phone: ${customerPhone}`,
-    `Customer email: ${customerEmail}`,
+    'Customer & Service Location',
+    `Name: ${customerName}`,
+    `Phone: ${customerPhone}`,
+    `Email: ${customerEmail}`,
+    `ZIP code: ${zipCode}`,
     `Service address: ${serviceAddress}`,
     `Vehicle summary: ${formatOptionalValue(input.vehicleSummary, 'Vehicle to be confirmed')}`,
     `Services summary: ${formatOptionalValue(input.servicesSummary, 'Services to be confirmed')}`,
@@ -329,6 +342,19 @@ function buildOwnerNotificationEmail(input: StripeCustomerReceiptInput): { subje
     `Checkout Session ID: ${formatOptionalValue(input.checkoutSessionId, 'Unavailable')}`,
     ...(hasPaymentIntentId ? [`Payment Intent ID: ${input.paymentIntentId?.trim()}`] : []),
   ];
+  const ownerNextSteps = [
+    'Owner next steps:',
+    '- Confirm the service address and arrival details.',
+    '- Review the selected services and vehicle size.',
+    '- Contact the customer if anything needs clarification.',
+  ];
+  const customerLocationHtml = [
+    buildCompactInfoRow('Name', customerName),
+    buildCompactInfoRow('Phone', customerPhone),
+    buildCompactInfoRow('Email', customerEmail),
+    buildCompactInfoRow('ZIP code', zipCode),
+    buildCompactInfoRow('Service address', serviceAddress),
+  ].join('');
   const paymentSummaryHtml = [
     buildPaymentRow('Estimated service total', formatCurrency(input.estimatedServiceTotalCents)),
     ...(promotionPercentLabel ? [buildPaymentRow('Promotion', promotionPercentLabel)] : []),
@@ -345,6 +371,8 @@ function buildOwnerNotificationEmail(input: StripeCustomerReceiptInput): { subje
     'Paid booking received.',
     '',
     ...textRows,
+    '',
+    ...ownerNextSteps,
     '',
     'Final price confirmed after inspection.',
     `Owner note: Customer-facing changes can be handled through ${SUPPORT_PHONE_DISPLAY}.`,
@@ -366,12 +394,19 @@ function buildOwnerNotificationEmail(input: StripeCustomerReceiptInput): { subje
     '<p style="margin:0;font-size:12px;font-weight:700;color:#4b5563;">Booking/order reference</p>' +
     `<p style="margin:4px 0 0 0;font-size:18px;font-weight:800;color:#111111;">${escapeHtml(bookingReference)}</p>` +
     '</div>' +
-    '<div style="margin-top:14px;padding:14px;border:1px solid #e5e7eb;border-radius:10px;">' +
-    '<p style="margin:0;font-size:16px;font-weight:800;color:#111111;">Customer</p>' +
-    `${buildInfoRow('Customer name', customerName)}` +
-    `${buildInfoRow('Customer phone', customerPhone)}` +
-    `${buildInfoRow('Customer email', customerEmail)}` +
-    `${buildInfoRow('Service address', serviceAddress)}` +
+    '<div style="margin-top:14px;padding:14px;border:2px solid #111111;background:#f9fafb;border-radius:10px;">' +
+    '<p style="margin:0 0 8px 0;font-size:17px;font-weight:800;color:#111111;">Customer &amp; Service Location</p>' +
+    '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">' +
+    customerLocationHtml +
+    '</table>' +
+    '</div>' +
+    '<div style="margin-top:14px;padding:14px;border:1px solid #d1d5db;background:#ffffff;border-radius:10px;">' +
+    '<p style="margin:0;font-size:16px;font-weight:800;color:#111111;">Owner next steps</p>' +
+    '<ul style="margin:8px 0 0 18px;padding:0;font-size:13px;line-height:1.5;color:#374151;">' +
+    '<li>Confirm the service address and arrival details.</li>' +
+    '<li>Review the selected services and vehicle size.</li>' +
+    '<li>Contact the customer if anything needs clarification.</li>' +
+    '</ul>' +
     '</div>' +
     '<div style="margin-top:14px;padding:14px;border:1px solid #e5e7eb;border-radius:10px;">' +
     '<p style="margin:0;font-size:16px;font-weight:800;color:#111111;">Vehicle and services</p>' +

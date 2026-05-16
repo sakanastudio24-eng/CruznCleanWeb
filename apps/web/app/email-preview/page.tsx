@@ -83,12 +83,25 @@ function getPreviewConfigs(): Record<PreviewTab, EmailPreviewConfig> {
         "<div style='padding:20px;'>" +
         "<p style='margin:0;font-size:23px;font-weight:800;color:#2f2f2f;'>New Booking Confirmed<br/>Maintenance Detail — June 14</p>" +
         "<p style='margin:8px 0 0 0;font-size:13px;color:#374151;'>This owner notification is sent after booking confirmation.</p>" +
-        "<div style='margin-top:16px;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;'>" +
+        "<div style='margin-top:16px;padding:14px;border:2px solid #111111;background:#f9fafb;border-radius:10px;'>" +
+        "<p style='margin:0 0 8px 0;font-size:17px;font-weight:800;color:#111111;'>Customer &amp; Service Location</p>" +
         "<table role='presentation' width='100%' cellspacing='0' cellpadding='0' style='border-collapse:collapse;'>" +
-        "<tr><td style='padding:8px;background:#f9fafb;font-weight:700;font-size:13px;'>Customer name</td><td style='padding:8px;background:#f9fafb;font-size:13px;text-align:right;'>Jordan Cruz</td></tr>" +
-        "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Phone</td><td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>(555) 123-4567</td></tr>" +
-        "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Email</td><td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>jordan@example.com</td></tr>" +
-        "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Service</td><td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>Maintenance Detail, 3 Year Ceramic Coating</td></tr>" +
+        "<tr><td style='padding:7px 0;border-top:1px solid #e5e7eb;font-size:13px;font-weight:800;color:#374151;vertical-align:top;width:150px;'>Name</td><td style='padding:7px 0;border-top:1px solid #e5e7eb;font-size:14px;line-height:1.45;color:#111111;vertical-align:top;'>Jordan Cruz</td></tr>" +
+        "<tr><td style='padding:7px 0;border-top:1px solid #e5e7eb;font-size:13px;font-weight:800;color:#374151;vertical-align:top;width:150px;'>Phone</td><td style='padding:7px 0;border-top:1px solid #e5e7eb;font-size:14px;line-height:1.45;color:#111111;vertical-align:top;'>(555) 123-4567</td></tr>" +
+        "<tr><td style='padding:7px 0;border-top:1px solid #e5e7eb;font-size:13px;font-weight:800;color:#374151;vertical-align:top;width:150px;'>Email</td><td style='padding:7px 0;border-top:1px solid #e5e7eb;font-size:14px;line-height:1.45;color:#111111;vertical-align:top;'>jordan@example.com</td></tr>" +
+        "<tr><td style='padding:7px 0;border-top:1px solid #e5e7eb;font-size:13px;font-weight:800;color:#374151;vertical-align:top;width:150px;'>ZIP code</td><td style='padding:7px 0;border-top:1px solid #e5e7eb;font-size:14px;line-height:1.45;color:#111111;vertical-align:top;'>92507</td></tr>" +
+        "<tr><td style='padding:7px 0;border-top:1px solid #e5e7eb;font-size:13px;font-weight:800;color:#374151;vertical-align:top;width:150px;'>Service address</td><td style='padding:7px 0;border-top:1px solid #e5e7eb;font-size:14px;line-height:1.45;color:#111111;vertical-align:top;'>123 Mockingbird Lane, Riverside, CA 92507</td></tr>" +
+        '</table></div>' +
+        "<div style='margin-top:14px;padding:14px;border:1px solid #d1d5db;background:#ffffff;border-radius:10px;'>" +
+        "<p style='margin:0;font-size:16px;font-weight:800;color:#111111;'>Owner next steps</p>" +
+        "<ul style='margin:8px 0 0 18px;padding:0;font-size:13px;line-height:1.5;color:#374151;'>" +
+        '<li>Confirm the service address and arrival details.</li>' +
+        '<li>Review the selected services and vehicle size.</li>' +
+        '<li>Contact the customer if anything needs clarification.</li>' +
+        '</ul></div>' +
+        "<div style='margin-top:14px;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;'>" +
+        "<table role='presentation' width='100%' cellspacing='0' cellpadding='0' style='border-collapse:collapse;'>" +
+        "<tr><td style='padding:8px;background:#f9fafb;font-weight:700;font-size:13px;'>Service</td><td style='padding:8px;background:#f9fafb;font-size:13px;text-align:right;'>Maintenance Detail, 3 Year Ceramic Coating</td></tr>" +
         "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Date/time (timezone)</td><td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>June 14, 2026 at 04:30 PM (UTC)</td></tr>" +
         "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Notes</td><td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;'>Please call on arrival.</td></tr>" +
         "<tr><td style='padding:8px;border-top:1px solid #e5e7eb;font-weight:700;font-size:13px;'>Booking ID</td><td style='padding:8px;border-top:1px solid #e5e7eb;font-size:13px;text-align:right;color:#2f2f2f;font-weight:700;'>bk_ab12cd34ef56</td></tr>" +
