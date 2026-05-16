@@ -296,6 +296,13 @@ function getDepositPreviewAmount(estimatedTotal: number): number {
 }
 
 /**
+ * Provides a stable checkout key even when Cal.com confirms an embed booking without a UID.
+ */
+function getCalendarConfirmationId(appointment: CalBookingSuccessDetails, bookingReference: string): string {
+  return appointment.uid || `${bookingReference}-cal-confirmed`;
+}
+
+/**
  * Builds a compact vehicle label for dock cards.
  */
 function getVehicleHint(vehicle: VehicleProfile): string {
@@ -569,7 +576,7 @@ export default function BookingPage(): JSX.Element {
   const normalizedZipCode = normalizeZipCode(form.zipCode);
   const showServiceAreaQuoteHelp = normalizedZipCode.length === 5 && !isZipInServiceArea(normalizedZipCode);
   const hasCompletedScheduling = Boolean(
-    submittedBookingContext && scheduledAppointment?.bookingId === submittedBookingContext.bookingId && scheduledAppointment.uid,
+    submittedBookingContext && scheduledAppointment?.bookingId === submittedBookingContext.bookingId,
   );
   const schedulingGateMessage = 'Finish scheduling to continue.';
   const progressStep = step === 2 && hasCompletedScheduling ? 3 : step;
@@ -846,7 +853,7 @@ export default function BookingPage(): JSX.Element {
       return;
     }
 
-    if (!scheduledAppointment?.uid) {
+    if (!scheduledAppointment) {
       setStatusMessage('Calendar confirmation was incomplete. Please schedule again before payment.');
       setStep(2);
       scrollPlannerToTop();
@@ -867,13 +874,15 @@ export default function BookingPage(): JSX.Element {
       activeSession.bookingStatus === 'payment_started'
       && activeSession.checkoutUrl
       && activeSession.draftSignature === bookingDraftFingerprint
-      && activeSession.scheduledAppointment?.uid === scheduledAppointment.uid
+      && activeSession.scheduledAppointment
+      && getCalendarConfirmationId(activeSession.scheduledAppointment, activeSession.bookingReference) === getCalendarConfirmationId(scheduledAppointment, activeSession.bookingReference)
     ) {
       window.location.href = activeSession.checkoutUrl;
       return;
     }
 
-    const checkoutIdempotencyKey = buildCheckoutIdempotencyKey(activeSession.bookingReference, scheduledAppointment.uid);
+    const calendarConfirmationId = getCalendarConfirmationId(scheduledAppointment, activeSession.bookingReference);
+    const checkoutIdempotencyKey = buildCheckoutIdempotencyKey(activeSession.bookingReference, calendarConfirmationId);
     const bookingContextSnapshot = buildBookingContextSnapshot(activeSession.bookingReference);
 
     checkoutRequestInFlightRef.current = true;
@@ -894,7 +903,7 @@ export default function BookingPage(): JSX.Element {
         bookingId: activeSession.bookingReference,
         bookingSessionId: activeSession.bookingSessionId,
         bookingReference: activeSession.bookingReference,
-        calBookingUid: scheduledAppointment.uid,
+        calBookingUid: calendarConfirmationId,
         scheduledStartTime: scheduledAppointment.startTime,
         customer: {
           email: submittedBookingContext.customer.email,
