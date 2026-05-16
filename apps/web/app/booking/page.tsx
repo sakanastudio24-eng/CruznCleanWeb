@@ -26,6 +26,7 @@ import {
   buildCheckoutIdempotencyKey,
   ensureBookingSession,
   getBookingDraftFingerprint,
+  readStoredBookingSession,
   writeStoredBookingSession,
   type BookingContextSnapshot,
   type StoredBookingSession,
@@ -303,6 +304,13 @@ function getCalendarConfirmationId(appointment: CalBookingSuccessDetails, bookin
 }
 
 /**
+ * Confirms the stored booking session is past scheduling and safe for deposit checkout.
+ */
+function isPaymentReadySession(session: StoredBookingSession | null): boolean {
+  return session?.bookingStatus === 'scheduled' || session?.bookingStatus === 'payment_started';
+}
+
+/**
  * Builds a compact vehicle label for dock cards.
  */
 function getVehicleHint(vehicle: VehicleProfile): string {
@@ -545,21 +553,26 @@ export default function BookingPage(): JSX.Element {
   const serviceAddress = getServiceAddress(form);
   const bookingDraftSignature = useMemo(
     () => JSON.stringify({
-      form,
-      serviceAddress,
+      customer: {
+        fullName: form.fullName.trim(),
+        email: form.email.trim().toLowerCase(),
+        phone: form.phone.replace(/\D/g, ''),
+        zipCode: normalizeZipCode(form.zipCode),
+        serviceAddress: serviceAddress.trim(),
+      },
       vehicles: selectedVehicles.map((vehicle) => ({
         id: vehicle.id,
-        year: vehicle.year,
-        make: vehicle.make,
-        model: vehicle.model,
-        color: vehicle.color,
+        year: vehicle.year.trim(),
+        make: vehicle.make.trim().toLowerCase(),
+        model: vehicle.model.trim().toLowerCase(),
+        color: vehicle.color.trim().toLowerCase(),
         size: vehicle.size,
         sizeSource: vehicle.sizeSource,
-        customLabel: vehicle.customLabel,
-        serviceIds: vehicle.serviceIds,
+        customLabel: vehicle.customLabel?.trim().toLowerCase(),
+        serviceIds: [...vehicle.serviceIds].sort(),
       })),
     }),
-    [form, selectedVehicles, serviceAddress],
+    [form.email, form.fullName, form.phone, form.zipCode, selectedVehicles, serviceAddress],
   );
   const bookingDraftFingerprint = useMemo(
     () => getBookingDraftFingerprint(bookingDraftSignature),
@@ -578,8 +591,18 @@ export default function BookingPage(): JSX.Element {
   const hasCompletedScheduling = Boolean(
     submittedBookingContext && scheduledAppointment?.bookingId === submittedBookingContext.bookingId,
   );
+  const canPayDeposit = Boolean(
+    hasCompletedScheduling
+    && submittedBookingContext
+    && scheduledAppointment
+    && bookingSession
+    && isPaymentReadySession(bookingSession)
+    && bookingSession.draftSignature === bookingDraftFingerprint
+    && bookingSession.bookingReference === submittedBookingContext.bookingId
+    && scheduledAppointment.bookingId === submittedBookingContext.bookingId,
+  );
   const schedulingGateMessage = 'Finish scheduling to continue.';
-  const progressStep = step === 2 && hasCompletedScheduling ? 3 : step;
+  const progressStep = step === 2 && canPayDeposit ? 3 : step;
 
   const buildSubmittedBookingContext = useCallback(
     (snapshot: BookingContextSnapshot): SubmittedBookingCalendarContext => ({
@@ -615,8 +638,14 @@ export default function BookingPage(): JSX.Element {
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
-      const session = ensureBookingSession(bookingDraftFingerprint);
+      const storedSession = readStoredBookingSession();
+      if (storedSession && storedSession.draftSignature !== bookingDraftFingerprint) {
+        return;
+      }
+
+      const session = storedSession ?? ensureBookingSession(bookingDraftFingerprint);
       setBookingSession(session);
+      previousBookingDraftSignatureRef.current = bookingDraftSignature;
 
       if (!session.submittedBookingContext) {
         return;
@@ -632,7 +661,7 @@ export default function BookingPage(): JSX.Element {
     }, 0);
 
     return () => window.clearTimeout(timeoutId);
-  }, [bookingDraftFingerprint, buildSubmittedBookingContext]);
+  }, [bookingDraftFingerprint, bookingDraftSignature, buildSubmittedBookingContext]);
 
   useEffect(() => {
     if (!bookingSession) {
@@ -677,7 +706,12 @@ export default function BookingPage(): JSX.Element {
    * Updates one customer form field while preserving other keys.
    */
   function updateCustomerField<K extends keyof CustomerBookingForm>(key: K, value: CustomerBookingForm[K]): void {
-    resetInteractionState();
+    if (key === 'fullName' || key === 'email' || key === 'phone' || key === 'zipCode' || key === 'serviceAddress') {
+      resetInteractionState();
+    } else {
+      setFieldErrors({});
+    }
+
     setForm((current) => ({ ...current, [key]: value }));
   }
 
@@ -831,7 +865,7 @@ export default function BookingPage(): JSX.Element {
       return;
     }
 
-    if (!hasCompletedScheduling) {
+    if (!canPayDeposit) {
       setStatusMessage('Finish scheduling to continue.');
       setStep(2);
       scrollPlannerToTop();
@@ -1029,7 +1063,7 @@ export default function BookingPage(): JSX.Element {
   }, [scrollSchedulingSectionIntoView, step, submittedBookingContext]);
 
   useEffect(() => {
-    if (!hasCompletedScheduling || hasScrolledToDepositRef.current) {
+    if (!canPayDeposit || hasScrolledToDepositRef.current) {
       return;
     }
 
@@ -1039,7 +1073,7 @@ export default function BookingPage(): JSX.Element {
     }, DEPOSIT_HANDOFF_SCROLL_DELAY_MS);
 
     return () => window.clearTimeout(timeoutId);
-  }, [hasCompletedScheduling, scrollDepositSectionIntoView]);
+  }, [canPayDeposit, scrollDepositSectionIntoView]);
 
   /**
    * Adds the missing services suggested by the active vehicle savings helper.
@@ -1575,7 +1609,7 @@ export default function BookingPage(): JSX.Element {
             </p>
           ) : null}
 
-          {step === 2 && !hasCompletedScheduling ? (
+          {step === 2 && !canPayDeposit ? (
             <div>
               <p
                 id="booking-scheduling-gate-message"
@@ -1762,7 +1796,21 @@ export default function BookingPage(): JSX.Element {
                 </span>
               </div>
               <p className="mt-1 text-xs text-ink/60">Final pricing may be confirmed after inspection.</p>
-              <p className="mt-1 text-xs text-ink/60">Pay the deposit to hold your appointment.</p>
+              <p className="mt-1 text-xs text-ink/60">
+                {canPayDeposit
+                  ? 'Pay the deposit to hold your appointment.'
+                  : 'Deposit unlocks after your calendar time is confirmed.'}
+              </p>
+              {canPayDeposit ? (
+                <button
+                  type="button"
+                  onClick={() => void handleCreateCheckoutSession()}
+                  disabled={paymentSubmitting || Boolean(incompleteSelectedVehicle)}
+                  className="mt-3 hidden w-full items-center justify-center gap-2 rounded-full bg-burgundy px-5 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-burgundyAccent disabled:cursor-not-allowed disabled:opacity-60 lg:inline-flex"
+                >
+                  {paymentSubmitting ? 'Opening secure checkout' : `Pay ${formatPaymentCurrency(depositDueToday)} deposit`} <ArrowRight className="h-4 w-4" />
+                </button>
+              ) : null}
             </div>
 
             <div className="rounded-xl border border-black/10 p-3">
@@ -1793,7 +1841,7 @@ export default function BookingPage(): JSX.Element {
         </aside>
       </section>
 
-      {hasCompletedScheduling ? (
+      {canPayDeposit ? (
         <div className="fixed inset-x-3 bottom-[calc(5.75rem+env(safe-area-inset-bottom))] z-40 rounded-2xl border border-burgundy/45 bg-[#141414]/95 p-3 text-white shadow-2xl backdrop-blur-md lg:hidden">
           <p className="text-xs font-semibold text-white/75">Pay the deposit to hold your appointment.</p>
           <button
