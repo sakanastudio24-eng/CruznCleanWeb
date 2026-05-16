@@ -174,6 +174,8 @@ function buildPaymentRow(label: string, value: string, strong = false): string {
 }
 
 function buildReceiptCopy(input: StripeCustomerReceiptInput, displayAmounts: ReceiptDisplayAmounts): ReceiptCopy {
+  const intro =
+    'Thank you for booking with Cruizn Clean. We received your deposit and booking details. Brian will review the appointment information and reach out if anything needs clarification.';
   const paidTodayCents = isValidCents(input.depositPaidTodayCents) ? input.depositPaidTodayCents : null;
   const remainingBalanceCents = isValidCents(displayAmounts.remainingBalanceCents) ? displayAmounts.remainingBalanceCents : null;
   const promotionCoveredToday = paidTodayCents === 0 && isValidCents(input.discountAppliedCents) && input.discountAppliedCents > 0;
@@ -181,7 +183,7 @@ function buildReceiptCopy(input: StripeCustomerReceiptInput, displayAmounts: Rec
 
   if (promotionCoveredServiceBalance) {
     return {
-      intro: 'Thanks for booking with Cruizn Clean. Your promotion covered today\'s deposit and your estimated service balance.',
+      intro,
       paymentNote:
         'Your promotion has been applied to the estimated service total shown here. No estimated balance is due after service unless the final on-site inspection changes the scope.',
     };
@@ -189,22 +191,23 @@ function buildReceiptCopy(input: StripeCustomerReceiptInput, displayAmounts: Rec
 
   if (promotionCoveredToday) {
     return {
-      intro: 'Thanks for booking with Cruizn Clean. Your promotion covered today\'s deposit.',
+      intro,
       paymentNote:
         'Your promotion covered the deposit due today and has been applied to the estimated service total shown here. Any estimated balance is due after service is completed.',
     };
   }
 
   return {
-    intro: 'Thanks for booking with Cruizn Clean. Your deposit payment has been confirmed.',
+    intro,
     paymentNote:
       'Your deposit has been applied toward your estimated service total. The remaining balance is due after service is completed.',
   };
 }
 
-function buildReceiptEmail(input: StripeCustomerReceiptInput): { subject: string; html: string; text: string } {
+export function buildStripeCustomerReceiptEmail(input: StripeCustomerReceiptInput): { subject: string; html: string; text: string } {
   const bookingReference = formatOptionalValue(input.bookingId || input.orderId || input.clientReferenceId, 'your booking');
   const customerName = formatOptionalValue(input.customerName, 'there');
+  const customerEmail = formatOptionalValue(input.customerEmail, 'Email unavailable');
   const displayAmounts = calculateReceiptDisplayAmounts(input);
   const promotionApplied = isValidCents(displayAmounts.serviceDiscountCents) && displayAmounts.serviceDiscountCents > 0;
   const promotionPercentLabel = promotionApplied
@@ -213,14 +216,15 @@ function buildReceiptEmail(input: StripeCustomerReceiptInput): { subject: string
   const receiptCopy = buildReceiptCopy(input, displayAmounts);
   const hasPaymentIntentId = Boolean(input.paymentIntentId?.trim());
   const customerRows = [
-    ...(input.customerName ? [`Customer name: ${input.customerName}`] : []),
-    ...(input.customerPhone ? [`Customer phone: ${input.customerPhone}`] : []),
+    ...(input.customerName ? [`Name: ${input.customerName}`] : []),
+    ...(input.customerEmail ? [`Email: ${input.customerEmail}`] : []),
+    ...(input.customerPhone ? [`Phone: ${input.customerPhone}`] : []),
   ];
   const textRows = [
     `Booking/order reference: ${bookingReference}`,
     ...customerRows,
-    `Vehicle summary: ${formatOptionalValue(input.vehicleSummary, 'Vehicle to be confirmed')}`,
-    `Services summary: ${formatOptionalValue(input.servicesSummary, 'Services to be confirmed')}`,
+    `Vehicle(s): ${formatOptionalValue(input.vehicleSummary, 'Vehicle to be confirmed')}`,
+    `Selected services: ${formatOptionalValue(input.servicesSummary, 'Services to be confirmed')}`,
     `Estimated service total: ${formatCurrency(input.estimatedServiceTotalCents)}`,
     ...(promotionPercentLabel ? [promotionPercentLabel] : []),
     ...(promotionApplied ? [`Promotion savings: -${formatCurrency(displayAmounts.serviceDiscountCents)}`] : []),
@@ -232,8 +236,9 @@ function buildReceiptEmail(input: StripeCustomerReceiptInput): { subject: string
   ];
 
   const customerDetailsHtml = [
-    ...(input.customerName ? [buildInfoRow('Customer name', input.customerName)] : []),
-    ...(input.customerPhone ? [buildInfoRow('Customer phone', input.customerPhone)] : []),
+    ...(input.customerName ? [buildCompactInfoRow('Name', input.customerName)] : []),
+    buildCompactInfoRow('Email', customerEmail),
+    ...(input.customerPhone ? [buildCompactInfoRow('Phone', input.customerPhone)] : []),
   ].join('');
 
   const paymentSummaryHtml = [
@@ -275,12 +280,14 @@ function buildReceiptEmail(input: StripeCustomerReceiptInput): { subject: string
     '<div style="margin-top:14px;padding:14px;border:1px solid #e5e7eb;background:#f9fafb;border-radius:10px;">' +
     '<p style="margin:0;font-size:12px;font-weight:700;color:#4b5563;">Booking/order reference</p>' +
     `<p style="margin:4px 0 0 0;font-size:18px;font-weight:800;color:#111111;">${escapeHtml(bookingReference)}</p>` +
+    '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin-top:10px;border-collapse:collapse;">' +
     customerDetailsHtml +
+    '</table>' +
     '</div>' +
     '<div style="margin-top:14px;padding:14px;border:1px solid #e5e7eb;border-radius:10px;">' +
-    '<p style="margin:0;font-size:16px;font-weight:800;color:#111111;">Vehicle and services</p>' +
-    `${buildInfoRow('Vehicle summary', formatOptionalValue(input.vehicleSummary, 'Vehicle to be confirmed'))}` +
-    `${buildInfoRow('Services summary', formatOptionalValue(input.servicesSummary, 'Services to be confirmed'))}` +
+    '<p style="margin:0;font-size:16px;font-weight:800;color:#111111;">Vehicle(s) and selected services</p>' +
+    `${buildInfoRow('Vehicle(s)', formatOptionalValue(input.vehicleSummary, 'Vehicle to be confirmed'))}` +
+    `${buildInfoRow('Selected services', formatOptionalValue(input.servicesSummary, 'Services to be confirmed'))}` +
     '</div>' +
     '<div style="margin-top:14px;padding:14px;border:1px solid #e5e7eb;border-radius:10px;">' +
     '<p style="margin:0;font-size:16px;font-weight:800;color:#111111;">Payment summary</p>' +
@@ -309,11 +316,11 @@ function buildReceiptEmail(input: StripeCustomerReceiptInput): { subject: string
   };
 }
 
-function buildOwnerNotificationEmail(input: StripeCustomerReceiptInput): { subject: string; html: string; text: string } {
+export function buildStripeOwnerNotificationEmail(input: StripeCustomerReceiptInput): { subject: string; html: string; text: string } {
   const bookingReference = formatOptionalValue(input.bookingId || input.orderId || input.clientReferenceId, 'Unavailable');
-  const customerName = formatOptionalValue(input.customerName, 'Customer name unavailable');
-  const customerPhone = formatOptionalValue(input.customerPhone, 'Customer phone unavailable');
-  const customerEmail = formatOptionalValue(input.customerEmail, 'Customer email unavailable');
+  const customerName = formatOptionalValue(input.customerName, 'Name unavailable');
+  const customerPhone = formatOptionalValue(input.customerPhone, 'Phone unavailable');
+  const customerEmail = formatOptionalValue(input.customerEmail, 'Email unavailable');
   const zipCode = formatOptionalValue(input.zipCode, 'ZIP code unavailable');
   const serviceAddress = formatOptionalValue(input.serviceAddress, 'Service address unavailable');
   const displayAmounts = calculateReceiptDisplayAmounts(input);
@@ -446,7 +453,7 @@ export async function sendStripeCustomerReceipt(input: StripeCustomerReceiptInpu
   }
 
   const idempotencyKey = `stripe-checkout/${input.checkoutSessionId}/customer-receipt`;
-  const email = buildReceiptEmail(input);
+  const email = buildStripeCustomerReceiptEmail(input);
 
   return {
     attempted: true,
@@ -485,7 +492,7 @@ export async function sendStripeOwnerNotification(input: StripeCustomerReceiptIn
   }
 
   const idempotencyKey = `stripe-checkout/${input.checkoutSessionId}/owner-notification`;
-  const email = buildOwnerNotificationEmail(input);
+  const email = buildStripeOwnerNotificationEmail(input);
 
   return {
     attempted: true,
