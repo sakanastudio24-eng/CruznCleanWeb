@@ -72,6 +72,7 @@ export function VehicleSizeGuideLookup({
   includeOversized = true,
 }: VehicleSizeGuideLookupProps): JSX.Element {
   const [searchQuery, setSearchQuery] = useState('');
+  const [appliedTypedVehicleLabel, setAppliedTypedVehicleLabel] = useState('');
 
   const groupedEntries = useMemo(() => {
     return {
@@ -110,7 +111,19 @@ export function VehicleSizeGuideLookup({
   const hasVehicleDetails = Boolean(activeVehicle.make.trim() || activeVehicle.model.trim() || activeVehicle.customLabel?.trim());
   const isCustomVehicle = Boolean(activeVehicle.customLabel?.trim());
   const hasTypedQuery = Boolean(searchQuery.trim());
+  const typedVehicleAlreadyApplied = Boolean(typedVehicleDetails && appliedTypedVehicleLabel === typedVehicleDetails.label);
+  const showTypedVehicleActions = Boolean(onApplyTypedVehicle && hasTypedQuery && !typedVehicleAlreadyApplied);
   const showSupportLinks = ambiguousVehicleMatch || isCustomVehicle || (hasVehicleDetails && !matchedByVehicleFields) || activeVehicle.size === 'oversized';
+
+  /**
+   * Updates finder text and re-enables typed-vehicle actions when the saved value changes.
+   */
+  function handleSearchQueryChange(value: string): void {
+    setSearchQuery(value);
+    if (appliedTypedVehicleLabel && value.trim() !== appliedTypedVehicleLabel) {
+      setAppliedTypedVehicleLabel('');
+    }
+  }
 
   /**
    * Applies one lookup result to active vehicle make/model/size.
@@ -118,6 +131,7 @@ export function VehicleSizeGuideLookup({
   function applyLookupEntry(entry: VehicleGuideEntry): void {
     onApplyLookupMatch({ make: entry.make, model: entry.model, size: entry.size });
     setSearchQuery(`${entry.make} ${entry.model}`);
+    setAppliedTypedVehicleLabel('');
   }
 
   /**
@@ -145,7 +159,8 @@ export function VehicleSizeGuideLookup({
     }
 
     onApplyTypedVehicle(typedVehicleDetails);
-    setSearchQuery('');
+    setSearchQuery(typedVehicleDetails.label);
+    setAppliedTypedVehicleLabel(typedVehicleDetails.label);
   }
 
   /**
@@ -222,20 +237,20 @@ export function VehicleSizeGuideLookup({
             <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-ink/45" />
             <input
               value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
+              onChange={(event) => handleSearchQueryChange(event.target.value)}
               onKeyDown={handleTypedVehicleKeyDown}
               placeholder="Type the make or model."
               className="gray-field w-full rounded-lg py-2 pl-8 pr-3 text-sm"
             />
           </div>
-          {onApplyTypedVehicle && hasTypedQuery ? (
+          {showTypedVehicleActions ? (
             <span className="mt-1 hidden text-[11px] font-medium text-white/68 sm:block">
               Press Enter to use typed vehicle details.
             </span>
           ) : null}
         </label>
 
-        {onApplyTypedVehicle && typedVehicleDetails && searchResults.length === 0 ? (
+        {showTypedVehicleActions && typedVehicleDetails && searchResults.length === 0 ? (
           <button
             type="button"
             onClick={handleApplyTypedVehicle}
@@ -245,7 +260,7 @@ export function VehicleSizeGuideLookup({
           </button>
         ) : null}
 
-        {hasTypedQuery ? (
+        {hasTypedQuery && (searchResults.length > 0 || showTypedVehicleActions) ? (
           <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-30 max-h-56 overflow-y-auto rounded-lg border border-line bg-[#141414] p-2 shadow-2xl">
             {searchResults.length > 0 ? (
               <div className="space-y-1">
@@ -262,7 +277,9 @@ export function VehicleSizeGuideLookup({
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-white/72">Vehicle not listed yet? Press Enter to use typed vehicle details.</p>
+              showTypedVehicleActions ? (
+                <p className="text-xs text-white/72">Vehicle not listed yet? Press Enter to use typed vehicle details.</p>
+              ) : null
             )}
           </div>
         ) : null}

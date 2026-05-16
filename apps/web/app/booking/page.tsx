@@ -13,7 +13,6 @@ import {
   ShieldCheck,
   Trash2,
   User,
-  XCircle,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
 
@@ -394,13 +393,28 @@ function VehicleCheckerStatusBadge({ status }: { status: VehicleCheckerStatus })
 
   if (status === 'missing') {
     return (
-      <span className="inline-flex items-center gap-1 text-xs font-bold text-burgundyAccent">
-        <XCircle className="h-4 w-4" aria-hidden="true" /> Missing
+      <span className="inline-flex items-center gap-1 text-xs font-bold text-yellow-300">
+        <CircleMinus className="h-4 w-4" aria-hidden="true" /> Missing info
       </span>
     );
   }
 
   return <span className="text-xs font-bold text-ink/45">Empty</span>;
+}
+
+/**
+ * Renders the most helpful compact action hint for a vehicle checker card.
+ */
+function VehicleCheckerHelper({ vehicle }: { vehicle: VehicleProfile }): JSX.Element | null {
+  if (!getVehicleSizeGuardMessage(vehicle)) {
+    return null;
+  }
+
+  return (
+    <span className="mt-1 inline-flex items-center gap-1 text-[11px] font-bold text-yellow-300">
+      <CircleMinus className="h-3.5 w-3.5" aria-hidden="true" /> Needs size
+    </span>
+  );
 }
 
 /**
@@ -1406,6 +1420,7 @@ export default function BookingPage(): JSX.Element {
                         <span className="mt-1 block">
                           <VehicleCheckerStatusBadge status={status} />
                         </span>
+                        <VehicleCheckerHelper vehicle={vehicle} />
                       </button>
                     ) : (
                       <div
