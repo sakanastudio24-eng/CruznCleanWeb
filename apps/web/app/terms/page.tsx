@@ -5,128 +5,169 @@ interface PolicySection {
   points: string[];
 }
 
+const PUBLIC_CONTACT_EMAIL = 'hello@cruiznclean.com';
+
 const POLICY_SECTIONS: PolicySection[] = [
   {
-    title: '1. Appointments & Scheduling',
+    title: '1. Business Identity',
     points: [
-      'All appointments must be booked in advance.',
-      'Same-day booking requests may require rush fees.',
-      'A confirmation is sent after the booking is approved.',
-      'Please be on time or prepared for arrival to avoid delays or rescheduling.',
+      'Cruizn Clean is operated by Brian Morales.',
+      'Until an LLC or separate business entity is formed and publicly identified, references to Cruizn Clean, we, us, or our mean Cruizn Clean as operated by Brian Morales.',
+      `Questions about these terms may be sent to ${PUBLIC_CONTACT_EMAIL}.`,
     ],
   },
   {
-    title: '2. Deposits',
+    title: '2. Appointments and Booking',
     points: [
-      'A non-refundable deposit of $25-$100 may be required to secure your appointment.',
-      'Any required deposit is applied toward the total service cost.',
-      'No deposit means the booking is not guaranteed.',
+      'Appointments should be booked in advance through the website or direct communication with Cruizn Clean.',
+      'A booking request is not final until it is reviewed, accepted, and confirmed.',
+      'Customers are responsible for providing accurate contact information, service address, vehicle details, selected services, and any important access instructions.',
+      'Cruizn Clean may contact customers to confirm details, clarify service scope, request vehicle information, or adjust scheduling before service begins.',
     ],
   },
   {
-    title: '3. Cancellations & Rescheduling',
+    title: '3. Estimates and Final Pricing',
     points: [
-      'At least 24 hours notice is required to cancel or reschedule.',
-      'Deposits may be forfeited for late cancellations or no-shows.',
-      'Emergencies are handled case-by-case.',
+      'Website prices, package totals, and booking estimates are estimates based on the services selected and information provided by the customer.',
+      'Final pricing may change after vehicle inspection, condition review, service scope confirmation, vehicle size review, added services, heavy soil, pet hair, stains, excessive buildup, odor treatment, or other factors that require additional time or materials.',
+      'Cruizn Clean will communicate material pricing changes before performing added work when reasonably possible.',
     ],
   },
   {
-    title: '4. Pricing',
+    title: '4. Deposits, Payments, and Remaining Balance',
     points: [
-      'Listed prices are starting prices for sedans and coupes.',
-      'Small SUVs and trucks add 20%, large SUVs and trucks add 40%, and vans or very lifted vehicles add 50%.',
-      'Pricing can increase based on vehicle size, ride height, excess dirt, grime, stains, pet hair, or condition.',
-      'Final price is confirmed after inspection.',
+      'A deposit may be required to reserve an appointment or start a checkout process.',
+      'Deposits are applied toward the final service total unless otherwise stated during booking.',
+      'The remaining balance is due when service is completed unless Cruizn Clean has agreed to another arrangement in writing.',
+      'Payment processing may be handled by Stripe or another supported payment provider. Cruizn Clean does not control third-party payment processor terms or bank authorization decisions.',
     ],
   },
   {
-    title: '5. Vehicle Condition',
+    title: '5. Cancellations, Rescheduling, and Missed Appointments',
     points: [
-      'Remove personal belongings before the appointment. Full compartments will not be cleaned.',
-      'Cruizn Clean is not responsible for lost or damaged personal items left in the vehicle.',
+      'Customers should contact Cruizn Clean as soon as possible if they need to cancel or reschedule.',
+      'Late cancellations, missed appointments, unavailable vehicles, unsafe conditions, or denied access may result in deposit forfeiture or rescheduling at Cruizn Clean\'s discretion.',
+      'Cruizn Clean understands that emergencies happen and may review unusual circumstances case by case.',
     ],
   },
   {
-    title: '6. Service Limitations',
+    title: '6. Weather, Working Conditions, and Controlled Environments',
     points: [
-      'Best-effort results are provided, but not all stains, scratches, or imperfections can be fully removed.',
-      'Paint correction and polishing improve defects but may not eliminate them completely.',
+      'Mobile detailing appointments may be delayed, adjusted, or rescheduled because of rain, extreme heat, heavy wind, poor lighting, unsafe surroundings, water or power access issues, or other working conditions that could affect safety or service quality.',
+      'Depending on weather, services requested, vehicle condition, and time needed, Cruizn Clean may ask that the vehicle be kept in a controlled environment such as a garage, covered area, or approved indoor/workspace location.',
+      'A controlled environment may matter for paint correction, coatings, longer interior work, or weather-sensitive services.',
+      'If required working conditions cannot be provided, Cruizn Clean may recommend rescheduling, changing the service scope, or moving the vehicle to a safer or more suitable location.',
     ],
   },
   {
-    title: '7. Ceramic Coating / Protection Services',
+    title: '7. Customer Responsibilities',
     points: [
-      'Proper aftercare is required to maintain durability.',
-      'Longevity claims such as 3-year or 6-year coatings depend on maintenance and environmental conditions.',
-      'There are no guarantees against improper care after service completion.',
+      'Customers should remove valuables, personal belongings, car seats, important documents, and loose items before service.',
+      'Customers are responsible for disclosing known vehicle issues, aftermarket modifications, fragile parts, leaks, electrical problems, prior damage, repaint work, loose trim, failing clear coat, or sensitive surfaces before work begins.',
+      'Customers should provide legal access to the vehicle, enough space to work safely, and any water or power access agreed to before the appointment.',
     ],
   },
   {
-    title: '8. Weather Policy (Mobile Services)',
+    title: '8. Service Limitations and Results',
     points: [
-      'Appointments may be rescheduled due to rain, extreme heat, or unsafe conditions.',
-      'Cruizn Clean will contact you as early as possible if weather requires a change.',
+      'Cruizn Clean provides professional detailing services on a best-effort basis, but results depend on vehicle condition, age, materials, prior care, stains, defects, weather exposure, and service selected.',
+      'Not all stains, scratches, odors, water spots, oxidation, etching, wear, or defects can be fully removed.',
+      'Paint correction, polishing, coatings, and protection services can improve appearance and protection, but they do not make a vehicle new or prevent all future damage.',
+      'Some issues may require body shop, upholstery, mechanical, glass, paint, or specialty repair outside the scope of detailing.',
     ],
   },
   {
-    title: '9. Payment',
+    title: '9. Pre-Existing Damage and Inspection',
     points: [
-      'Payment is due upon completion unless otherwise agreed.',
-      'Accepted forms: Cash, Zelle, Venmo, Cash App, and PayPal.',
-      'Debit and credit support may be added later through the booking site.',
-      'Checks are not accepted.',
+      'Cruizn Clean may inspect and document visible vehicle condition before, during, or after service.',
+      'Cruizn Clean is not responsible for pre-existing damage, weak or failing materials, prior repairs, loose parts, failing clear coat, worn interiors, brittle plastics, leaking seals, electrical issues, or damage caused by conditions that existed before service.',
+      'Customers should point out known concerns before service begins so they can be considered when choosing products, tools, and process.',
     ],
   },
   {
-    title: '10. Satisfaction Guarantee',
+    title: '10. Photos and Media',
     points: [
-      'If you are not satisfied, notify Cruizn Clean before leaving or within 24 hours.',
-      'Reasonable concerns are reviewed and addressed, though additional charges may apply for added scope.',
+      'Cruizn Clean may take photos or videos of vehicles for inspection, documentation, service records, quality review, before-and-after examples, or business marketing.',
+      'Cruizn Clean will avoid intentionally publishing private customer information such as addresses, license plates, phone numbers, emails, or personal documents.',
+      'Customers who want a photo removed or who do not want their vehicle used in marketing may contact Cruizn Clean at the public contact email.',
     ],
   },
   {
-    title: '11. Liability',
+    title: '11. Third-Party Services',
     points: [
-      'Pre-existing damage is documented before service when visible.',
-      'Cruizn Clean is not responsible for damage caused by faulty parts, aftermarket installs, or prior vehicle conditions.',
+      'The website and booking flow may use third-party services such as Stripe for payments, Cal.com for scheduling, hosting providers, email providers, analytics providers, maps, or other operational tools.',
+      'Third-party services may have their own terms, privacy policies, availability, fees, verification rules, or technical limitations.',
+      'Cruizn Clean is not responsible for third-party outages, declined payments, scheduling platform issues, or external website behavior outside its reasonable control.',
     ],
   },
   {
-    title: '12. Right to Refuse Service',
+    title: '12. Website Use',
     points: [
-      'Service may be refused or rescheduled for unsafe conditions.',
-      'Service may be refused for biohazards, including mold or bodily fluids.',
-      'Service may be refused for disrespectful behavior.',
-      'Service may be refused when the vehicle was described inaccurately before scheduling.',
+      'Customers may use this website to review services, request quotes, submit booking information, and contact Cruizn Clean.',
+      'Do not misuse the website, attempt unauthorized access, interfere with the booking flow, submit false information, scrape content, or use the site for unlawful purposes.',
+      'Website content, branding, photos, copy, and service descriptions may not be copied or reused without permission except where allowed by law.',
+    ],
+  },
+  {
+    title: '13. Insurance Note',
+    points: [
+      'Cruizn Clean aims to operate responsibly and may maintain insurance appropriate for its business operations.',
+      'Insurance coverage, if applicable, may be subject to policy terms, exclusions, deductibles, documentation, investigation, and insurer review.',
+      'This section is informational and does not create a separate guarantee, warranty, or promise of coverage for every claim or circumstance.',
+    ],
+  },
+  {
+    title: '14. Limitation of Liability',
+    points: [
+      'To the extent allowed by law, Cruizn Clean is not liable for indirect, incidental, special, consequential, punitive, or lost-profit damages related to use of the website or services.',
+      'Cruizn Clean\'s responsibility for a service issue, when accepted, is generally limited to a reasonable correction, partial refund, or refund of the amount paid for the affected service, depending on the circumstances.',
+      'Nothing in these terms is intended to limit rights or responsibilities that cannot legally be limited.',
+    ],
+  },
+  {
+    title: '15. Governing Law',
+    points: [
+      'These terms are governed by the laws of the State of California, without regard to conflict-of-law rules.',
+      'Any dispute should first be raised directly with Cruizn Clean so the issue can be reviewed in good faith.',
+    ],
+  },
+  {
+    title: '16. Contact',
+    points: [
+      `For questions about these terms, scheduling, or service concerns, contact Cruizn Clean at ${PUBLIC_CONTACT_EMAIL}.`,
     ],
   },
 ];
 
 /**
- * Renders the client-facing terms and policy summary for booking and mobile service.
+ * Renders the client-facing terms for booking and mobile service.
  */
 export default function TermsPage(): JSX.Element {
   return (
     <SiteShell>
-      <section className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-        <h1 className="font-heading text-3xl font-extrabold text-white sm:text-4xl">Terms of Service</h1>
-        <p className="mt-4 text-sm text-white/75">
-          These terms outline appointment approval, pricing, deposits, weather rescheduling, and service limits for Cruizn Clean mobile detailing.
-        </p>
+      <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-12">
+        <article className="gray-card rounded-3xl p-6 sm:p-8">
+          <h1 className="font-heading text-3xl font-extrabold text-ink sm:text-4xl">Terms of Service</h1>
+          <p className="mt-4 text-sm text-ink/80">
+            These terms explain how Cruizn Clean handles booking, pricing, service conditions, payments, and customer responsibilities.
+          </p>
+          <p className="mt-3 text-sm text-ink/80">
+            Cruizn Clean is operated by Brian Morales. Until an LLC or separate business entity is formed and published, references to Cruizn Clean mean Cruizn Clean as operated by Brian Morales.
+          </p>
 
-        <div className="mt-8 space-y-4">
-          {POLICY_SECTIONS.map((section) => (
-            <section key={section.title} className="gray-card p-5">
-              <h2 className="font-heading text-xl font-semibold text-ink">{section.title}</h2>
-              <ul className="mt-3 space-y-2 text-sm text-ink/75">
-                {section.points.map((point) => (
-                  <li key={point}>• {point}</li>
-                ))}
-              </ul>
-            </section>
-          ))}
-        </div>
+          <div className="mt-8 space-y-8">
+            {POLICY_SECTIONS.map((section) => (
+              <section key={section.title} className="space-y-3">
+                <h2 className="font-heading text-2xl font-semibold text-ink">{section.title}</h2>
+                <ul className="list-disc space-y-2 pl-5 text-sm text-ink/80">
+                  {section.points.map((point) => (
+                    <li key={point}>{point}</li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </div>
+        </article>
       </section>
     </SiteShell>
   );
