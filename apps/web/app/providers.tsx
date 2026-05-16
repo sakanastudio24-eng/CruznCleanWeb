@@ -1,6 +1,7 @@
 'use client';
 
 import { BookingProvider } from '@/components/providers/booking-provider';
+import { AnalyticsNotice } from '@/components/common/analytics-notice';
 import { RuntimeConfigProvider } from '@/components/providers/runtime-config-provider';
 
 interface ProvidersProps {
@@ -15,6 +16,7 @@ export function Providers({ children }: ProvidersProps): JSX.Element {
     <BookingProvider>
       <RuntimeConfigProvider />
       {children}
+      <AnalyticsNotice />
     </BookingProvider>
   );
 }
