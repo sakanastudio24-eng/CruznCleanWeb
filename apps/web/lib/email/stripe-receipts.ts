@@ -342,12 +342,6 @@ function buildOwnerNotificationEmail(input: StripeCustomerReceiptInput): { subje
     `Checkout Session ID: ${formatOptionalValue(input.checkoutSessionId, 'Unavailable')}`,
     ...(hasPaymentIntentId ? [`Payment Intent ID: ${input.paymentIntentId?.trim()}`] : []),
   ];
-  const ownerNextSteps = [
-    'Owner next steps:',
-    '- Confirm the service address and arrival details.',
-    '- Review the selected services and vehicle size.',
-    '- Contact the customer if anything needs clarification.',
-  ];
   const customerLocationHtml = [
     buildCompactInfoRow('Name', customerName),
     buildCompactInfoRow('Phone', customerPhone),
@@ -371,8 +365,6 @@ function buildOwnerNotificationEmail(input: StripeCustomerReceiptInput): { subje
     'Paid booking received.',
     '',
     ...textRows,
-    '',
-    ...ownerNextSteps,
     '',
     'Final price confirmed after inspection.',
     `Owner note: Customer-facing changes can be handled through ${SUPPORT_PHONE_DISPLAY}.`,
@@ -399,14 +391,6 @@ function buildOwnerNotificationEmail(input: StripeCustomerReceiptInput): { subje
     '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">' +
     customerLocationHtml +
     '</table>' +
-    '</div>' +
-    '<div style="margin-top:14px;padding:14px;border:1px solid #d1d5db;background:#ffffff;border-radius:10px;">' +
-    '<p style="margin:0;font-size:16px;font-weight:800;color:#111111;">Owner next steps</p>' +
-    '<ul style="margin:8px 0 0 18px;padding:0;font-size:13px;line-height:1.5;color:#374151;">' +
-    '<li>Confirm the service address and arrival details.</li>' +
-    '<li>Review the selected services and vehicle size.</li>' +
-    '<li>Contact the customer if anything needs clarification.</li>' +
-    '</ul>' +
     '</div>' +
     '<div style="margin-top:14px;padding:14px;border:1px solid #e5e7eb;border-radius:10px;">' +
     '<p style="margin:0;font-size:16px;font-weight:800;color:#111111;">Vehicle and services</p>' +
