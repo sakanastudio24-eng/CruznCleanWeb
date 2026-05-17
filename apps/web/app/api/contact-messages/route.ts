@@ -12,10 +12,6 @@ function getString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
 }
 
-function getEnvValue(name: string): string {
-  return process.env[name]?.trim() || '';
-}
-
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, '&amp;')
@@ -49,7 +45,8 @@ function normalizePayload(rawPayload: unknown): ContactForm | null {
 }
 
 function getContactRecipient(): string {
-  return getEnvValue('BOOKING_OWNER_EMAIL') || getEnvValue('NEXT_PUBLIC_SUPPORT_EMAIL') || SITE_PROFILE.supportEmail;
+  // This is intentionally public because it is the customer-facing support inbox.
+  return SITE_PROFILE.supportEmail;
 }
 
 function buildContactEmail(payload: ContactForm): { html: string; text: string } {
