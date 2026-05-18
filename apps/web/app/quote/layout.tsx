@@ -1,4 +1,5 @@
 import { buildRouteMetadata } from '@/lib/seo';
+import { JsonLd, buildQuotePageSchema } from '@/lib/schema';
 
 export const metadata = buildRouteMetadata({
   title: 'Request a Mobile Detailing Quote',
@@ -8,5 +9,10 @@ export const metadata = buildRouteMetadata({
 });
 
 export default function QuoteLayout({ children }: { children: React.ReactNode }): React.ReactNode {
-  return children;
+  return (
+    <>
+      <JsonLd data={buildQuotePageSchema()} />
+      {children}
+    </>
+  );
 }

@@ -1,4 +1,5 @@
 import { buildRouteMetadata } from '@/lib/seo';
+import { JsonLd, buildServicesPageSchema } from '@/lib/schema';
 
 export const metadata = buildRouteMetadata({
   title: 'Mobile Detailing Services in Yorba Linda',
@@ -8,5 +9,10 @@ export const metadata = buildRouteMetadata({
 });
 
 export default function ServicesLayout({ children }: { children: React.ReactNode }): React.ReactNode {
-  return children;
+  return (
+    <>
+      <JsonLd data={buildServicesPageSchema()} />
+      {children}
+    </>
+  );
 }

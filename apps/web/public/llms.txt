@@ -1,0 +1,41 @@
+# Cruizn Clean
+
+> Cruizn Clean is a mobile auto detailing service for Yorba Linda and surrounding Orange County cities.
+
+Cruizn Clean provides mobile interior detailing, exterior detailing, paint correction, ceramic protection, and maintenance detailing. The website explains services, pricing starting points, vehicle intake, scheduling, quote requests, and customer support.
+
+## Key pages
+
+- [Home](https://www.cruiznclean.com/): Overview of Cruizn Clean, service focus, and booking path.
+- [Services](https://www.cruiznclean.com/services): Mobile detailing packages, add-ons, vehicle/service selection, and booking entry point.
+- [Booking](https://www.cruiznclean.com/booking): Vehicle intake, customer details, Cal.com scheduling, and deposit handoff.
+- [Quote](https://www.cruiznclean.com/quote): Quote request path for questions or work that needs review before booking.
+- [Gallery](https://www.cruiznclean.com/gallery): Vehicle detail examples and visual proof of work.
+- [FAQ](https://www.cruiznclean.com/faq): Booking, service, payment, and process questions.
+- [Contact](https://www.cruiznclean.com/contact): Contact options and public support information.
+
+## Services
+
+- Mini Detail
+- Maintenance Detail
+- Full Interior
+- Full Exterior
+- Full Reset
+- Interior detailing
+- Exterior detailing
+- Maintenance detailing
+- Paint correction
+- Ceramic protection/coating
+- Add-on detailing services
+
+## Service areas
+
+Cruizn Clean focuses on Yorba Linda and surrounding Orange County cities, including approved service areas listed on the website.
+
+## Booking flow
+
+Customers submit vehicle and service details first, then schedule through Cal.com. Pay Deposit appears after scheduling is confirmed. Secure checkout opens after the booking time is selected and confirmed.
+
+## Contact
+
+Use the website contact and quote pages for current public contact options.

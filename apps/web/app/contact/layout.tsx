@@ -1,4 +1,5 @@
 import { buildRouteMetadata } from '@/lib/seo';
+import { JsonLd, buildContactPageSchema } from '@/lib/schema';
 
 export const metadata = buildRouteMetadata({
   title: 'Contact Cruizn Clean',
@@ -8,5 +9,10 @@ export const metadata = buildRouteMetadata({
 });
 
 export default function ContactLayout({ children }: { children: React.ReactNode }): React.ReactNode {
-  return children;
+  return (
+    <>
+      <JsonLd data={buildContactPageSchema()} />
+      {children}
+    </>
+  );
 }

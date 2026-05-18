@@ -1,4 +1,5 @@
 import { buildRouteMetadata } from '@/lib/seo';
+import { JsonLd, buildFaqPageSchema } from '@/lib/schema';
 
 export const metadata = buildRouteMetadata({
   title: 'Mobile Detailing FAQ',
@@ -8,5 +9,10 @@ export const metadata = buildRouteMetadata({
 });
 
 export default function FaqLayout({ children }: { children: React.ReactNode }): React.ReactNode {
-  return children;
+  return (
+    <>
+      <JsonLd data={buildFaqPageSchema()} />
+      {children}
+    </>
+  );
 }
