@@ -116,14 +116,6 @@ const PACKAGE_COPY: Partial<Record<string, string>> = {
   'pkg-full-reset': 'The full inside-and-out reset for vehicles that need the complete treatment.',
 };
 
-const PACKAGE_TAGS: Partial<Record<string, string>> = {
-  'pkg-mini': 'Best for quick cleanup',
-  'pkg-maintenance': 'Popular maintenance pick',
-  'pkg-full-interior': 'Interior reset',
-  'pkg-full-exterior': 'Exterior protection',
-  'pkg-full-reset': 'Full reset',
-};
-
 const PACKAGE_IMAGES: Partial<Record<string, StaticImageData>> = {
   'pkg-mini': basicExteriorDetail,
   'pkg-maintenance': spotlessShine,
@@ -184,13 +176,6 @@ function parseTypedVehicleDetails(value: string): { label: string; year?: string
  */
 function getServiceDescription(service: ServiceOption): string {
   return PACKAGE_COPY[service.id] ?? service.description;
-}
-
-/**
- * Returns compact context tags used on package cards and the mobile action bar.
- */
-function getServiceTag(service: ServiceOption): string | undefined {
-  return PACKAGE_TAGS[service.id];
 }
 
 /**
@@ -524,7 +509,6 @@ function ServiceGrid({
               const selected = selectedIds.includes(service.id);
               const adjustedPrice = activeVehicle ? getAdjustedServicePrice(service.price, activeVehicle.size) : service.price;
               const isBestValue = service.id === 'pkg-maintenance';
-              const contextTag = getServiceTag(service);
               const packageImage = PACKAGE_IMAGES[service.id];
               const visibleHighlights = service.highlights.slice(0, 2);
 
@@ -561,11 +545,6 @@ function ServiceGrid({
                         {isBestValue ? (
                           <span className="rounded-md bg-burgundy px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em] text-white">
                             Most Popular
-                          </span>
-                        ) : null}
-                        {contextTag && !isBestValue ? (
-                          <span className="rounded-md border border-white/12 bg-white/[0.06] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em] text-white/78">
-                            {contextTag}
                           </span>
                         ) : null}
                       </div>
@@ -689,7 +668,6 @@ function ServiceGrid({
           const adjustedPrice = activeVehicle ? getAdjustedServicePrice(service.price, activeVehicle.size) : service.price;
           const isBestValue = service.id === 'pkg-maintenance';
           const savingsTags = getServiceSavingsTags(service.id);
-          const contextTag = getServiceTag(service);
           const visibleHighlights = isPackageGrid ? service.highlights.slice(0, 5) : service.highlights;
           const packageImage = PACKAGE_IMAGES[service.id];
 
@@ -728,11 +706,6 @@ function ServiceGrid({
                       {isBestValue ? (
                         <span className="rounded-md bg-burgundy px-2 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-white">
                           Most Popular
-                        </span>
-                      ) : null}
-                      {contextTag ? (
-                        <span className="rounded-md border border-white/15 bg-white/[0.08] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-white">
-                          {contextTag}
                         </span>
                       ) : null}
                     </div>
