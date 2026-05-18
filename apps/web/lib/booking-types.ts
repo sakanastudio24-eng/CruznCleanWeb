@@ -36,6 +36,7 @@ export interface CustomerBookingForm {
   acceptedSmsConsent: boolean;
   notes: string;
   acceptedConsent: boolean;
+  agePermissionConsent: boolean;
 }
 
 export interface BookingVehicleRequest {

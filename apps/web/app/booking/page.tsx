@@ -72,6 +72,7 @@ interface BookingFieldErrors {
   selectedVehicleLimit?: string;
   confirmationChannel?: string;
   acceptedConsent?: string;
+  agePermissionConsent?: string;
 }
 
 type VehicleCheckerStatus = 'complete' | 'almost' | 'missing' | 'empty';
@@ -97,6 +98,7 @@ const INITIAL_FORM: CustomerBookingForm = {
   acceptedSmsConsent: false,
   notes: '',
   acceptedConsent: false,
+  agePermissionConsent: false,
 };
 
 const BOOKING_FORM_STORAGE_KEY = 'cruizn-clean-booking-form-v1';
@@ -213,6 +215,10 @@ function appendCustomerValidationErrors(
 
   if (!form.acceptedConsent) {
     errors.acceptedConsent = consentMessage;
+  }
+
+  if (!form.agePermissionConsent) {
+    errors.agePermissionConsent = 'Please confirm you are at least 18 or have permission to book this service.';
   }
 }
 
@@ -1572,7 +1578,7 @@ export default function BookingPage(): JSX.Element {
                 </label>
               </div>
               {vehicleGuardMessage ? (
-                <p className="rounded-xl border border-burgundy/35 bg-burgundy/10 px-4 py-3 text-sm font-semibold text-ink">
+                <p className="rounded-xl border border-burgundyAccent/55 bg-[#141414]/95 px-4 py-3 text-sm font-semibold text-[#ff9aa8]">
                   {vehicleGuardMessage} Vehicle details help us prepare the correct service estimate.
                 </p>
               ) : null}
@@ -1591,14 +1597,31 @@ export default function BookingPage(): JSX.Element {
                   </label>
                   {fieldErrors.acceptedConsent ? <p className="a11y-error text-xs font-medium">{fieldErrors.acceptedConsent}</p> : null}
 
+                  <label className={`flex items-start gap-2 rounded-lg px-3 py-2 text-sm text-ink/80 ${
+                    fieldErrors.agePermissionConsent ? 'border border-burgundyAccent bg-burgundy/15' : 'border border-line bg-[#141414]'
+                  }`}>
+                    <input
+                      type="checkbox"
+                      checked={Boolean(form.agePermissionConsent)}
+                      onChange={(event) => updateCustomerField('agePermissionConsent', event.target.checked)}
+                      aria-invalid={Boolean(fieldErrors.agePermissionConsent)}
+                      aria-describedby={fieldErrors.agePermissionConsent ? 'booking-age-permission-consent-error' : undefined}
+                      className="mt-1"
+                    />
+                    <span>I confirm I am at least 18 years old or have permission from a parent or legal guardian to book this service.</span>
+                  </label>
+                  {fieldErrors.agePermissionConsent ? (
+                    <p id="booking-age-permission-consent-error" className="a11y-error text-xs font-medium">{fieldErrors.agePermissionConsent}</p>
+                  ) : null}
+
                   <label className="flex items-start gap-2 rounded-lg border border-line bg-[#141414] px-3 py-2 text-sm text-ink/80">
                     <input
                       type="checkbox"
-                      checked={form.sendEmailConfirmation}
+                      checked={Boolean(form.sendEmailConfirmation)}
                       onChange={(event) => updateCustomerField('sendEmailConfirmation', event.target.checked)}
                       className="mt-1"
                     />
-                    <span>I agree to receive booking confirmations and service-related emails</span>
+                    <span>I agree to receive booking confirmations and service related emails</span>
                   </label>
 
                 {fieldErrors.confirmationChannel ? (
@@ -1655,7 +1678,7 @@ export default function BookingPage(): JSX.Element {
           </div>
 
           {step > 1 && vehicleGuardMessage ? (
-            <p className="rounded-xl border border-burgundy/35 bg-burgundy/10 px-4 py-3 text-sm font-semibold text-ink">
+            <p className="rounded-xl border border-burgundyAccent/55 bg-[#141414]/95 px-4 py-3 text-sm font-semibold text-[#ff9aa8]">
               {vehicleGuardMessage} Vehicle details help us prepare the correct service estimate.
             </p>
           ) : null}
@@ -1870,7 +1893,7 @@ export default function BookingPage(): JSX.Element {
                 <span>Step {progressStep} of {steps.length}</span>
               </div>
               <div className="h-2 rounded-full bg-black/10">
-                <div className="h-2 rounded-full bg-ink transition-all duration-500" style={{ width: `${(progressStep / steps.length) * 100}%` }} />
+                <div className="h-2 rounded-full bg-burgundy transition-all duration-500" style={{ width: `${(progressStep / steps.length) * 100}%` }} />
               </div>
             </div>
 
