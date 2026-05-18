@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { Search } from 'lucide-react';
 import { useMemo, useState, type KeyboardEvent } from 'react';
 
@@ -62,7 +61,7 @@ function parseTypedVehicleDetails(value: string): { label: string; year?: string
 }
 
 /**
- * Renders dual-format vehicle lookup with match status and mismatch support links.
+ * Renders dual-format vehicle lookup with match status.
  */
 export function VehicleSizeGuideLookup({
   activeVehicle,
@@ -113,7 +112,6 @@ export function VehicleSizeGuideLookup({
   const hasTypedQuery = Boolean(searchQuery.trim());
   const typedVehicleAlreadyApplied = Boolean(typedVehicleDetails && appliedTypedVehicleLabel === typedVehicleDetails.label);
   const showTypedVehicleActions = Boolean(onApplyTypedVehicle && hasTypedQuery && !typedVehicleAlreadyApplied);
-  const showSupportLinks = ambiguousVehicleMatch || isCustomVehicle || (hasVehicleDetails && !matchedByVehicleFields) || activeVehicle.size === 'oversized';
 
   /**
    * Updates finder text and re-enables typed-vehicle actions when the saved value changes.
@@ -311,19 +309,6 @@ export function VehicleSizeGuideLookup({
         )}
       </div>
 
-      {showSupportLinks ? (
-        <div className="mt-3 rounded-lg border border-line bg-[#141414] px-3 py-3 text-xs text-white/76">
-          <p>Oversized, lifted, modified, specialty, or unlisted vehicles should request a quote before scheduling.</p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Link href="/quote" className="rounded-full bg-burgundy px-3 py-1.5 text-[11px] font-semibold text-white transition hover:bg-burgundyAccent">
-              Request a Quote
-            </Link>
-            <Link href="/faq" className="rounded-full border border-white/20 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:border-burgundyAccent hover:bg-burgundy/10">
-              Review Help + FAQ
-            </Link>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }

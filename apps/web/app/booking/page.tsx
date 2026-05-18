@@ -1301,14 +1301,6 @@ export default function BookingPage(): JSX.Element {
                     {activeVehicleSizeGuardMessage}
                   </p>
                 ) : null}
-                <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-[#141414] px-4 py-3">
-                  <p className="text-sm text-ink/70">
-                    Oversized, lifted, modified, specialty, or unlisted vehicles should request a quote before scheduling.
-                  </p>
-                  <Link href="/quote" className="rounded-full bg-burgundy px-4 py-2 text-xs font-bold text-white transition hover:bg-burgundyAccent">
-                    Request a Quote
-                  </Link>
-                </div>
               </div>
 
               <div className="rounded-xl border border-white/10 bg-white/[0.06] p-4">
