@@ -3,7 +3,7 @@ import { buildRouteMetadata } from '@/lib/seo';
 export const metadata = buildRouteMetadata({
   title: 'Contact Cruizn Clean',
   description:
-    'Contact Cruizn Clean for mobile detailing questions, service-area help, booking prep, and Yorba Linda-area appointment support.',
+    'Contact Cruizn Clean for mobile auto detailing questions, Yorba Linda and Orange County service-area help, booking prep, and appointment support.',
   path: '/contact',
 });
 

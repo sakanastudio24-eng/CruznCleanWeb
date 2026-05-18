@@ -3,7 +3,7 @@ import { buildRouteMetadata } from '@/lib/seo';
 export const metadata = buildRouteMetadata({
   title: 'Mobile Detailing FAQ',
   description:
-    'Answers about Cruizn Clean booking, service areas, pricing, vehicle prep, deposits, mobile detailing, paint correction, and ceramic protection.',
+    'Answers about Cruizn Clean mobile auto detailing, Yorba Linda service areas, pricing, vehicle prep, deposits, paint correction, and ceramic protection.',
   path: '/faq',
 });
 

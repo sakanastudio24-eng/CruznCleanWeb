@@ -3,7 +3,7 @@ import { buildRouteMetadata } from '@/lib/seo';
 export const metadata = buildRouteMetadata({
   title: 'Privacy Policy',
   description:
-    'Cruizn Clean privacy policy for booking details, contact messages, communications, service providers, and operational records.',
+    'Cruizn Clean privacy policy for mobile auto detailing booking details, quote and contact messages, communications, service providers, and operational records.',
   path: '/privacy',
 });
 

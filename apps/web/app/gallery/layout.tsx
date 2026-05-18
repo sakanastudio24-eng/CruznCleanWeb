@@ -3,7 +3,7 @@ import { buildRouteMetadata } from '@/lib/seo';
 export const metadata = buildRouteMetadata({
   title: 'Mobile Detailing Gallery',
   description:
-    'View real Cruizn Clean detailing work across exterior details, interior cleaning, wheels, headlights, paint enhancement, and correction results.',
+    'View real Cruizn Clean mobile auto detailing work across exterior detailing, interior cleaning, wheels, headlights, paint enhancement, and correction results.',
   path: '/gallery',
 });
 

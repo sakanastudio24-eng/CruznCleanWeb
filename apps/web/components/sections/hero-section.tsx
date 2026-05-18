@@ -151,7 +151,7 @@ export function HeroSection(): JSX.Element {
     <section className="landing-hero relative overflow-hidden bg-ink text-white">
       <Image
         src={heroImage}
-        alt="Cruizn Clean exterior detail finish"
+        alt="Red vehicle after a Cruizn Clean exterior detail"
         fill
         priority
         className="object-cover object-center"
@@ -167,7 +167,7 @@ export function HeroSection(): JSX.Element {
               Transparent detailing without the guesswork
             </h1>
             <p className="mt-4 max-w-2xl text-lg text-white/82 sm:text-xl">
-              A cleaner booking experience for Yorba Linda and nearby Orange County clients who want transparent pricing, polished results, and real quotes.
+              Mobile auto detailing for Yorba Linda and surrounding Orange County cities, with interior detailing, exterior detailing, paint correction, ceramic protection, and maintenance services.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">

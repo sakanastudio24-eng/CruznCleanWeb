@@ -3,7 +3,7 @@ import { buildRouteMetadata } from '@/lib/seo';
 export const metadata = buildRouteMetadata({
   title: 'Book Mobile Auto Detailing',
   description:
-    'Start a Cruizn Clean booking request with vehicle details, selected services, scheduling, and deposit handoff for Yorba Linda-area mobile detailing.',
+    'Book Cruizn Clean mobile auto detailing for Yorba Linda and surrounding Orange County cities with vehicle details, selected services, scheduling, and deposit checkout.',
   path: '/booking',
 });
 

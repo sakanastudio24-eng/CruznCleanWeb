@@ -47,16 +47,16 @@ export function getHomeServices(): ServiceItem[] {
 export function getHomeResults(): ResultItem[] {
   return [
     {
-      title: 'Paint Clarity Restored',
-      detail: 'Daily-driven paint corrected into a cleaner, sharper finish with stronger gloss and reflection',
+      title: 'Paint Correction Results',
+      detail: 'Daily-driven paint improved into a sharper finish with stronger gloss and reflection',
     },
     {
-      title: 'Interior Reset',
-      detail: 'Cabins reset for cleaner touchpoints, fresher fabric, and a calmer in-car feel',
+      title: 'Interior Detailing Results',
+      detail: 'Cabins cleaned for better touchpoints, fresher fabric, and a more comfortable in-car feel',
     },
     {
-      title: 'Protection Layered',
-      detail: 'Sealants and coatings added to help defend against road film, dust, and Southern California sun exposure',
+      title: 'Ceramic Protection Added',
+      detail: 'Sealants and coatings applied to help defend against road film, dust, and Southern California sun exposure',
     },
   ];
 }
@@ -76,7 +76,7 @@ export function getHomeProcess(): ProcessItem[] {
     },
     {
       title: 'Pay Your Deposit',
-      detail: 'Choose the appointment time and pay the deposit through Stripe after the intake is saved',
+      detail: 'Choose the appointment time and pay the deposit through Stripe after scheduling is confirmed',
     },
   ];
 }

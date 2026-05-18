@@ -4,7 +4,7 @@ import { SITE_PROFILE } from '@/lib/site-profile';
 
 export const SITE_METADATA_TITLE = 'Cruizn Clean | Yorba Linda Mobile Auto Detailing';
 export const SITE_METADATA_DESCRIPTION =
-  'Mobile auto detailing in Yorba Linda and nearby Orange County areas with detail packages, paint correction, ceramic protection, quotes, and online booking.';
+  'Mobile auto detailing in Yorba Linda and surrounding Orange County cities, with interior detailing, exterior detailing, paint correction, ceramic protection, and maintenance services.';
 
 const SOCIAL_IMAGE_ALT = 'Cruizn Clean Yorba Linda mobile auto detailing social preview';
 const OPEN_GRAPH_IMAGE_PATH = '/opengraph-image';

@@ -3,7 +3,7 @@ import { buildRouteMetadata } from '@/lib/seo';
 export const metadata = buildRouteMetadata({
   title: 'Terms of Service',
   description:
-    'Cruizn Clean terms covering appointments, deposits, pricing, weather rescheduling, service limits, and mobile detailing policies.',
+    'Cruizn Clean terms covering mobile auto detailing appointments, deposits, pricing, weather rescheduling, service limits, and customer responsibilities.',
   path: '/terms',
 });
 

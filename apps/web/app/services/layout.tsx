@@ -3,7 +3,7 @@ import { buildRouteMetadata } from '@/lib/seo';
 export const metadata = buildRouteMetadata({
   title: 'Mobile Detailing Services in Yorba Linda',
   description:
-    'Compare Cruizn Clean detail packages, paint correction, ceramic protection services, and add-ons for mobile auto detailing in Yorba Linda and nearby Orange County areas.',
+    'Compare Cruizn Clean interior detailing, exterior detailing, maintenance packages, paint correction, ceramic protection, and add-ons for Yorba Linda and Orange County vehicles.',
   path: '/services',
 });
 

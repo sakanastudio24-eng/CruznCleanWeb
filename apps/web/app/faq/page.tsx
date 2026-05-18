@@ -58,7 +58,7 @@ function getFaqRecords(): FaqRecord[] {
     },
     {
       q: 'Does my deposit need to be confirmed?',
-      a: 'Yes. Deposit confirmation is required before the appointment is treated as locked in.',
+      a: 'Yes. After your Cal.com scheduling step is confirmed, the Pay Deposit button appears. Deposit confirmation is required before the appointment is treated as locked in.',
       category: 'booking',
     },
     {
