@@ -67,14 +67,13 @@ export default function GalleryPage(): JSX.Element {
             >
               <Image
                 src={item.src}
-                alt={item.label}
+                alt={item.alt}
                 className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-2 sm:p-4">
-                <p className="hidden text-[11px] font-semibold uppercase tracking-[0.2em] text-fog sm:block">{item.category.replace('-', ' ')}</p>
                 <p className="text-xs font-semibold leading-tight text-white sm:mt-1 sm:text-sm">{item.label}</p>
                 <p className="mt-1 hidden text-xs leading-snug text-white/70 sm:line-clamp-2 sm:block">{item.description}</p>
               </div>

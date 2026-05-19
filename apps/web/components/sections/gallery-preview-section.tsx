@@ -30,7 +30,7 @@ export function GalleryPreviewSection(): JSX.Element {
             >
               <Image
                 src={item.src}
-                alt={item.label}
+                alt={item.alt}
                 className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
